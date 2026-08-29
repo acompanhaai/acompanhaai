@@ -138,10 +138,16 @@ function DriverApp() {
 
   async function advance(step: (typeof FLOW)[number]) {
     if (!active) return;
-    const { error } = await supabase
-      .from("protocols")
-      .update({ status: step.status, [step.stamp]: new Date().toISOString() })
-      .eq("id", active.id);
+    const now = new Date().toISOString();
+    const patch =
+      step.status === "em_deslocamento"
+        ? { status: step.status, en_route_at: now }
+        : step.status === "chegou"
+          ? { status: step.status, arrived_at: now }
+          : step.status === "em_atendimento"
+            ? { status: step.status, service_started_at: now }
+            : { status: step.status, finished_at: now };
+    const { error } = await supabase.from("protocols").update(patch).eq("id", active.id);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
     else {
       toast.success(STATUS_LABEL[step.status]);
