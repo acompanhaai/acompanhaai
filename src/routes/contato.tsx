@@ -70,10 +70,34 @@ function Contato() {
         </div>
       </header>
       <main className="mx-auto w-full max-w-xl flex-1 px-5 py-12">
-        <h1 className="text-2xl font-bold text-foreground">Vamos conversar</h1>
+        <h1 className="text-2xl font-bold text-foreground">Suporte e contato</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Conte sobre a sua operação e agendamos uma demonstração.
         </p>
+
+        <div className="surface mt-6 space-y-3 p-5 text-sm">
+          <div className="flex items-start gap-3">
+            <Clock className="mt-0.5 size-4 shrink-0 text-primary-strong" />
+            <div>
+              <p className="font-semibold text-foreground">Suporte de segunda a sexta</p>
+              <p className="text-muted-foreground">
+                Atendimento das 8h às 18h (horário de Brasília). Fora desse período, envie sua
+                mensagem que respondemos no próximo dia útil.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <Mail className="mt-0.5 size-4 shrink-0 text-primary-strong" />
+            <div>
+              <p className="font-semibold text-foreground">suporte@acompanhaai.app</p>
+              <p className="text-muted-foreground">
+                Dúvidas, ajustes de cadastro e acompanhamento de protocolos.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <h2 className="mt-8 text-base font-semibold text-foreground">Falar com o time</h2>
         {sent ? (
           <div className="surface mt-6 p-6 text-sm">
             <p className="font-medium text-foreground">Obrigado pelo contato!</p>
