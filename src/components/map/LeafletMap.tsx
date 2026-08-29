@@ -65,15 +65,19 @@ export default function LeafletMap({
     ? [points[0].lat, points[0].lng]
     : [-23.5505, -46.6333];
 
-  const route: Array<[number, number]> =
-    trail.length > 1
-      ? trail
-      : points.length === 2
-        ? [
-            [points[0]!.lat, points[0]!.lng],
-            [points[1]!.lat, points[1]!.lng],
-          ]
-        : [];
+  const cleanTrail = trail.filter((p, i) => {
+    const prev = trail[i - 1];
+    return !prev || prev[0] !== p[0] || prev[1] !== p[1];
+  });
+  const isRealTrail = cleanTrail.length > 1;
+  const route: Array<[number, number]> = isRealTrail
+    ? cleanTrail
+    : points.length === 2
+      ? [
+          [points[0]!.lat, points[0]!.lng],
+          [points[1]!.lat, points[1]!.lng],
+        ]
+      : [];
 
   return (
     <MapContainer
