@@ -93,7 +93,7 @@ export default function LeafletMap({
               weight: 4,
               opacity: 1,
               lineCap: "round",
-              dashArray: trail.length > 1 ? undefined : "1 10",
+              dashArray: trail.length > 1 ? undefined : "8 10",
             }}
           />
         </>
