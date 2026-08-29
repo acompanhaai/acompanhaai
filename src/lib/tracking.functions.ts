@@ -95,3 +95,70 @@ export const getPublicTracking = createServerFn({ method: "GET" })
       trail: (trail ?? []).map((t) => ({ lat: t.lat, lng: t.lng })),
     };
   });
+
+export type TrackingMessage = {
+  id: string;
+  body: string;
+  sender_role: string;
+  sender_name: string | null;
+  created_at: string;
+};
+
+/** Mensagens do chat entre segurado e motorista de um protocolo. */
+export const getTrackingMessages = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => z.object({ query: z.string().trim().min(3).max(40) }).parse(data))
+  .handler(async ({ data }): Promise<TrackingMessage[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { resolveProtocolId } = await import("./tracking.server");
+    const id = await resolveProtocolId(supabaseAdmin, data.query);
+    if (!id) return [];
+    const { data: rows } = await supabaseAdmin
+      .from("messages")
+      .select("id, body, sender_role, sender_name, created_at")
+      .eq("protocol_id", id)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    return rows ?? [];
+  });
+
+/** Envia mensagem do segurado para o motorista/base. */
+export const sendTrackingMessage = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        query: z.string().trim().min(3).max(40),
+        body: z.string().trim().min(1).max(1000),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { resolveProtocolId } = await import("./tracking.server");
+    const id = await resolveProtocolId(supabaseAdmin, data.query);
+    if (!id) return { ok: false };
+    const { error } = await supabaseAdmin.from("messages").insert({
+      protocol_id: id,
+      body: data.body,
+      sender_role: "segurado",
+      sender_name: "Segurado",
+    });
+    return { ok: !error };
+  });
+
+/** Sugere razões sociais já cadastradas com o mesmo CPF/CNPJ. */
+export const suggestCompanies = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) =>
+    z.object({ tax_id: z.string().trim().min(11).max(20) }).parse(data),
+  )
+  .handler(async ({ data }): Promise<string[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const digits = data.tax_id.replace(/\D/g, "");
+    if (digits.length < 11) return [];
+    const { data: rows } = await supabaseAdmin
+      .from("profiles")
+      .select("company")
+      .eq("tax_id", digits)
+      .not("company", "is", null)
+      .limit(5);
+    return Array.from(new Set((rows ?? []).map((r) => r.company).filter(Boolean) as string[]));
+  });
