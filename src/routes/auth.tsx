@@ -216,8 +216,49 @@ function AuthPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="company">Empresa</Label>
-                    <Input id="company" name="company" />
+                    <Label htmlFor="tax_id">CPF ou CNPJ da empresa</Label>
+                    <Input
+                      id="tax_id"
+                      name="tax_id"
+                      inputMode="numeric"
+                      required
+                      value={taxId}
+                      onChange={(e) => setTaxId(e.target.value)}
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Usamos o documento para identificar a empresa da sua base operacional.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Razão social (nome da empresa)</Label>
+                    <Input
+                      id="company"
+                      name="company"
+                      required
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      placeholder="Ex.: Assistência Rodovia 24h LTDA"
+                    />
+                    {suggestions.length > 0 ? (
+                      <div className="space-y-1.5">
+                        <p className="text-xs text-muted-foreground">
+                          Empresas já cadastradas com este documento:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {suggestions.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setCompany(s)}
+                              className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary-strong transition-colors hover:bg-primary/20"
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">E-mail</Label>
@@ -240,13 +281,6 @@ function AuthPage() {
               </TabsContent>
             </Tabs>
           )}
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
-          </div>
-          <Button variant="outline" className="w-full" onClick={handleGoogle}>
-            Continuar com Google
-          </Button>
         </div>
       </main>
     </div>
