@@ -76,7 +76,10 @@ export default function LeafletMap({
       className={className}
       style={{ height: "100%", width: "100%" }}
     >
-      <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+      <TileLayer
+        attribution="&copy; OpenStreetMap"
+        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
       {route.length > 1 ? (
         <>
           <Polyline
