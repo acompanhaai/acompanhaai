@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { onlyDigits } from "@/lib/protocol";
+import { suggestCompanies } from "@/lib/tracking.functions";
 
 const searchSchema = z.object({ mode: z.enum(["login", "signup"]).optional() });
 
@@ -79,7 +80,42 @@ function AuthPage() {
       clearTimeout(t);
     };
   }, [taxId]);
-...
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: String(form.get("email") ?? "").trim(),
+      password: String(form.get("password") ?? ""),
+    });
+    setLoading(false);
+    if (error) {
+      toast.error("Não foi possível entrar", { description: "Verifique e-mail e senha." });
+      return;
+    }
+    toast.success("Bem-vindo de volta!");
+    navigate({ to: "/dashboard" });
+  }
+
+  async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const parsed = signupSchema.safeParse({
+      name: form.get("name"),
+      email: form.get("email"),
+      phone: form.get("phone") || undefined,
+      company: form.get("company"),
+      tax_id: form.get("tax_id"),
+      password: form.get("password"),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
+      return;
+    }
+    if (parsed.data.password !== String(form.get("confirm") ?? "")) {
+      toast.error("As senhas não conferem");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
