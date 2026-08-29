@@ -5,7 +5,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/acompanhar")({
+export const Route = createFileRoute("/acompanhar/")({
   head: () => ({
     meta: [
       { title: "Acompanhar protocolo — AcompanhaAí" },
