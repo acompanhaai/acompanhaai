@@ -750,8 +750,12 @@ function NewDriverDialog() {
     }
     setBusy(true);
     const { error } = await supabase.from("drivers").insert({
-      ...parsed.data,
+      name: parsed.data.name,
       cpf: onlyDigits(parsed.data.cpf),
+      phone: parsed.data.phone ?? null,
+      vehicle: parsed.data.vehicle ?? null,
+      plate: parsed.data.plate ?? null,
+      city: parsed.data.city ?? null,
       status: "disponivel",
     });
     setBusy(false);
