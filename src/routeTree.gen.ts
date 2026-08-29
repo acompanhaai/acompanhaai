@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
+import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,12 +41,18 @@ const AcompanharIndexRoute = AcompanharIndexRouteImport.update({
   path: '/acompanhar/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AcompanharQueryRoute = AcompanharQueryRouteImport.update({
+  id: '/acompanhar/$query',
+  path: '/acompanhar/$query',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar': typeof AcompanharIndexRoute
 }
 export interface FileRoutesById {
@@ -61,15 +69,34 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/contato' | '/reset-password' | '/acompanhar/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/contato'
+    | '/reset-password'
+    | '/acompanhar/$query'
+    | '/acompanhar/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/contato' | '/reset-password' | '/acompanhar'
+  to:
+    | '/'
+    | '/auth'
+    | '/contato'
+    | '/reset-password'
+    | '/acompanhar/$query'
+    | '/acompanhar'
   id:
-    '__root__' | '/' | '/auth' | '/contato' | '/reset-password' | '/acompanhar/'
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/contato'
+    | '/reset-password'
+    | '/acompanhar/$query'
+    | '/acompanhar/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +104,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContatoRoute: typeof ContatoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  AcompanharQueryRoute: typeof AcompanharQueryRoute
   AcompanharIndexRoute: typeof AcompanharIndexRoute
 }
 
@@ -117,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcompanharIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/acompanhar/$query': {
+      id: '/acompanhar/$query'
+      path: '/acompanhar/$query'
+      fullPath: '/acompanhar/$query'
+      preLoaderRoute: typeof AcompanharQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContatoRoute: ContatoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  AcompanharQueryRoute: AcompanharQueryRoute,
   AcompanharIndexRoute: AcompanharIndexRoute,
 }
 export const routeTree = rootRouteImport
