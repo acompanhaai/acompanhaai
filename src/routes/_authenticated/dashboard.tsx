@@ -402,9 +402,9 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
       concluido: "finished_at",
       cancelado: "cancelled_at",
     };
-    const patch: Record<string, unknown> = { status };
+    const now = new Date().toISOString();
     const stamp = stamps[status];
-    if (stamp) patch[stamp] = new Date().toISOString();
+    const patch = { status, ...(stamp ? { [stamp]: now } : {}) };
     const { error } = await supabase.from("protocols").update(patch).eq("id", protocol.id);
     setBusy(false);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
