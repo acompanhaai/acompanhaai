@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { onlyDigits } from "@/lib/protocol";
+import { suggestCompanies } from "@/lib/tracking.functions";
 
 const searchSchema = z.object({ mode: z.enum(["login", "signup"]).optional() });
 
@@ -32,7 +33,14 @@ const signupSchema = z.object({
   name: z.string().trim().min(2, "Informe seu nome").max(120),
   email: z.string().trim().email("E-mail inválido").max(255),
   phone: z.string().trim().max(20).optional(),
-  company: z.string().trim().max(120).optional(),
+  company: z.string().trim().min(2, "Informe a razão social (nome da empresa)").max(120),
+  tax_id: z
+    .string()
+    .trim()
+    .refine((v) => {
+      const d = onlyDigits(v);
+      return d.length === 11 || d.length === 14;
+    }, "Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido"),
   password: z.string().min(8, "Mínimo de 8 caracteres").max(72),
 });
 
@@ -41,6 +49,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const [taxId, setTaxId] = useState("");
+  const [company, setCompany] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -48,6 +59,27 @@ function AuthPage() {
     });
   }, [navigate]);
 
+  useEffect(() => {
+    const digits = onlyDigits(taxId);
+    if (digits.length !== 11 && digits.length !== 14) {
+      setSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    const t = setTimeout(() => {
+      suggestCompanies({ data: { tax_id: digits } })
+        .then((list) => {
+          if (!cancelled) setSuggestions(list);
+        })
+        .catch(() => {
+          if (!cancelled) setSuggestions([]);
+        });
+    }, 350);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [taxId]);
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -72,7 +104,8 @@ function AuthPage() {
       name: form.get("name"),
       email: form.get("email"),
       phone: form.get("phone") || undefined,
-      company: form.get("company") || undefined,
+      company: form.get("company"),
+      tax_id: form.get("tax_id"),
       password: form.get("password"),
     });
     if (!parsed.success) {
@@ -92,7 +125,8 @@ function AuthPage() {
         data: {
           name: parsed.data.name,
           phone: parsed.data.phone ?? null,
-          company: parsed.data.company ?? null,
+          company: parsed.data.company,
+          tax_id: onlyDigits(parsed.data.tax_id),
           role: "operator",
         },
       },
@@ -112,17 +146,6 @@ function AuthPage() {
     }
   }
 
-  async function handleGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Falha no login com Google");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/dashboard" });
-  }
 
   async function handleRecover(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -227,8 +250,49 @@ function AuthPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="company">Empresa</Label>
-                    <Input id="company" name="company" />
+                    <Label htmlFor="tax_id">CPF ou CNPJ da empresa</Label>
+                    <Input
+                      id="tax_id"
+                      name="tax_id"
+                      inputMode="numeric"
+                      required
+                      value={taxId}
+                      onChange={(e) => setTaxId(e.target.value)}
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Usamos o documento para identificar a empresa da sua base operacional.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Razão social (nome da empresa)</Label>
+                    <Input
+                      id="company"
+                      name="company"
+                      required
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      placeholder="Ex.: Assistência Rodovia 24h LTDA"
+                    />
+                    {suggestions.length > 0 ? (
+                      <div className="space-y-1.5">
+                        <p className="text-xs text-muted-foreground">
+                          Empresas já cadastradas com este documento:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {suggestions.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setCompany(s)}
+                              className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary-strong transition-colors hover:bg-primary/20"
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">E-mail</Label>
@@ -251,13 +315,6 @@ function AuthPage() {
               </TabsContent>
             </Tabs>
           )}
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
-          </div>
-          <Button variant="outline" className="w-full" onClick={handleGoogle}>
-            Continuar com Google
-          </Button>
         </div>
       </main>
     </div>

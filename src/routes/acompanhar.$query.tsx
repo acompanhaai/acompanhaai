@@ -1,11 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Phone, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { RefreshCw, Send } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapView, type MapPoint } from "@/components/map/MapView";
-import { getPublicTracking, type PublicTracking } from "@/lib/tracking.functions";
+import { Input } from "@/components/ui/input";
+import {
+  getPublicTracking,
+  getTrackingMessages,
+  sendTrackingMessage,
+  type PublicTracking,
+} from "@/lib/tracking.functions";
 import {
   STATUS_LABEL,
   TIMELINE_ORDER,
@@ -126,7 +133,7 @@ function TrackingPage() {
 
             <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
               <div className="surface overflow-hidden">
-                <div className="h-[380px]">
+                <div className="h-full min-h-[420px]">
                   {points.length > 0 ? (
                     <MapView
                       points={points}
@@ -182,13 +189,9 @@ function TrackingPage() {
                       </p>
                     </div>
                   </div>
-                  <Button asChild variant="outline" className="mt-4 w-full">
-                    <a href="tel:08000000000">
-                      <Phone className="size-4" />
-                      Ligar para a central
-                    </a>
-                  </Button>
                 </div>
+
+                <TrackingChat query={query} driverName={data.driver?.name ?? null} />
 
                 <div className="surface p-5">
                   <h2 className="text-sm font-semibold text-foreground">Linha do tempo</h2>
@@ -222,6 +225,64 @@ function TrackingPage() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+function TrackingChat({ query, driverName }: { query: string; driverName: string | null }) {
+  const messages = useQuery({
+    queryKey: ["tracking-messages", query],
+    queryFn: () => getTrackingMessages({ data: { query } }),
+    refetchInterval: 6000,
+  });
+
+  async function send(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const input = e.currentTarget.elements.namedItem("body") as HTMLInputElement;
+    const body = input.value.trim();
+    if (!body) return;
+    const res = await sendTrackingMessage({ data: { query, body } });
+    if (!res.ok) {
+      toast.error("Mensagem não enviada");
+      return;
+    }
+    input.value = "";
+    messages.refetch();
+  }
+
+  return (
+    <div className="surface p-5">
+      <h2 className="text-sm font-semibold text-foreground">
+        Chat com {driverName ? `o motorista ${driverName}` : "o motorista"}
+      </h2>
+      <div className="mt-3 max-h-52 space-y-2 overflow-y-auto">
+        {(messages.data ?? []).length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Envie uma mensagem para falar direto com quem está no atendimento.
+          </p>
+        ) : (
+          (messages.data ?? []).map((m) => (
+            <div
+              key={m.id}
+              className={`rounded-lg px-3 py-2 text-sm ${
+                m.sender_role === "segurado" ? "bg-primary/10" : "bg-muted"
+              }`}
+            >
+              <p className="text-[11px] text-muted-foreground">
+                {m.sender_role === "segurado" ? "Você" : (m.sender_name ?? m.sender_role)} ·{" "}
+                {formatTime(m.created_at)}
+              </p>
+              <p className="text-foreground">{m.body}</p>
+            </div>
+          ))
+        )}
+      </div>
+      <form className="mt-3 flex gap-2" onSubmit={send}>
+        <Input name="body" placeholder="Escreva sua mensagem" maxLength={1000} />
+        <Button type="submit" size="icon" aria-label="Enviar mensagem">
+          <Send className="size-4" />
+        </Button>
+      </form>
     </div>
   );
 }

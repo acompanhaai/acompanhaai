@@ -76,7 +76,7 @@ function Home() {
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
               Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para o
-              motorista e para o segurado.
+              motorista e para o segurado :)
             </p>
           </div>
         </section>

@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 import { MapView, type MapPoint } from "@/components/map/MapView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -18,7 +19,7 @@ import {
   type ProtocolStatus,
 } from "@/lib/protocol";
 
-export const Route = createFileRoute("/_authenticated/motorista")({
+export const Route = createFileRoute("/motorista")({
   head: () => ({
     meta: [
       { title: "Área do motorista — AcompanhaAí" },
@@ -30,7 +31,8 @@ export const Route = createFileRoute("/_authenticated/motorista")({
       { property: "og:description", content: "App operacional do motorista AcompanhaAí." },
     ],
   }),
-  component: DriverApp,
+  ssr: false,
+  component: DriverGate,
 });
 
 const FLOW: { status: ProtocolStatus; label: string; stamp: string }[] = [
@@ -39,6 +41,84 @@ const FLOW: { status: ProtocolStatus; label: string; stamp: string }[] = [
   { status: "em_atendimento", label: "Iniciar atendimento", stamp: "service_started_at" },
   { status: "concluido", label: "Concluir atendimento", stamp: "finished_at" },
 ];
+
+function DriverGate() {
+  const [session, setSession] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(Boolean(data.session)));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSession(Boolean(s)));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  if (session === null) return <Skeleton className="h-40 w-full" />;
+  if (!session) return <DriverLogin />;
+  return <DriverApp />;
+}
+
+function DriverLogin() {
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: String(form.get("email") ?? "").trim(),
+      password: String(form.get("password") ?? ""),
+    });
+    setLoading(false);
+    if (error) toast.error("Não foi possível entrar", { description: "Verifique seus dados." });
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="border-b border-border">
+        <div className="mx-auto flex h-16 w-full max-w-3xl items-center px-5">
+          <Link to="/">
+            <Logo />
+          </Link>
+        </div>
+      </header>
+      <main className="flex flex-1 items-center justify-center px-5 py-12">
+        <div className="surface w-full max-w-sm p-7">
+          <h1 className="text-xl font-bold text-foreground">Área do Motorista</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Entre com o acesso que a base operacional cadastrou para você.
+          </p>
+          <form className="mt-6 space-y-4" onSubmit={submit}>
+            <div className="space-y-2">
+              <Label htmlFor="driver-email">E-mail de motorista</Label>
+              <Input
+                id="driver-email"
+                name="email"
+                type="email"
+                required
+                autoComplete="username"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="driver-password">Senha</Label>
+              <Input
+                id="driver-password"
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Entrando..." : "Entrar como motorista"}
+            </Button>
+          </form>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Não tem acesso? Peça à base operacional para cadastrar o seu CPF na lista de motoristas.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
 
 function DriverApp() {
   const navigate = useNavigate();
