@@ -32,7 +32,14 @@ const signupSchema = z.object({
   name: z.string().trim().min(2, "Informe seu nome").max(120),
   email: z.string().trim().email("E-mail inválido").max(255),
   phone: z.string().trim().max(20).optional(),
-  company: z.string().trim().max(120).optional(),
+  company: z.string().trim().min(2, "Informe a razão social (nome da empresa)").max(120),
+  tax_id: z
+    .string()
+    .trim()
+    .refine((v) => {
+      const d = onlyDigits(v);
+      return d.length === 11 || d.length === 14;
+    }, "Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido"),
   password: z.string().min(8, "Mínimo de 8 caracteres").max(72),
 });
 
@@ -41,6 +48,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const [taxId, setTaxId] = useState("");
+  const [company, setCompany] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -48,41 +58,28 @@ function AuthPage() {
     });
   }, [navigate]);
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: String(form.get("email") ?? "").trim(),
-      password: String(form.get("password") ?? ""),
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Não foi possível entrar", { description: "Verifique e-mail e senha." });
+  useEffect(() => {
+    const digits = onlyDigits(taxId);
+    if (digits.length !== 11 && digits.length !== 14) {
+      setSuggestions([]);
       return;
     }
-    toast.success("Bem-vindo de volta!");
-    navigate({ to: "/dashboard" });
-  }
-
-  async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const parsed = signupSchema.safeParse({
-      name: form.get("name"),
-      email: form.get("email"),
-      phone: form.get("phone") || undefined,
-      company: form.get("company") || undefined,
-      password: form.get("password"),
-    });
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
-      return;
-    }
-    if (parsed.data.password !== String(form.get("confirm") ?? "")) {
-      toast.error("As senhas não conferem");
-      return;
-    }
+    let cancelled = false;
+    const t = setTimeout(() => {
+      suggestCompanies({ data: { tax_id: digits } })
+        .then((list) => {
+          if (!cancelled) setSuggestions(list);
+        })
+        .catch(() => {
+          if (!cancelled) setSuggestions([]);
+        });
+    }, 350);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [taxId]);
+...
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
@@ -92,7 +89,8 @@ function AuthPage() {
         data: {
           name: parsed.data.name,
           phone: parsed.data.phone ?? null,
-          company: parsed.data.company ?? null,
+          company: parsed.data.company,
+          tax_id: onlyDigits(parsed.data.tax_id),
           role: "operator",
         },
       },
