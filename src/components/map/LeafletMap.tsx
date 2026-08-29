@@ -70,14 +70,18 @@ export default function LeafletMap({
     return !prev || prev[0] !== p[0] || prev[1] !== p[1];
   });
   const isRealTrail = cleanTrail.length > 1;
-  const route: Array<[number, number]> = isRealTrail
-    ? cleanTrail
-    : points.length === 2
-      ? [
-          [points[0]!.lat, points[0]!.lng],
-          [points[1]!.lat, points[1]!.lng],
-        ]
-      : [];
+  const driver = points.find((p) => p.kind === "driver");
+  const client = points.find((p) => p.kind === "client");
+
+  // Trajeto percorrido (quando houver) seguido da ligação estimada até o cliente.
+  const route: Array<[number, number]> = [
+    ...(isRealTrail
+      ? cleanTrail
+      : driver
+        ? [[driver.lat, driver.lng] as [number, number]]
+        : []),
+    ...(client ? [[client.lat, client.lng] as [number, number]] : []),
+  ];
 
   return (
     <MapContainer
