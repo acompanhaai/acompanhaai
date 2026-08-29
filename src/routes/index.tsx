@@ -1,24 +1,118 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Building2, MapPin, Truck } from "lucide-react";
+import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "AcompanhaAí — acompanhamento de assistência 24h em tempo real" },
+      {
+        name: "description",
+        content:
+          "Base operacional, área do motorista e acompanhamento público de protocolos de assistência 24h em tempo real.",
+      },
+      { property: "og:title", content: "AcompanhaAí — assistência 24h em tempo real" },
+      {
+        property: "og:description",
+        content: "Protocolos, motoristas e rastreamento ao vivo em um só lugar.",
+      },
+    ],
+  }),
+  component: Home,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const cards = [
+  {
+    to: "/auth",
+    icon: Building2,
+    title: "Base Operacional",
+    description: "Gestão de protocolos, motoristas e indicadores da operação.",
+  },
+  {
+    to: "/motorista",
+    icon: Truck,
+    title: "Área do Motorista",
+    description: "Aceite, deslocamento e conclusão do atendimento em poucos toques.",
+  },
+  {
+    to: "/acompanhar",
+    icon: MapPin,
+    title: "Acompanhar Protocolo",
+    description: "Veja onde está o guincho, o motorista e o tempo estimado.",
+  },
+] as const;
+
+function Home() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
+          <Logo />
+          <nav className="flex items-center gap-1">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/contato">Contato</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/auth">Login</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/auth" search={{ mode: "signup" }}>
+                Criar conta
+              </Link>
+            </Button>
+          </nav>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        <section className="grid-fade border-b border-border">
+          <div className="mx-auto w-full max-w-3xl px-5 py-20 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong">
+              Assistência 24h em tempo real
+            </span>
+            <h1 className="mt-6 text-4xl font-extrabold leading-tight text-foreground sm:text-5xl">
+              Ninguém mais precisa perguntar onde está o guincho.
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
+              Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para o
+              motorista e para o segurado.
+            </p>
+          </div>
+        </section>
+
+        <section className="mx-auto grid w-full max-w-6xl gap-4 px-5 py-14 md:grid-cols-3">
+          {cards.map((card) => (
+            <Link
+              key={card.title}
+              to={card.to}
+              className="surface group flex flex-col gap-4 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
+            >
+              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/12 text-primary-strong">
+                <card.icon className="size-5" />
+              </span>
+              <div>
+                <h2 className="text-base font-semibold text-foreground">{card.title}</h2>
+                <p className="mt-1.5 text-sm text-muted-foreground">{card.description}</p>
+              </div>
+              <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-primary-strong">
+                Acessar
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
+          ))}
+        </section>
+      </main>
+
+      <footer className="border-t border-border">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-5 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <Logo size={22} />
+          <p>© {new Date().getFullYear()} AcompanhaAí. Todos os direitos reservados.</p>
+          <Link to="/contato" className="hover:text-foreground">
+            Falar com o time
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }
