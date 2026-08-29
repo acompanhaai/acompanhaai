@@ -29,6 +29,15 @@ function icon(kind: MapPoint["kind"]) {
 
 function Fit({ points }: { points: MapPoint[] }) {
   const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(container);
+    map.invalidateSize();
+    return () => observer.disconnect();
+  }, [map]);
+
   useEffect(() => {
     if (points.length === 0) return;
     if (points.length === 1) {
