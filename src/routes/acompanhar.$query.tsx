@@ -133,7 +133,7 @@ function TrackingPage() {
 
             <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
               <div className="surface overflow-hidden">
-                <div className="h-[380px]">
+                <div className="h-full min-h-[420px]">
                   {points.length > 0 ? (
                     <MapView
                       points={points}
