@@ -22,7 +22,7 @@ export function MapView({
 
   return (
     <Suspense fallback={<Skeleton className="h-full w-full" />}>
-      <LeafletMap points={points} trail={trail} className={className} />
+      <LeafletMap points={points} trail={trail ?? []} className={className ?? "h-full w-full"} />
     </Suspense>
   );
 }
