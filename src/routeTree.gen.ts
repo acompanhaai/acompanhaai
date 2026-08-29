@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMotoristaRouteImport } from './routes/_authenticated/motorista'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 
@@ -47,6 +48,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMotoristaRoute = AuthenticatedMotoristaRouteImport.update({
+  id: '/motorista',
+  path: '/motorista',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AcompanharIndexRoute = AcompanharIndexRouteImport.update({
   id: '/acompanhar/',
   path: '/acompanhar/',
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/motorista': typeof AuthenticatedMotoristaRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/motorista': typeof AuthenticatedMotoristaRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar': typeof AcompanharIndexRoute
 }
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/motorista': typeof AuthenticatedMotoristaRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/reset-password'
     | '/dashboard'
+    | '/motorista'
     | '/acompanhar/$query'
     | '/acompanhar/'
   fileRoutesByTo: FileRoutesByTo
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/reset-password'
     | '/dashboard'
+    | '/motorista'
     | '/acompanhar/$query'
     | '/acompanhar'
   id:
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/reset-password'
     | '/_authenticated/dashboard'
+    | '/_authenticated/motorista'
     | '/acompanhar/$query'
     | '/acompanhar/'
   fileRoutesById: FileRoutesById
@@ -172,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/motorista': {
+      id: '/_authenticated/motorista'
+      path: '/motorista'
+      fullPath: '/motorista'
+      preLoaderRoute: typeof AuthenticatedMotoristaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/acompanhar/': {
       id: '/acompanhar/'
       path: '/acompanhar'
@@ -191,10 +210,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMotoristaRoute: typeof AuthenticatedMotoristaRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMotoristaRoute: AuthenticatedMotoristaRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

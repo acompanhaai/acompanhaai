@@ -402,9 +402,9 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
       concluido: "finished_at",
       cancelado: "cancelled_at",
     };
-    const patch: Record<string, unknown> = { status };
+    const now = new Date().toISOString();
     const stamp = stamps[status];
-    if (stamp) patch[stamp] = new Date().toISOString();
+    const patch = { status, ...(stamp ? { [stamp]: now } : {}) };
     const { error } = await supabase.from("protocols").update(patch).eq("id", protocol.id);
     setBusy(false);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
@@ -618,9 +618,21 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
     setBusy(true);
     const { data: auth } = await supabase.auth.getUser();
     const driverId = String(raw["driver_id"] ?? "");
+    const d = parsed.data;
     const { error } = await supabase.from("protocols").insert({
-      ...parsed.data,
-      client_cpf: parsed.data.client_cpf ? onlyDigits(parsed.data.client_cpf) : null,
+      number: "",
+      client_name: d.client_name,
+      client_phone: d.client_phone ?? null,
+      client_cpf: d.client_cpf ? onlyDigits(d.client_cpf) : null,
+      insurer: d.insurer ?? null,
+      service_type: d.service_type,
+      priority: d.priority,
+      origin: d.origin,
+      destination: d.destination ?? null,
+      city: d.city ?? null,
+      origin_lat: d.origin_lat ?? null,
+      origin_lng: d.origin_lng ?? null,
+      notes: d.notes ?? null,
       driver_id: driverId || null,
       status: driverId ? "aceito" : "aguardando_aceite",
       accepted_at: driverId ? new Date().toISOString() : null,
@@ -738,8 +750,12 @@ function NewDriverDialog() {
     }
     setBusy(true);
     const { error } = await supabase.from("drivers").insert({
-      ...parsed.data,
+      name: parsed.data.name,
       cpf: onlyDigits(parsed.data.cpf),
+      phone: parsed.data.phone ?? null,
+      vehicle: parsed.data.vehicle ?? null,
+      plate: parsed.data.plate ?? null,
+      city: parsed.data.city ?? null,
       status: "disponivel",
     });
     setBusy(false);
