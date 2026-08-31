@@ -424,6 +424,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_driver_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -431,6 +432,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "operator" | "driver"
