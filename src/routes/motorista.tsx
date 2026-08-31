@@ -405,11 +405,15 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
     const body = input.value.trim();
     if (!body) return;
     const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) {
+      toast.error("Sessão expirada", { description: "Entre novamente para enviar mensagens." });
+      return;
+    }
     const { error } = await supabase.from("messages").insert({
       protocol_id: protocolId,
       body: body.slice(0, 1000),
       sender_role: "motorista",
-      sender_id: auth.user?.id ?? null,
+      sender_id: auth.user.id,
       sender_name: driverName,
     });
     if (error) toast.error("Mensagem não enviada", { description: error.message });
