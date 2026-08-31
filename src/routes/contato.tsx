@@ -74,8 +74,6 @@ function Contato() {
         <p className="mt-2 text-sm text-muted-foreground">
           Conte sobre a sua operação e agendamos uma demonstração.
         </p>
-
-        <h2 className="mt-8 text-base font-semibold text-foreground">Enviar mensagem</h2>
         {sent ? (
           <div className="surface mt-6 p-6 text-sm">
             <p className="font-medium text-foreground">Obrigado pelo contato!</p>
