@@ -51,9 +51,6 @@ function Home() {
           <Logo />
           <nav className="flex items-center gap-1">
             <Button asChild variant="ghost" size="sm">
-              <Link to="/contato">Contato</Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
               <Link to="/auth">Login</Link>
             </Button>
             <Button asChild size="sm">
