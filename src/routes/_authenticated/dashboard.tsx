@@ -780,6 +780,7 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
 
 function NewDriverDialog() {
   const queryClient = useQueryClient();
+  const createDriverFn = useServerFn(createDriver);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -792,24 +793,16 @@ function NewDriverDialog() {
       return;
     }
     setBusy(true);
-    const { error } = await supabase.from("drivers").insert({
-      re: parsed.data.re,
-      name: parsed.data.name,
-      cpf: onlyDigits(parsed.data.cpf),
-      phone: parsed.data.phone ? onlyDigits(parsed.data.phone) : null,
-      vehicle: parsed.data.vehicle ?? null,
-      plate: parsed.data.plate ?? null,
-      city: parsed.data.city ?? null,
-      status: "disponivel",
-    });
-    setBusy(false);
-    if (error) {
-      toast.error("Não foi possível cadastrar", { description: error.message });
-      return;
+    try {
+      await createDriverFn({ data: parsed.data });
+      toast.success("Motorista cadastrado");
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível cadastrar");
+    } finally {
+      setBusy(false);
     }
-    toast.success("Motorista cadastrado");
-    setOpen(false);
-    queryClient.invalidateQueries({ queryKey: ["drivers"] });
   }
 
   return (
