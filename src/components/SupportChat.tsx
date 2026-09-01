@@ -114,7 +114,7 @@ export function SupportChat() {
                 className={
                   message.role === "user"
                     ? "max-w-[88%] break-words rounded-lg bg-primary px-3 py-2 text-sm leading-6 text-primary-foreground"
-                    : "max-w-[92%] break-words rounded-lg bg-muted px-3 py-3 text-sm leading-6 text-foreground [&_a]:text-primary [&_a]:underline [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5",
+                    : "max-w-[92%] break-words rounded-lg bg-muted px-3 py-3 text-sm leading-6 text-foreground [&_a]:text-primary [&_a]:underline [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
                 }
               >
                 {message.content ? (
