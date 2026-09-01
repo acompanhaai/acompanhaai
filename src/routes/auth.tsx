@@ -255,7 +255,6 @@ function AuthPage() {
                       required
                       value={taxId}
                       onChange={(e) => setTaxId(e.target.value)}
-                      placeholder="CNPJ ou CPF"
                     />
                     <p className="text-xs text-muted-foreground">
                       Usamos o documento para identificar a empresa da sua base operacional.
