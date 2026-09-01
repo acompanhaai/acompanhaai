@@ -24,6 +24,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
+import { Route as SuporteIndexRouteImport } from './routes/suporte.index'
 import { Route as SuporteAssistenteRouteImport } from './routes/suporte.assistente'
 
 const IndexRoute = IndexRouteImport.update({
@@ -100,6 +101,11 @@ const ApiSupportChatRoute = ApiSupportChatRouteImport.update({
   path: '/api/support-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuporteIndexRoute = SuporteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SuporteRoute,
+} as any)
 const SuporteAssistenteRoute = SuporteAssistenteRouteImport.update({
   id: '/assistente',
   path: '/assistente',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/api/support-chat': typeof ApiSupportChatRoute
   '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar/': typeof AcompanharIndexRoute
+  '/suporte/': typeof SuporteIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,13 +139,13 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
-  '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar': typeof AcompanharIndexRoute
+  '/suporte': typeof SuporteIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -158,6 +165,7 @@ export interface FileRoutesById {
   '/api/support-chat': typeof ApiSupportChatRoute
   '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar/': typeof AcompanharIndexRoute
+  '/suporte/': typeof SuporteIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -177,6 +185,7 @@ export interface FileRouteTypes {
     | '/api/support-chat'
     | '/suporte/assistente'
     | '/acompanhar/'
+    | '/suporte/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,13 +196,13 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/sobre'
-    | '/suporte'
     | '/termos'
     | '/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/suporte/assistente'
     | '/acompanhar'
+    | '/suporte'
   id:
     | '__root__'
     | '/'
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/api/support-chat'
     | '/suporte/assistente'
     | '/acompanhar/'
+    | '/suporte/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -338,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSupportChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/suporte/': {
+      id: '/suporte/'
+      path: '/'
+      fullPath: '/suporte/'
+      preLoaderRoute: typeof SuporteIndexRouteImport
+      parentRoute: typeof SuporteRoute
+    }
     '/suporte/assistente': {
       id: '/suporte/assistente'
       path: '/assistente'
@@ -361,10 +378,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface SuporteRouteChildren {
   SuporteAssistenteRoute: typeof SuporteAssistenteRoute
+  SuporteIndexRoute: typeof SuporteIndexRoute
 }
 
 const SuporteRouteChildren: SuporteRouteChildren = {
   SuporteAssistenteRoute: SuporteAssistenteRoute,
+  SuporteIndexRoute: SuporteIndexRoute,
 }
 
 const SuporteRouteWithChildren =
