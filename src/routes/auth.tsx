@@ -238,7 +238,7 @@ function AuthPage() {
                 <form className="space-y-4" onSubmit={handleSignup}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Nome</Label>
+                      <Label htmlFor="name">Nome do responsável</Label>
                       <Input id="name" name="name" required />
                     </div>
                     <div className="space-y-2">
@@ -247,7 +247,7 @@ function AuthPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tax_id">CPF ou CNPJ da empresa</Label>
+                    <Label htmlFor="tax_id">CNPJ ou CPF&nbsp;</Label>
                     <Input
                       id="tax_id"
                       name="tax_id"
@@ -262,7 +262,7 @@ function AuthPage() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="company">Razão social (nome da empresa)</Label>
+                    <Label htmlFor="company">Razão social</Label>
                     <Input
                       id="company"
                       name="company"
