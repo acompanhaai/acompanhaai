@@ -52,6 +52,7 @@ function AuthPage() {
   const [taxId, setTaxId] = useState("");
   const [company, setCompany] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -177,7 +178,9 @@ function AuthPage() {
         <div className="surface w-full max-w-md p-7">
           <h1 className="text-xl font-bold text-foreground">Base Operacional</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-             Crie sua conta e comece a gerenciar sua operação em um só lugar.
+             {activeTab === "signup"
+               ? "Crie sua conta e comece a gerenciar sua operação em um só lugar."
+               : "Acesse o painel de gestão da sua operação."}
           </p>
 
           {recovering ? (
@@ -199,7 +202,7 @@ function AuthPage() {
               </Button>
             </form>
           ) : (
-            <Tabs defaultValue={mode === "signup" ? "signup" : "login"} className="mt-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Entrar</TabsTrigger>
                 <TabsTrigger value="signup">Criar conta</TabsTrigger>
