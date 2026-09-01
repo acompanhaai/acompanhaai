@@ -10,6 +10,12 @@ export type PublicTracking = {
   status: string;
   client_name: string;
   origin: string;
+  address_cep: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  address_complement: string | null;
+  address_district: string | null;
+  address_state: string | null;
   destination: string | null;
   service_type: string | null;
   insurer: string | null;
@@ -21,6 +27,7 @@ export type PublicTracking = {
   finished_at: string | null;
   origin_lat: number | null;
   origin_lng: number | null;
+  confirmation_code: string | null;
   driver: {
     name: string;
     photo_url: string | null;
@@ -43,7 +50,7 @@ export const getPublicTracking = createServerFn({ method: "GET" })
     let builder = supabaseAdmin
       .from("protocols")
       .select(
-        "id, number, status, client_name, client_cpf, origin, destination, service_type, insurer, created_at, accepted_at, en_route_at, arrived_at, service_started_at, finished_at, origin_lat, origin_lng, driver_id",
+        "id, number, status, client_name, client_cpf, origin, address_cep, address_street, address_number, address_complement, address_district, address_state, destination, service_type, insurer, created_at, accepted_at, en_route_at, arrived_at, service_started_at, finished_at, origin_lat, origin_lng, driver_id",
       )
       .order("created_at", { ascending: false })
       .limit(1);
@@ -75,11 +82,27 @@ export const getPublicTracking = createServerFn({ method: "GET" })
       .order("created_at", { ascending: true })
       .limit(200);
 
+    let confirmation_code: string | null = null;
+    if (["em_deslocamento", "chegou", "em_atendimento"].includes(p.status)) {
+      const { data: codeRow } = await supabaseAdmin
+        .from("protocol_codes")
+        .select("code")
+        .eq("protocol_id", p.id)
+        .maybeSingle();
+      confirmation_code = codeRow?.code ?? null;
+    }
+
     return {
       number: p.number,
       status: p.status,
       client_name: p.client_name,
       origin: p.origin,
+      address_cep: p.address_cep,
+      address_street: p.address_street,
+      address_number: p.address_number,
+      address_complement: p.address_complement,
+      address_district: p.address_district,
+      address_state: p.address_state,
       destination: p.destination,
       service_type: p.service_type,
       insurer: p.insurer,
@@ -91,6 +114,7 @@ export const getPublicTracking = createServerFn({ method: "GET" })
       finished_at: p.finished_at,
       origin_lat: p.origin_lat,
       origin_lng: p.origin_lng,
+      confirmation_code,
       driver,
       trail: (trail ?? []).map((t) => ({ lat: t.lat, lng: t.lng })),
     };

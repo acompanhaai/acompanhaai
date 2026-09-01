@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { finishWithCode } from "@/lib/atendimento.functions";
 import {
   STATUS_LABEL,
   formatTime,
@@ -39,7 +41,6 @@ const FLOW: { status: ProtocolStatus; label: string; stamp: string }[] = [
   { status: "em_deslocamento", label: "Iniciar deslocamento", stamp: "en_route_at" },
   { status: "chegou", label: "Cheguei ao local", stamp: "arrived_at" },
   { status: "em_atendimento", label: "Iniciar atendimento", stamp: "service_started_at" },
-  { status: "concluido", label: "Concluir atendimento", stamp: "finished_at" },
 ];
 
 function DriverGate() {
@@ -125,6 +126,10 @@ function DriverApp() {
   const queryClient = useQueryClient();
   const [sharing, setSharing] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [finishOpen, setFinishOpen] = useState(false);
+  const [finishCode, setFinishCode] = useState("");
+  const [finishBusy, setFinishBusy] = useState(false);
+  const finishWithCodeFn = useServerFn(finishWithCode);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const driver = useQuery({
@@ -224,19 +229,33 @@ function DriverApp() {
         ? { status: step.status, en_route_at: now }
         : step.status === "chegou"
           ? { status: step.status, arrived_at: now }
-          : step.status === "em_atendimento"
-            ? { status: step.status, service_started_at: now }
-            : { status: step.status, finished_at: now };
+          : { status: step.status, service_started_at: now };
     const { error } = await supabase.from("protocols").update(patch).eq("id", active.id);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
     else {
       toast.success(STATUS_LABEL[step.status]);
-      if (step.status === "concluido") {
-        setSharing(false);
-        await supabase.from("drivers").update({ status: "disponivel" }).eq("id", driver.data!.id);
-      }
       queryClient.invalidateQueries({ queryKey: ["driver-protocols"] });
     }
+  }
+
+  async function finish() {
+    if (!active || !/^\d{4}$/.test(finishCode)) {
+      toast.error("Digite o código de 4 dígitos informado pelo cliente.");
+      return;
+    }
+    setFinishBusy(true);
+    const result = await finishWithCodeFn({ data: { protocolId: active.id, code: finishCode } });
+    setFinishBusy(false);
+    if (!result.ok) {
+      toast.error("Não foi possível finalizar", { description: result.error });
+      return;
+    }
+    setFinishOpen(false);
+    setFinishCode("");
+    setSharing(false);
+    toast.success("Atendimento finalizado");
+    queryClient.invalidateQueries({ queryKey: ["driver-protocols"] });
+    queryClient.invalidateQueries({ queryKey: ["me-driver"] });
   }
 
   async function signOut() {
@@ -287,7 +306,7 @@ function DriverApp() {
               <div>
                 <h1 className="text-xl font-bold text-foreground">Olá, {driver.data.name}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {driver.data.vehicle ?? "Veículo"} · {driver.data.plate ?? "—"}
+                  RE {driver.data.re} · {driver.data.vehicle ?? "Veículo"} · {driver.data.plate ?? "—"}
                 </p>
               </div>
               <Button
@@ -330,17 +349,53 @@ function DriverApp() {
                 ) : null}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {FLOW.map((step) => (
+                  {FLOW.filter((step) => {
+                    const order = ["aceito", "em_deslocamento", "chegou", "em_atendimento"];
+                    return order.indexOf(step.status) === order.indexOf(active.status) + 1;
+                  }).map((step) => (
                     <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)}>
                       {step.label}
                     </Button>
                   ))}
+                  {active.status === "em_atendimento" ? (
+                    <Button size="sm" onClick={() => setFinishOpen(true)}>
+                      Finalizar atendimento
+                    </Button>
+                  ) : null}
                   {active.client_phone ? (
                     <Button asChild size="sm" variant="outline">
                       <a href={`tel:${active.client_phone}`}>Ligar para o cliente</a>
                     </Button>
                   ) : null}
                 </div>
+
+                {finishOpen ? (
+                  <div className="mt-4 rounded-lg border border-warning/30 bg-warning/10 p-4">
+                    <p className="text-sm font-semibold text-foreground">Atenção</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      O atendimento só pode ser finalizado após a confirmação do cliente.
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-end gap-2">
+                      <div className="min-w-48 flex-1 space-y-2">
+                        <Label htmlFor="finish-code">Digite o código de 4 dígitos informado pelo cliente</Label>
+                        <Input
+                          id="finish-code"
+                          value={finishCode}
+                          onChange={(event) => setFinishCode(onlyDigits(event.target.value).slice(0, 4))}
+                          inputMode="numeric"
+                          maxLength={4}
+                          autoComplete="off"
+                        />
+                      </div>
+                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4}>
+                        {finishBusy ? "Validando..." : "Confirmar e finalizar"}
+                      </Button>
+                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
 
                 {points.length > 0 ? (
                   <div className="mt-4 h-64 overflow-hidden rounded-lg">
