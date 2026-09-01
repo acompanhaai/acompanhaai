@@ -170,9 +170,6 @@ function AuthPage() {
           <Link to="/">
             <Logo />
           </Link>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/motorista">Sou motorista</Link>
-          </Button>
         </div>
       </header>
 
