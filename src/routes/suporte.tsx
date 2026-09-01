@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown, MessageCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SupportChat } from "@/components/SupportChat";
-import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ARTICLES = [
   {
@@ -120,7 +121,6 @@ export const Route = createFileRoute("/suporte")({
 
 function Suporte() {
   const [openId, setOpenId] = useState<string | null>(null);
-  const [showChat, setShowChat] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -131,65 +131,60 @@ function Suporte() {
           Encontre respostas rápidas sobre o AcompanhaAí. Se não encontrar o que precisa, nosso assistente está disponível.
         </p>
 
-        <section className="mt-10 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Soluções mais buscadas</h2>
-          <div className="grid gap-4">
-            {ARTICLES.map((article) => {
-              const isOpen = openId === article.id;
-              return (
-                <Card key={article.id} className="overflow-hidden">
-                  <CardHeader className="p-4">
-                    <button
-                      type="button"
-                      onClick={() => setOpenId(isOpen ? null : article.id)}
-                      className="flex w-full items-center justify-between text-left"
-                      aria-expanded={isOpen}
-                    >
-                      <CardTitle className="text-base font-medium">{article.title}</CardTitle>
-                      <ChevronDown
-                        className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    <p className="mt-1 text-sm text-muted-foreground">{article.summary}</p>
-                  </CardHeader>
-                  {isOpen ? (
-                    <CardContent className="px-4 pb-4 pt-0">
-                      <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground">
-                        {article.steps.map((step, index) => (
-                          <li key={index}>{step}</li>
-                        ))}
-                      </ol>
-                    </CardContent>
-                  ) : null}
-                </Card>
-              );
-            })}
-          </div>
-        </section>
+        <Tabs defaultValue="solucoes" className="mt-10">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="solucoes">Soluções</TabsTrigger>
+            <TabsTrigger value="assistente">Assistente</TabsTrigger>
+          </TabsList>
 
-        <section className="mt-12 rounded-lg border border-border bg-muted/50 p-6">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Ainda precisa de ajuda?</h2>
+          <TabsContent value="solucoes" className="mt-6 space-y-4">
+            <h2 className="text-lg font-semibold text-foreground">Soluções mais buscadas</h2>
+            <div className="grid gap-4">
+              {ARTICLES.map((article) => {
+                const isOpen = openId === article.id;
+                return (
+                  <Card key={article.id} className="overflow-hidden">
+                    <CardHeader className="p-4">
+                      <button
+                        type="button"
+                        onClick={() => setOpenId(isOpen ? null : article.id)}
+                        className="flex w-full items-center justify-between text-left"
+                        aria-expanded={isOpen}
+                      >
+                        <CardTitle className="text-base font-medium">{article.title}</CardTitle>
+                        <ChevronDown
+                          className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      <p className="mt-1 text-sm text-muted-foreground">{article.summary}</p>
+                    </CardHeader>
+                    {isOpen ? (
+                      <CardContent className="px-4 pb-4 pt-0">
+                        <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground">
+                          {article.steps.map((step, index) => (
+                            <li key={index}>{step}</li>
+                          ))}
+                        </ol>
+                      </CardContent>
+                    ) : null}
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="assistente" className="mt-6">
+            <div className="rounded-lg border border-border bg-muted/50 p-4 sm:p-6">
+              <h2 className="text-lg font-semibold text-foreground">Falar com o assistente</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Nosso assistente de IA pode tirar dúvidas mais específicas sobre a plataforma.
+                Tire dúvidas específicas sobre sua conta e a plataforma.
               </p>
+              <div className="mt-5">
+                <SupportChat />
+              </div>
             </div>
-            <Button
-              type="button"
-              variant={showChat ? "secondary" : "default"}
-              onClick={() => setShowChat((value) => !value)}
-            >
-              <MessageCircle className="mr-2 h-4 w-4" />
-              {showChat ? "Fechar conversa" : "Falar com o assistente"}
-            </Button>
-          </div>
-          {showChat ? (
-            <div className="mt-6">
-              <SupportChat />
-            </div>
-          ) : null}
-        </section>
+          </TabsContent>
+        </Tabs>
       </main>
       <SiteFooter />
     </div>

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +21,23 @@ export function SupportChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  function renderAssistantMessage(content: string) {
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+          ul: ({ children }) => <ul className="mb-2 list-disc space-y-1 pl-5 last:mb-0">{children}</ul>,
+          ol: ({ children }) => <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0">{children}</ol>,
+          li: ({ children }) => <li>{children}</li>,
+          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
+  }
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -77,7 +96,7 @@ export function SupportChat() {
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Time AcompanhaAí</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Estamos aqui para te ajudar, pergunte o que precisar!<br />
+          Estamos aqui para te ajudar, pergunte o que precisar!
         </p>
       </div>
 
@@ -111,7 +130,7 @@ export function SupportChat() {
                     : "max-w-[85%] whitespace-pre-wrap rounded-lg bg-muted px-3 py-2 text-sm text-foreground"
                 }
               >
-                {message.content || "…"}
+                {message.role === "assistant" ? renderAssistantMessage(message.content || "…") : message.content}
               </div>
             </div>
           ))
