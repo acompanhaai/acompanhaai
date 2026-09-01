@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Logo } from "@/components/Logo";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,13 +12,19 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/contato")({
   head: () => ({
     meta: [
-      { title: "Contato — AcompanhaAí" },
+      { title: "Falar com o time — AcompanhaAí" },
       {
         name: "description",
-        content: "Fale com o time do AcompanhaAí e agende uma demonstração da plataforma.",
+        content:
+          "Envie uma mensagem para o time do AcompanhaAí e entenda como a plataforma pode funcionar na sua operação.",
       },
-      { property: "og:title", content: "Contato — AcompanhaAí" },
-      { property: "og:description", content: "Agende uma demonstração do AcompanhaAí." },
+      { property: "og:title", content: "Falar com o time — AcompanhaAí" },
+      {
+        property: "og:description",
+        content: "Fale com o time do AcompanhaAí sobre a sua operação.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Contato,
@@ -25,13 +32,19 @@ export const Route = createFileRoute("/contato")({
 
 const schema = z.object({
   name: z.string().trim().min(2, "Informe seu nome").max(120),
+  company: z.string().trim().min(2, "Informe a empresa").max(120),
   email: z.string().trim().email("E-mail inválido").max(255),
-  company: z.string().trim().max(120).optional(),
+  phone: z.string().trim().min(8, "Informe um telefone válido").max(20),
   message: z.string().trim().min(10, "Conte um pouco mais").max(1000),
 });
 
+// Canais alternativos: preencher quando definidos.
+const channels: { label: string; value: string | null }[] = [
+  { label: "E-mail", value: null },
+  { label: "WhatsApp", value: null },
+];
+
 function Contato() {
-  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -39,78 +52,75 @@ function Contato() {
     const form = new FormData(e.currentTarget);
     const parsed = schema.safeParse({
       name: form.get("name"),
+      company: form.get("company"),
       email: form.get("email"),
-      company: form.get("company") || undefined,
+      phone: form.get("phone"),
       message: form.get("message"),
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
       return;
     }
-    setSending(true);
-    const subject = encodeURIComponent(`Demonstração AcompanhaAí — ${parsed.data.name}`);
-    const body = encodeURIComponent(
-      `Nome: ${parsed.data.name}\nE-mail: ${parsed.data.email}\nEmpresa: ${
-        parsed.data.company ?? "—"
-      }\n\n${parsed.data.message}`,
-    );
-    window.location.href = `mailto:contato@acompanhaai.app?subject=${subject}&body=${body}`;
-    setSending(false);
     setSent(true);
-    toast.success("Mensagem preparada", { description: "Finalize o envio no seu app de e-mail." });
+    toast.success("Mensagem registrada", {
+      description: "Nosso time entrará em contato em breve.",
+    });
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-5">
-          <Link to="/">
-            <Logo />
-          </Link>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-xl flex-1 px-5 py-12">
-        <h1 className="text-2xl font-bold text-foreground">Falar com o time</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Conte sobre a sua operação e agendamos uma demonstração.
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-md flex-1 px-5 py-16">
+        <h1 className="text-3xl font-bold text-foreground">Falar com o time</h1>
+        <p className="mt-4 text-base text-muted-foreground">
+          Quer conhecer o AcompanhaAí ou entender como ele pode funcionar na sua operação? Envie uma
+          mensagem.
         </p>
+
         {sent ? (
-          <div className="surface mt-6 p-6 text-sm">
-            <p className="font-medium text-foreground">Obrigado pelo contato!</p>
-            <p className="mt-1 text-muted-foreground">
-              Responderemos em até um dia útil. Enquanto isso, você pode criar sua conta e explorar
-              a base operacional.
-            </p>
-            <Button asChild className="mt-4">
-              <Link to="/auth" search={{ mode: "signup" }}>
-                Criar conta
-              </Link>
-            </Button>
-          </div>
+          <p className="mt-10 text-sm text-muted-foreground">
+            Obrigado pelo contato. Recebemos a sua mensagem e o time responderá em breve.
+          </p>
         ) : (
-          <form className="surface mt-6 space-y-4 p-6" onSubmit={submit}>
+          <form className="mt-10 space-y-5" onSubmit={submit}>
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
               <Input id="name" name="name" required maxLength={120} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company">Empresa</Label>
+              <Input id="company" name="company" required maxLength={120} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <Input id="email" name="email" type="email" required maxLength={255} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company">Empresa</Label>
-              <Input id="company" name="company" maxLength={120} />
+              <Label htmlFor="phone">Telefone</Label>
+              <Input id="phone" name="phone" type="tel" required maxLength={20} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="message">Mensagem</Label>
               <Textarea id="message" name="message" rows={5} required maxLength={1000} />
             </div>
-            <Button type="submit" className="w-full" disabled={sending}>
-              {sending ? "Enviando..." : "Enviar mensagem"}
+            <Button type="submit" className="w-full">
+              Enviar mensagem
             </Button>
           </form>
         )}
+
+        <div className="mt-12 border-t border-border pt-6">
+          <h2 className="text-sm font-semibold text-foreground">Prefere outro canal?</h2>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+            {channels.map((channel) => (
+              <li key={channel.label}>
+                {channel.label}: {channel.value ?? "[a definir]"}
+              </li>
+            ))}
+          </ul>
+        </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
