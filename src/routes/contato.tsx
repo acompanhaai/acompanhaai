@@ -38,11 +38,6 @@ const schema = z.object({
   message: z.string().trim().min(10, "Conte um pouco mais").max(1000),
 });
 
-// Canais alternativos: preencher quando definidos.
-const channels: { label: string; value: string | null }[] = [
-  { label: "E-mail", value: null },
-  { label: "WhatsApp", value: null },
-];
 
 function Contato() {
   const [sent, setSent] = useState(false);
