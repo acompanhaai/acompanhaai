@@ -70,6 +70,7 @@ const ARTICLES = [
       "Start: 100 solicitações por mês.",
       "Growth: 500 solicitações por mês.",
       "Scale: 2.000 solicitações por mês.",
+
       "Você pode fazer upgrade a qualquer momento no painel.",
     ],
   },

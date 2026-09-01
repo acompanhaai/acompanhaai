@@ -41,17 +41,28 @@ export const Route = createFileRoute("/planos")({
 
 const faq = [
   {
-    q: "O plano Free é realmente gratuito?",
-    a: "Sim. O plano Free custa R$ 0 por mês e permite até 10 solicitações mensais. Não exige cartão de crédito e não é um período de teste.",
+    q: "O plano Acompanha é realmente gratuito?",
+    a: "Sim. O plano Acompanha custa R$ 0/mês e permite acompanhar até 10 solicitações por mês. Não é necessário cartão de crédito para começar.",
   },
   {
     q: "O que acontece quando eu atingir o limite?",
-    a: "Você pode esperar o próximo ciclo mensal ou fazer upgrade para continuar criando solicitações. As solicitações já abertas continuam funcionando normalmente.",
+    a: "Ao atingir o limite mensal de solicitações, novos protocolos não poderão ser criados até o próximo ciclo ou até que você faça upgrade para um plano com maior capacidade. As solicitações que já estão em andamento continuam funcionando normalmente.",
   },
-  { q: "Posso fazer upgrade quando quiser?", a: "Sim, a qualquer momento." },
-  { q: "Posso fazer downgrade?", a: "Sim, de acordo com as regras da assinatura." },
+  {
+    q: "Quais formas de pagamento estão disponíveis?",
+    a: "Os planos pagos poderão ser contratados por cartão de crédito, Pix e, quando disponível, boleto.",
+  },
+  {
+    q: "Posso fazer upgrade quando quiser?",
+    a: "Sim. Você pode fazer upgrade para um plano superior quando precisar de mais solicitações ou recursos.",
+  },
+  {
+    q: "Posso fazer downgrade?",
+    a: "Sim, desde que o plano desejado esteja disponível para sua conta e respeitando as condições de cobrança aplicáveis.",
+  },
   { q: "O que é uma solicitação?", a: requestDefinition },
 ];
+
 
 function Planos() {
   return (
@@ -68,19 +79,17 @@ function Planos() {
         </header>
 
         <section className="mt-10 rounded-xl border border-border p-5">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            {plans.map((plan, i) => (
-              <span key={plan.id} className="flex items-center gap-3">
-                {i > 0 ? <span className="text-muted-foreground">→</span> : null}
-                <span className="text-sm">
-                  <span className="font-semibold text-foreground">
-                    {formatRequests(plan.requests)}
-                  </span>{" "}
-                  <span className="text-muted-foreground">{plan.name}</span>
-                </span>
-              </span>
-            ))}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+            <span className="font-semibold text-foreground">10</span>
+            <span className="text-muted-foreground">→</span>
+            <span className="font-semibold text-foreground">100</span>
+            <span className="text-muted-foreground">→</span>
+            <span className="font-semibold text-foreground">500</span>
+            <span className="text-muted-foreground">→</span>
+            <span className="font-semibold text-foreground">2.000</span>
+            <span className="text-muted-foreground">solicitações/mês</span>
           </div>
+
           <p className="mt-3 text-sm text-muted-foreground">
             O principal limite de cada plano é a quantidade de solicitações por mês.{" "}
             {requestDefinition}
@@ -93,8 +102,9 @@ function Planos() {
               key={plan.id}
               className={cn(
                 "flex flex-col rounded-xl border border-border p-5",
-                plan.highlight && "border-primary/50",
+                plan.highlight && "border-primary/50 ring-1 ring-primary/30",
               )}
+
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
@@ -110,11 +120,15 @@ function Planos() {
                 {formatPrice(plan.price)}
                 <span className="text-sm font-normal text-muted-foreground">/mês</span>
               </p>
+              {plan.price > 0 ? (
+                <p className="mt-1 text-xs text-muted-foreground">Cartão, Pix ou boleto</p>
+              ) : null}
+
               <p className="mt-2 text-sm text-muted-foreground">{plan.tagline}</p>
               <p className="mt-4 text-sm font-medium text-foreground">
                 {formatRequests(plan.requests)} solicitações por mês
               </p>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2">
                     <Check className="mt-0.5 size-4 shrink-0 text-primary-strong" />
@@ -123,6 +137,7 @@ function Planos() {
                 ))}
               </ul>
               <div className="mt-6 pt-2">
+
                 <Button
                   asChild
                   className="w-full"
@@ -140,10 +155,26 @@ function Planos() {
           ))}
         </section>
 
+        <section className="mt-6 rounded-xl border border-border p-5">
+          <h2 className="text-sm font-semibold text-foreground">Formas de pagamento</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Os planos pagos poderão ser contratados de forma simples e online por:
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2 text-sm text-muted-foreground">
+            {["Cartão de crédito", "Pix", "Boleto, quando disponível"].map((item) => (
+              <li key={item} className="rounded-full border border-border px-3 py-1">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+
+
         <section className="mt-16">
           <h2 className="text-lg font-semibold text-foreground">Compare os planos</h2>
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[520px] border-collapse text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
                   <th className="py-2 pr-4 font-medium text-muted-foreground">Recurso</th>
@@ -163,14 +194,18 @@ function Planos() {
                         {typeof value === "string" ? (
                           value
                         ) : value ? (
-                          <Check className="size-4 text-primary-strong" aria-label="Incluído" />
+                          <span className="inline-flex items-center gap-1.5">
+                            <Check className="size-4 text-primary-strong" aria-hidden="true" />
+                            Incluído
+                          </span>
                         ) : (
-                          <Minus
-                            className="size-4 text-muted-foreground"
-                            aria-label="Não incluído"
-                          />
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                            <Minus className="size-4" aria-hidden="true" />
+                            Não incluído
+                          </span>
                         )}
                       </td>
+
                     ))}
                   </tr>
                 ))}
