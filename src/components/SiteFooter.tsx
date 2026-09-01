@@ -52,7 +52,10 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
-          © 2026 AcompanhaAí. Todos os direitos reservados.
+          © 2026 AcompanhaAí.
+          <br />
+          <br />
+          Todos os direitos reservados.
         </p>
       </div>
     </footer>
