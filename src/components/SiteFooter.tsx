@@ -15,7 +15,7 @@ const columns = [
     links: [{ to: "/suporte", label: "Central de Suporte" }],
   },
   {
-    title: "Legal",
+    title: "Termos",
     links: [
       { to: "/termos", label: "Termos de Uso" },
       { to: "/privacidade", label: "Política de Privacidade" },
