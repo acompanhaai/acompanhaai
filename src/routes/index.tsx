@@ -52,7 +52,7 @@ function Home() {
           <nav className="flex items-center gap-1">
             <Button asChild size="sm">
               <Link to="/auth" search={{ mode: "login" }}>
-                Login
+                Entrar
               </Link>
             </Button>
           </nav>
