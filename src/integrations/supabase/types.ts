@@ -483,6 +483,8 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: never; Returns: boolean }
+      is_valid_br_phone: { Args: { value: string }; Returns: boolean }
+      is_valid_cpf: { Args: { value: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "operator" | "driver"
