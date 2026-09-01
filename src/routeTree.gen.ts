@@ -14,7 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as MotoristaRouteImport } from './routes/motorista'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as SuporteRouteImport } from './routes/suporte'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
@@ -43,9 +47,29 @@ const MotoristaRoute = MotoristaRouteImport.update({
   path: '/motorista',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuporteRoute = SuporteRouteImport.update({
+  id: '/suporte',
+  path: '/suporte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -69,7 +93,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sobre': typeof SobreRoute
+  '/suporte': typeof SuporteRoute
+  '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
@@ -79,7 +107,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sobre': typeof SobreRoute
+  '/suporte': typeof SuporteRoute
+  '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar': typeof AcompanharIndexRoute
@@ -91,7 +123,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sobre': typeof SobreRoute
+  '/suporte': typeof SuporteRoute
+  '/termos': typeof TermosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
@@ -103,7 +139,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contato'
     | '/motorista'
+    | '/privacidade'
     | '/reset-password'
+    | '/sobre'
+    | '/suporte'
+    | '/termos'
     | '/dashboard'
     | '/acompanhar/$query'
     | '/acompanhar/'
@@ -113,7 +153,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contato'
     | '/motorista'
+    | '/privacidade'
     | '/reset-password'
+    | '/sobre'
+    | '/suporte'
+    | '/termos'
     | '/dashboard'
     | '/acompanhar/$query'
     | '/acompanhar'
@@ -124,7 +168,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contato'
     | '/motorista'
+    | '/privacidade'
     | '/reset-password'
+    | '/sobre'
+    | '/suporte'
+    | '/termos'
     | '/_authenticated/dashboard'
     | '/acompanhar/$query'
     | '/acompanhar/'
@@ -136,7 +184,11 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContatoRoute: typeof ContatoRoute
   MotoristaRoute: typeof MotoristaRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SobreRoute: typeof SobreRoute
+  SuporteRoute: typeof SuporteRoute
+  TermosRoute: typeof TermosRoute
   AcompanharQueryRoute: typeof AcompanharQueryRoute
   AcompanharIndexRoute: typeof AcompanharIndexRoute
 }
@@ -178,11 +230,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MotoristaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suporte': {
+      id: '/suporte'
+      path: '/suporte'
+      fullPath: '/suporte'
+      preLoaderRoute: typeof SuporteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -226,7 +306,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContatoRoute: ContatoRoute,
   MotoristaRoute: MotoristaRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SobreRoute: SobreRoute,
+  SuporteRoute: SuporteRoute,
+  TermosRoute: TermosRoute,
   AcompanharQueryRoute: AcompanharQueryRoute,
   AcompanharIndexRoute: AcompanharIndexRoute,
 }
