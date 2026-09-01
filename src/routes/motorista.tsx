@@ -229,19 +229,33 @@ function DriverApp() {
         ? { status: step.status, en_route_at: now }
         : step.status === "chegou"
           ? { status: step.status, arrived_at: now }
-          : step.status === "em_atendimento"
-            ? { status: step.status, service_started_at: now }
-            : { status: step.status, finished_at: now };
+          : { status: step.status, service_started_at: now };
     const { error } = await supabase.from("protocols").update(patch).eq("id", active.id);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
     else {
       toast.success(STATUS_LABEL[step.status]);
-      if (step.status === "concluido") {
-        setSharing(false);
-        await supabase.from("drivers").update({ status: "disponivel" }).eq("id", driver.data!.id);
-      }
       queryClient.invalidateQueries({ queryKey: ["driver-protocols"] });
     }
+  }
+
+  async function finish() {
+    if (!active || !/^\d{4}$/.test(finishCode)) {
+      toast.error("Digite o código de 4 dígitos informado pelo cliente.");
+      return;
+    }
+    setFinishBusy(true);
+    const result = await finishWithCodeFn({ data: { protocolId: active.id, code: finishCode } });
+    setFinishBusy(false);
+    if (!result.ok) {
+      toast.error("Não foi possível finalizar", { description: result.error });
+      return;
+    }
+    setFinishOpen(false);
+    setFinishCode("");
+    setSharing(false);
+    toast.success("Atendimento finalizado");
+    queryClient.invalidateQueries({ queryKey: ["driver-protocols"] });
+    queryClient.invalidateQueries({ queryKey: ["me-driver"] });
   }
 
   async function signOut() {
