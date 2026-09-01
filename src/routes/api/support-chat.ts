@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { streamText } from "ai";
 import { z } from "zod";
 
 const bodySchema = z.object({
@@ -40,44 +42,27 @@ export const Route = createFileRoute("/api/support-chat")({
           return new Response("Suporte de IA indisponível", { status: 503 });
         }
 
-        const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3.7-flash",
-            stream: true,
-            service_tier: "priority",
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              ...parsed.data.messages.map((m) => ({
-                role: m.role,
-                content: m.content.slice(0, 2000),
-              })),
-            ],
-          }),
-        });
+        try {
+          const lovable = createOpenAICompatible({
+            name: "lovable-gateway",
+            apiKey,
+            baseURL: "https://ai.gateway.lovable.dev/v1",
+          });
+          const result = streamText({
+            model: lovable("google/gemini-3.7-flash"),
+            system: SYSTEM_PROMPT,
+            messages: parsed.data.messages.map((message) => ({
+              role: message.role,
+              content: message.content.slice(0, 2000),
+            })),
+            providerOptions: { lovable: { serviceTier: "priority" } },
+          });
 
-        if (!upstream.ok || !upstream.body) {
-          const detail = await upstream.text().catch(() => "");
-          console.error("support-chat gateway error", upstream.status, detail);
-          if (upstream.status === 429) {
-            return new Response("Muitas mensagens agora. Tente novamente em instantes.", {
-              status: 429,
-            });
-          }
+          return result.toTextStreamResponse();
+        } catch (error) {
+          console.error("support-chat gateway error", error);
           return new Response("Não foi possível falar com o assistente agora.", { status: 502 });
         }
-
-        return new Response(upstream.body, {
-          headers: {
-            "content-type": "text/event-stream",
-            "cache-control": "no-cache",
-            connection: "keep-alive",
-          },
-        });
       },
     },
   },
