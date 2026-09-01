@@ -498,7 +498,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
             <p className="text-xs font-medium text-muted-foreground">Motorista</p>
             {driver ? (
               <p className="mt-1 text-sm font-medium text-foreground">
-                RE {driver.re} · RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
+                RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
               </p>
             ) : (
               <div className="mt-2 flex flex-wrap gap-2">
