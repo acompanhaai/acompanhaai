@@ -77,8 +77,7 @@ export function SupportChat() {
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Time AcompanhaAí</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Estamos aqui para te ajudar!<br />
-          Pergunte o que precisar :)
+          Estamos aqui para te ajudar, pergunte o que precisar!<br />
         </p>
       </div>
 
@@ -86,7 +85,6 @@ export function SupportChat() {
         {messages.length === 0 ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Olá! Conta pra gente como podemos te ajudar hoje. Você pode começar por uma sugestão:
             </p>
             <div className="flex flex-wrap gap-2">
               {SUGGESTIONS.map((suggestion) => (
