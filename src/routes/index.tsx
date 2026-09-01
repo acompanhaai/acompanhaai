@@ -99,12 +99,47 @@ function Home() {
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-5 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <Logo size={22} />
-          <p>© 2026 - AcompanhaAí.<br />Todos os direitos reservados.</p>
-          <Link to="/contato" className="hover:text-foreground">
-            Falar com o time
-          </Link>
+        <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:py-12">
+          <div className="flex flex-col gap-10 sm:flex-row sm:justify-between">
+            <div className="flex flex-col gap-4">
+              <Logo size={24} />
+              <p className="text-sm text-muted-foreground">
+                © 2026 – AcompanhaAí.
+                <br />
+                Todos os direitos reservados.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-10 sm:gap-16">
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                  Suporte
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  <li>
+                    <Link to="/contato" className="hover:text-foreground transition-colors">
+                      Central de Suporte
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/contato" className="hover:text-foreground transition-colors">
+                      Falar com o time
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+                  Institucional
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  <li>Sobre o Acompanha Aí</li>
+                  <li>Termos de Uso</li>
+                  <li>Política de Privacidade</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
