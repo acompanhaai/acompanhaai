@@ -132,8 +132,14 @@ function Suporte() {
           Encontre respostas rápidas sobre o AcompanhaAí. Se não encontrar o que precisa, nosso assistente está disponível.
         </p>
 
-        <section className="mt-10 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Soluções mais buscadas</h2>
+        <Tabs defaultValue="solucoes" className="mt-10">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="solucoes">Soluções</TabsTrigger>
+            <TabsTrigger value="assistente">Falar com o assistente</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="solucoes" className="mt-6 space-y-4">
+            <h2 className="text-lg font-semibold text-foreground">Soluções mais buscadas</h2>
           <div className="grid gap-4">
             {ARTICLES.map((article) => {
               const isOpen = openId === article.id;
