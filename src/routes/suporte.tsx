@@ -154,9 +154,10 @@ function Suporte() {
           )}
         </div>
 
-        <Button asChild className="mt-12">
-          <Link to="/contato">Falar com o suporte</Link>
-        </Button>
+        <div className="mt-12">
+          <SupportChat />
+        </div>
+
       </main>
       <SiteFooter />
     </div>
