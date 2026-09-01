@@ -38,11 +38,6 @@ const schema = z.object({
   message: z.string().trim().min(10, "Conte um pouco mais").max(1000),
 });
 
-// Canais alternativos: preencher quando definidos.
-const channels: { label: string; value: string | null }[] = [
-  { label: "E-mail", value: null },
-  { label: "WhatsApp", value: null },
-];
 
 function Contato() {
   const [sent, setSent] = useState(false);
@@ -109,16 +104,6 @@ function Contato() {
           </form>
         )}
 
-        <div className="mt-12 border-t border-border pt-6">
-          <h2 className="text-sm font-semibold text-foreground">Prefere outro canal?</h2>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            {channels.map((channel) => (
-              <li key={channel.label}>
-                {channel.label}: {channel.value ?? "[a definir]"}
-              </li>
-            ))}
-          </ul>
-        </div>
       </main>
       <SiteFooter />
     </div>
