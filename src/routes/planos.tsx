@@ -174,7 +174,7 @@ function Planos() {
         <section className="mt-16">
           <h2 className="text-lg font-semibold text-foreground">Compare os planos</h2>
           <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[520px] border-collapse text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
                   <th className="py-2 pr-4 font-medium text-muted-foreground">Recurso</th>
