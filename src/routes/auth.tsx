@@ -268,7 +268,6 @@ function AuthPage() {
                       required
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      placeholder="Ex.: Assistência Rodovia 24h LTDA"
                     />
                     {suggestions.length > 0 ? (
                       <div className="space-y-1.5">
