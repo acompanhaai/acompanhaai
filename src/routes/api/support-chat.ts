@@ -34,7 +34,7 @@ CONHECIMENTO DO ACOMPANHAAÍ:
 - O segurado informa o número do protocolo no acompanhamento público e vê status, mapa, dados do motorista e tempo estimado.
 - A conta é criada com CNPJ ou CPF, razão social e dados do responsável. Não existe login com Google.
 - Motoristas recebem o acesso cadastrado pela base operacional.
-- Planos: Acompanha (grátis) com 10 solicitações por mês; Acompanha+ com 100; Acompanha Pro com 500; Acompanha Max com 2.000. O upgrade é feito pelo próprio usuário.
+- Planos: Free com 10 solicitações por mês; Start com 100; Growth com 500; Scale com 2.000. O upgrade é feito pelo próprio usuário.
 - A posição do motorista atualiza automaticamente enquanto o aplicativo dele está aberto.
 
 REGRAS DE QUALIDADE E SEGURANÇA:
