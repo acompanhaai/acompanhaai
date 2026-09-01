@@ -622,6 +622,8 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  const createProtocolFn = useServerFn(createProtocol);
+
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -632,71 +634,44 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
       destination: raw["destination"] || undefined,
       insurer: raw["insurer"] || undefined,
       notes: raw["notes"] || undefined,
+      driver_id: raw["driver_id"] || null,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
       return;
     }
     setBusy(true);
-    const cepData = await lookupCep({ data: { cep: parsed.data.address_cep } });
-    if (!cepData) {
+    try {
+      const cepData = await lookupCep({ data: { cep: parsed.data.address_cep } });
+      if (!cepData) {
+        toast.error("CEP não encontrado", { description: "Confira o CEP e revise o endereço antes de criar." });
+        return;
+      }
+      const d = parsed.data;
+      const coordinates = await geocodeAddress({ data: {
+        cep: d.address_cep,
+        street: d.address_street,
+        number: d.address_number,
+        city: d.city,
+        state: d.address_state,
+      } });
+      await createProtocolFn({ data: {
+        ...d,
+        client_phone: d.client_phone,
+        client_cpf: d.client_cpf,
+        address_cep: d.address_cep,
+        origin_lat: coordinates?.lat ?? null,
+        origin_lng: coordinates?.lng ?? null,
+        driver_id: d.driver_id || null,
+      } });
+      toast.success("Protocolo criado");
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["protocols"] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível criar o protocolo");
+    } finally {
       setBusy(false);
-      toast.error("CEP não encontrado", { description: "Confira o CEP e revise o endereço antes de criar." });
-      return;
     }
-    const d = parsed.data;
-    const address = {
-      cep: d.address_cep,
-      street: d.address_street,
-      number: d.address_number,
-      city: d.city,
-      state: d.address_state,
-    };
-    const coordinates = await geocodeAddress({ data: address });
-    const { data: auth } = await supabase.auth.getUser();
-    const driverId = String(raw["driver_id"] ?? "");
-    const origin = composeAddress({
-      cep: d.address_cep,
-      street: d.address_street,
-      number: d.address_number,
-      complement: d.address_complement ?? null,
-      district: d.address_district,
-      city: d.city,
-      state: d.address_state,
-    });
-    const { error } = await supabase.from("protocols").insert({
-      number: "",
-      client_name: d.client_name,
-      client_phone: onlyDigits(d.client_phone),
-      client_cpf: onlyDigits(d.client_cpf),
-      insurer: d.insurer ?? null,
-      service_type: d.service_type,
-      priority: d.priority,
-      origin,
-      destination: d.destination ?? null,
-      city: d.city,
-      address_cep: onlyDigits(d.address_cep),
-      address_street: d.address_street,
-      address_number: d.address_number,
-      address_complement: d.address_complement ?? null,
-      address_district: d.address_district,
-      address_state: d.address_state,
-      origin_lat: coordinates?.lat ?? null,
-      origin_lng: coordinates?.lng ?? null,
-      notes: d.notes ?? null,
-      driver_id: driverId || null,
-      status: driverId ? "aceito" : "aguardando_aceite",
-      accepted_at: driverId ? new Date().toISOString() : null,
-      created_by: auth.user?.id ?? null,
-    });
-    setBusy(false);
-    if (error) {
-      toast.error("Não foi possível criar o protocolo", { description: error.message });
-      return;
-    }
-    toast.success("Protocolo criado");
-    setOpen(false);
-    queryClient.invalidateQueries({ queryKey: ["protocols"] });
   }
 
   return (
