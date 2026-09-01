@@ -119,7 +119,7 @@ export const Route = createFileRoute("/suporte")({
 
 function Suporte() {
   const [openId, setOpenId] = useState<string | null>(null);
-  const [showChat, setShowChat] = useState(false);
+  
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
