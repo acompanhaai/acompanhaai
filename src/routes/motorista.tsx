@@ -306,7 +306,7 @@ function DriverApp() {
               <div>
                 <h1 className="text-xl font-bold text-foreground">Olá, {driver.data.name}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {driver.data.vehicle ?? "Veículo"} · {driver.data.plate ?? "—"}
+                  RE {driver.data.re} · {driver.data.vehicle ?? "Veículo"} · {driver.data.plate ?? "—"}
                 </p>
               </div>
               <Button
