@@ -96,7 +96,7 @@ export function SupportChat() {
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Time AcompanhaAí</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Estamos aqui para te ajudar, pergunte o que precisar!<br />
+          Estamos aqui para te ajudar, pergunte o que precisar!
         </p>
       </div>
 
