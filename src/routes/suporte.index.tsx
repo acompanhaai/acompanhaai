@@ -64,12 +64,12 @@ const ARTICLES = [
   {
     id: "planos",
     title: "Planos e limites de solicitações",
-    summary: "Conheça os planos Free, Start, Growth e Scale e seus limites mensais.",
+    summary: "Conheça os planos Acompanha, Acompanha+, Acompanha Pro e Acompanha Max e seus limites mensais.",
     steps: [
-      "Free: 10 solicitações por mês para testar a plataforma.",
-      "Start: 100 solicitações por mês.",
-      "Growth: 500 solicitações por mês.",
-      "Scale: 2.000 solicitações por mês.",
+      "Acompanha: 10 solicitações por mês para testar a plataforma.",
+      "Acompanha+: 100 solicitações por mês.",
+      "Acompanha Pro: 500 solicitações por mês.",
+      "Acompanha Max: 2.000 solicitações por mês.",
       "Você pode fazer upgrade a qualquer momento no painel.",
     ],
   },

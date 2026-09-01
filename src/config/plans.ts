@@ -15,7 +15,7 @@ export type Plan = {
 export const plans: Plan[] = [
   {
     id: "free",
-    name: "Free",
+    name: "Acompanha",
     price: 0,
     requests: 10,
     tagline: "Para começar a usar o AcompanhaAí.",
@@ -32,7 +32,7 @@ export const plans: Plan[] = [
   },
   {
     id: "start",
-    name: "Start",
+    name: "Acompanha+",
     price: 49,
     requests: 100,
     tagline: "Para pequenas operações.",
@@ -41,7 +41,7 @@ export const plans: Plan[] = [
       "Rastreamento em tempo real",
       "Link de acompanhamento para o cliente",
       "Informações do prestador",
-      "Histórico completo",
+      "Histórico",
       "Painel de operação",
       "Automações",
       "Suporte padrão",
@@ -50,13 +50,13 @@ export const plans: Plan[] = [
   },
   {
     id: "growth",
-    name: "Growth",
+    name: "Acompanha Pro",
     price: 149,
     requests: 500,
     tagline: "Para operações em crescimento.",
     features: [
       "500 solicitações por mês",
-      "Tudo do Start",
+      "Tudo do Acompanha+",
       "Automações avançadas",
       "Recursos avançados de acompanhamento",
       "Maior capacidade operacional",
@@ -67,13 +67,13 @@ export const plans: Plan[] = [
   },
   {
     id: "scale",
-    name: "Scale",
+    name: "Acompanha Max",
     price: 399,
     requests: 2000,
     tagline: "Para operações de maior volume.",
     features: [
       "2.000 solicitações por mês",
-      "Tudo do Growth",
+      "Tudo do Acompanha Pro",
       "Maior capacidade operacional",
       "Recursos avançados",
       "Suporte prioritário",
