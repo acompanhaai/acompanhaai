@@ -21,8 +21,6 @@ const protocolInput = z.object({
   destination: z.string().trim().max(200).nullable().optional(),
   notes: z.string().trim().max(1000).nullable().optional(),
   driver_id: z.string().uuid().nullable().optional(),
-  origin_lat: z.number().min(-90).max(90).nullable().optional(),
-  origin_lng: z.number().min(-180).max(180).nullable().optional(),
 });
 
 const driverInput = z.object({
