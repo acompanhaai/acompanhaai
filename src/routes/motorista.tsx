@@ -369,6 +369,34 @@ function DriverApp() {
                   ) : null}
                 </div>
 
+                {finishOpen ? (
+                  <div className="mt-4 rounded-lg border border-warning/30 bg-warning/10 p-4">
+                    <p className="text-sm font-semibold text-foreground">Atenção</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      O atendimento só pode ser finalizado após a confirmação do cliente.
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-end gap-2">
+                      <div className="min-w-48 flex-1 space-y-2">
+                        <Label htmlFor="finish-code">Digite o código de 4 dígitos informado pelo cliente</Label>
+                        <Input
+                          id="finish-code"
+                          value={finishCode}
+                          onChange={(event) => setFinishCode(onlyDigits(event.target.value).slice(0, 4))}
+                          inputMode="numeric"
+                          maxLength={4}
+                          autoComplete="off"
+                        />
+                      </div>
+                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4}>
+                        {finishBusy ? "Validando..." : "Confirmar e finalizar"}
+                      </Button>
+                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+
                 {points.length > 0 ? (
                   <div className="mt-4 h-64 overflow-hidden rounded-lg">
                     <MapView points={points} />
