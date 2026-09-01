@@ -103,3 +103,71 @@ export function haversineKm(
     Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
+
+/** Validação de CPF pelo algoritmo dos dígitos verificadores. */
+export function isValidCPF(value: string): boolean {
+  const cpf = onlyDigits(value);
+  if (cpf.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(cpf)) return false;
+  const calc = (len: number) => {
+    let sum = 0;
+    for (let i = 0; i < len; i += 1) sum += Number(cpf[i]) * (len + 1 - i);
+    const rest = (sum * 10) % 11;
+    return rest === 10 ? 0 : rest;
+  };
+  return calc(9) === Number(cpf[9]) && calc(10) === Number(cpf[10]);
+}
+
+/** Telefone brasileiro com DDD válido (10 ou 11 dígitos). */
+export function isValidBRPhone(value: string): boolean {
+  const p = onlyDigits(value);
+  if (p.length !== 10 && p.length !== 11) return false;
+  const ddd = Number(p.slice(0, 2));
+  if (ddd < 11 || ddd > 99) return false;
+  if (p.length === 11 && p[2] !== "9") return false;
+  if (/^(\d)\1+$/.test(p.slice(2))) return false;
+  return true;
+}
+
+export function isValidCEP(value: string): boolean {
+  return onlyDigits(value).length === 8;
+}
+
+export function formatCPF(value: string): string {
+  const d = onlyDigits(value).slice(0, 11);
+  return d
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+}
+
+export function formatPhone(value: string): string {
+  const d = onlyDigits(value).slice(0, 11);
+  if (d.length <= 10) return d.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+  return d.replace(/^(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+export function formatCEP(value: string): string {
+  const d = onlyDigits(value).slice(0, 8);
+  return d.replace(/^(\d{5})(\d)/, "$1-$2");
+}
+
+/** Monta o endereço completo em uma linha. */
+export function composeAddress(a: {
+  street: string;
+  number: string;
+  complement?: string | null;
+  district: string;
+  city: string;
+  state: string;
+  cep: string;
+}): string {
+  const parts = [
+    `${a.street}, ${a.number}`,
+    a.complement?.trim() ? a.complement.trim() : null,
+    a.district,
+    `${a.city} - ${a.state}`,
+    `CEP ${formatCEP(a.cep)}`,
+  ].filter(Boolean);
+  return parts.join(" · ");
+}
