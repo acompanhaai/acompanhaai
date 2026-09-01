@@ -126,6 +126,10 @@ function DriverApp() {
   const queryClient = useQueryClient();
   const [sharing, setSharing] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [finishOpen, setFinishOpen] = useState(false);
+  const [finishCode, setFinishCode] = useState("");
+  const [finishBusy, setFinishBusy] = useState(false);
+  const finishWithCodeFn = useServerFn(finishWithCode);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const driver = useQuery({
