@@ -27,19 +27,19 @@ const cards = [
     to: "/auth",
     icon: Building2,
     title: "Base Operacional",
-    description: "Gestão de protocolos, motoristas e indicadores da operação.",
+    description: "Gerencie protocolos, motoristas e indicadores da operação em um só lugar.",
   },
   {
     to: "/motorista",
     icon: Truck,
     title: "Área do Motorista",
-    description: "Aceite, deslocamento e conclusão do atendimento em poucos toques.",
+    description: "Aceite chamados, acompanhe atendimentos e conclua serviços em poucos toques.",
   },
   {
     to: "/acompanhar",
     icon: MapPin,
     title: "Acompanhar Protocolo",
-    description: "Veja onde está o guincho, o motorista e o tempo estimado.",
+    description: "Acompanhe o guincho em tempo real, veja os dados do motorista e consulte o tempo estimado de chegada.",
   },
 ] as const;
 
@@ -104,7 +104,7 @@ function Home() {
       <footer className="border-t border-border">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-5 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <Logo size={22} />
-          <p>© {new Date().getFullYear()} AcompanhaAí. Todos os direitos reservados.</p>
+          <p>© 2026 - AcompanhaAí.<br />Todos os direitos reservados.</p>
           <Link to="/contato" className="hover:text-foreground">
             Falar com o time
           </Link>
