@@ -130,7 +130,7 @@ export function SupportChat() {
                     : "max-w-[85%] whitespace-pre-wrap rounded-lg bg-muted px-3 py-2 text-sm text-foreground"
                 }
               >
-                {message.content || "…"}
+                {message.role === "assistant" ? renderAssistantMessage(message.content || "…") : message.content}
               </div>
             </div>
           ))
