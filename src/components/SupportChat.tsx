@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,10 +9,11 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
   "Como crio minha conta?",
-  "Como meu cliente acompanha o serviço?",
-  "Quantas solicitações o plano Free inclui?",
+  "Como acompanho uma solicitação?",
+  "Como funciona o rastreamento?",
   "Como adiciono um motorista?",
   "Como faço upgrade do meu plano?",
+  "Esqueci minha senha. O que faço?",
 ];
 
 export function SupportChat() {
@@ -38,7 +41,7 @@ export function SupportChat() {
       const response = await fetch("/api/support-chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: history.slice(-20) }),
+        body: JSON.stringify({ messages: history }),
       });
 
       if (!response.ok || !response.body) {
@@ -73,30 +76,33 @@ export function SupportChat() {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card">
-      <div className="border-b border-border px-4 py-3">
-        <h2 className="text-sm font-semibold text-foreground">Time AcompanhaAí</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Estamos aqui para te ajudar, pergunte o que precisar!<br />
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="border-b border-border px-4 py-4">
+        <h2 className="text-sm font-semibold text-foreground">Assistente do AcompanhaAí</h2>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          Olá! Como posso ajudar? Escolha uma dúvida ou escreva sua pergunta.
         </p>
       </div>
 
-      <div ref={listRef} className="max-h-80 space-y-3 overflow-y-auto px-4 py-4">
+      <div
+        ref={listRef}
+        aria-live="polite"
+        className="max-h-[min(34rem,55vh)] min-h-32 space-y-4 overflow-y-auto px-4 py-5"
+      >
         {messages.length === 0 ? (
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {SUGGESTIONS.map((suggestion) => (
-                <Button
-                  key={suggestion}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => void send(suggestion)}
-                >
-                  {suggestion}
-                </Button>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2">
+            {SUGGESTIONS.map((suggestion) => (
+              <Button
+                key={suggestion}
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-auto min-h-8 whitespace-normal py-2 text-left"
+                onClick={() => void send(suggestion)}
+              >
+                {suggestion}
+              </Button>
+            ))}
           </div>
         ) : (
           messages.map((message, index) => (
@@ -107,17 +113,25 @@ export function SupportChat() {
               <div
                 className={
                   message.role === "user"
-                    ? "max-w-[85%] rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
-                    : "max-w-[85%] whitespace-pre-wrap rounded-lg bg-muted px-3 py-2 text-sm text-foreground"
+                    ? "max-w-[88%] break-words rounded-lg bg-primary px-3 py-2 text-sm leading-6 text-primary-foreground"
+                    : "max-w-[92%] break-words rounded-lg bg-muted px-3 py-3 text-sm leading-6 text-foreground [&_a]:text-primary [&_a]:underline [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5",
                 }
               >
-                {message.content || "…"}
+                {message.content ? (
+                  message.role === "assistant" ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                  ) : (
+                    message.content
+                  )
+                ) : (
+                  "…"
+                )}
               </div>
             </div>
           ))
         )}
         {loading ? (
-          <p className="text-xs text-muted-foreground">O Time AcompanhaAí está digitando…</p>
+          <p className="text-xs text-muted-foreground">O assistente está preparando uma resposta…</p>
         ) : null}
       </div>
 
@@ -131,8 +145,8 @@ export function SupportChat() {
         <Input
           value={input}
           onChange={(event) => setInput(event.target.value.slice(0, 500))}
-          placeholder="Escreva sua dúvida aqui"
-          aria-label="Escreva sua dúvida aqui"
+          placeholder="Escreva sua dúvida"
+          aria-label="Escreva sua dúvida"
           disabled={loading}
         />
         <Button type="submit" disabled={loading || !input.trim()}>
@@ -141,8 +155,8 @@ export function SupportChat() {
       </form>
 
       {error ? (
-        <p className="px-4 pb-3 text-xs text-destructive" role="alert">
-          {error} Não se preocupe, pode tentar de novo ou reformular sua pergunta.
+        <p className="px-4 pb-3 text-xs leading-5 text-destructive" role="alert">
+          {error} Você pode tentar novamente ou reformular sua pergunta.
         </p>
       ) : null}
     </div>
