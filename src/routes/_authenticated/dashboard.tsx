@@ -43,6 +43,7 @@ import {
   type ProtocolStatus,
 } from "@/lib/protocol";
 import { geocodeAddress, lookupCep } from "@/lib/address.functions";
+import { createDriver, createProtocol } from "@/lib/ops.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
