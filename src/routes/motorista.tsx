@@ -88,7 +88,7 @@ function DriverLogin() {
           </p>
           <form className="mt-6 space-y-4" onSubmit={submit}>
             <div className="space-y-2">
-              <Label htmlFor="driver-email">E-mail de motorista</Label>
+              <Label htmlFor="driver-email">E-mail do motorista</Label>
               <Input
                 id="driver-email"
                 name="email"
