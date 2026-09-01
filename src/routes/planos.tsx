@@ -194,14 +194,18 @@ function Planos() {
                         {typeof value === "string" ? (
                           value
                         ) : value ? (
-                          <Check className="size-4 text-primary-strong" aria-label="Incluído" />
+                          <span className="inline-flex items-center gap-1.5">
+                            <Check className="size-4 text-primary-strong" aria-hidden="true" />
+                            Incluído
+                          </span>
                         ) : (
-                          <Minus
-                            className="size-4 text-muted-foreground"
-                            aria-label="Não incluído"
-                          />
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                            <Minus className="size-4" aria-hidden="true" />
+                            Não incluído
+                          </span>
                         )}
                       </td>
+
                     ))}
                   </tr>
                 ))}
