@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const SUGGESTIONS = [
-  "Como crio uma conta?",
-  "Como o cliente acompanha o serviço?",
-  "Quantas solicitações tem o plano Free?",
+  "Como crio minha conta?",
+  "Como meu cliente acompanha o serviço?",
+  "Quantas solicitações o plano Free inclui?",
+  "Como adiciono um motorista?",
+  "Como faço upgrade do meu plano?",
 ];
 
 export function SupportChat() {
@@ -73,9 +75,9 @@ export function SupportChat() {
   return (
     <div className="rounded-lg border border-border bg-card">
       <div className="border-b border-border px-4 py-3">
-        <h2 className="text-sm font-semibold text-foreground">Assistente do AcompanhaAí</h2>
+        <h2 className="text-sm font-semibold text-foreground">Time AcompanhaAí</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Tire dúvidas sobre a plataforma em tempo real.
+          Estamos aqui para te ajudar. Pergunte o que precisar 🙂
         </p>
       </div>
 
@@ -83,7 +85,7 @@ export function SupportChat() {
         {messages.length === 0 ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Faça uma pergunta ou comece por uma sugestão:
+              Olá! Conta pra gente como podemos te ajudar hoje. Você pode começar por uma sugestão:
             </p>
             <div className="flex flex-wrap gap-2">
               {SUGGESTIONS.map((suggestion) => (
@@ -117,7 +119,9 @@ export function SupportChat() {
             </div>
           ))
         )}
-        {loading ? <p className="text-xs text-muted-foreground">Digitando…</p> : null}
+        {loading ? (
+          <p className="text-xs text-muted-foreground">O Time AcompanhaAí está digitando…</p>
+        ) : null}
       </div>
 
       <form
@@ -130,8 +134,8 @@ export function SupportChat() {
         <Input
           value={input}
           onChange={(event) => setInput(event.target.value.slice(0, 500))}
-          placeholder="Escreva sua dúvida"
-          aria-label="Escreva sua dúvida"
+          placeholder="Escreva sua dúvida aqui"
+          aria-label="Escreva sua dúvida aqui"
           disabled={loading}
         />
         <Button type="submit" disabled={loading || !input.trim()}>
@@ -141,7 +145,7 @@ export function SupportChat() {
 
       {error ? (
         <p className="px-4 pb-3 text-xs text-destructive" role="alert">
-          {error}
+          {error} Não se preocupe, pode tentar de novo ou reformular sua pergunta.
         </p>
       ) : null}
     </div>
