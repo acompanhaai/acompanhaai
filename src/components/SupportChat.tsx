@@ -84,8 +84,6 @@ export function SupportChat() {
       <div ref={listRef} className="max-h-80 space-y-3 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-            </p>
             <div className="flex flex-wrap gap-2">
               {SUGGESTIONS.map((suggestion) => (
                 <Button
