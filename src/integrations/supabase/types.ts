@@ -60,6 +60,7 @@ export type Database = {
           photo_url: string | null
           plate: string | null
           provider: string | null
+          re: string
           status: string
           user_id: string | null
           vehicle: string | null
@@ -79,6 +80,7 @@ export type Database = {
           photo_url?: string | null
           plate?: string | null
           provider?: string | null
+          re: string
           status?: string
           user_id?: string | null
           vehicle?: string | null
@@ -98,6 +100,7 @@ export type Database = {
           photo_url?: string | null
           plate?: string | null
           provider?: string | null
+          re?: string
           status?: string
           user_id?: string | null
           vehicle?: string | null
@@ -271,6 +274,35 @@ export type Database = {
         }
         Relationships: []
       }
+      protocol_codes: {
+        Row: {
+          code: string
+          created_at: string
+          protocol_id: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          protocol_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          protocol_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_codes_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: true
+            referencedRelation: "protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       protocol_events: {
         Row: {
           created_at: string
@@ -309,6 +341,12 @@ export type Database = {
       protocols: {
         Row: {
           accepted_at: string | null
+          address_cep: string | null
+          address_complement: string | null
+          address_district: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
           arrived_at: string | null
           cancelled_at: string | null
           city: string | null
@@ -336,6 +374,12 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          address_cep?: string | null
+          address_complement?: string | null
+          address_district?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
           arrived_at?: string | null
           cancelled_at?: string | null
           city?: string | null
@@ -363,6 +407,12 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          address_cep?: string | null
+          address_complement?: string | null
+          address_district?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
           arrived_at?: string | null
           cancelled_at?: string | null
           city?: string | null
