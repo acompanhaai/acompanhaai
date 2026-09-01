@@ -46,14 +46,16 @@ export function statusTone(status: string) {
 }
 
 export const SERVICE_TYPES = [
+  "Taxi",
   "Reboque",
-  "Troca de pneu",
-  "Pane seca",
-  "Carga de bateria",
   "Chaveiro",
-  "Táxi",
-  "Hospedagem",
+  "Mecânico",
+  "Troca de pneu",
+  "Recarga de bateria",
 ] as const;
+
+export type ServiceType = (typeof SERVICE_TYPES)[number];
+
 
 export const PRIORITIES = ["baixa", "normal", "alta", "critica"] as const;
 
