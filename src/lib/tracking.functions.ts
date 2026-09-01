@@ -50,7 +50,7 @@ export const getPublicTracking = createServerFn({ method: "GET" })
     let builder = supabaseAdmin
       .from("protocols")
       .select(
-        "id, number, status, client_name, client_cpf, origin, destination, service_type, insurer, created_at, accepted_at, en_route_at, arrived_at, service_started_at, finished_at, origin_lat, origin_lng, driver_id",
+        "id, number, status, client_name, client_cpf, origin, address_cep, address_street, address_number, address_complement, address_district, address_state, destination, service_type, insurer, created_at, accepted_at, en_route_at, arrived_at, service_started_at, finished_at, origin_lat, origin_lng, driver_id",
       )
       .order("created_at", { ascending: false })
       .limit(1);
