@@ -122,6 +122,7 @@ const protocolSchema = z.object({
   address_state: z.string().trim().length(2, "Informe a UF").toUpperCase(),
   destination: z.string().trim().max(200).optional(),
   notes: z.string().trim().max(1000).optional(),
+  driver_id: z.string().uuid().nullable().optional(),
 });
 
 const driverSchema = z.object({
