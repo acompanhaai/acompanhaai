@@ -256,9 +256,6 @@ function AuthPage() {
                       value={taxId}
                       onChange={(e) => setTaxId(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Usamos o documento para identificar a empresa da sua base operacional.
-                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="company">Razão social</Label>
