@@ -52,6 +52,7 @@ function AuthPage() {
   const [taxId, setTaxId] = useState("");
   const [company, setCompany] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
