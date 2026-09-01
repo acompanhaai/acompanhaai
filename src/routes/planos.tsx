@@ -71,7 +71,7 @@ function Planos() {
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-16">
         <header className="max-w-2xl">
           <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-            Planos simples. Para cada tamanho de operação.
+            Planos simples, para cada tamanho de operação.
           </h1>
           <p className="mt-4 text-base text-muted-foreground">
             Comece grátis e faça upgrade quando precisar de mais solicitações.
@@ -91,7 +91,9 @@ function Planos() {
           </div>
 
           <p className="mt-3 text-sm text-muted-foreground">
-            O principal limite de cada plano é a quantidade de solicitações por mês.{" "}
+            O principal limite de cada plano é a quantidade de solicitações por mês.{"\u00a0"}
+            <br />
+            <br />
             {requestDefinition}
           </p>
         </section>
