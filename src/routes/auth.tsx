@@ -202,7 +202,7 @@ function AuthPage() {
               </Button>
             </form>
           ) : (
-            <Tabs defaultValue={mode === "signup" ? "signup" : "login"} className="mt-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Entrar</TabsTrigger>
                 <TabsTrigger value="signup">Criar conta</TabsTrigger>
