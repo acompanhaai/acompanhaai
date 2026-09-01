@@ -349,11 +349,19 @@ function DriverApp() {
                 ) : null}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {FLOW.map((step) => (
+                  {FLOW.filter((step) => {
+                    const order = ["aceito", "em_deslocamento", "chegou", "em_atendimento"];
+                    return order.indexOf(step.status) === order.indexOf(active.status) + 1;
+                  }).map((step) => (
                     <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)}>
                       {step.label}
                     </Button>
                   ))}
+                  {active.status === "em_atendimento" ? (
+                    <Button size="sm" onClick={() => setFinishOpen(true)}>
+                      Finalizar atendimento
+                    </Button>
+                  ) : null}
                   {active.client_phone ? (
                     <Button asChild size="sm" variant="outline">
                       <a href={`tel:${active.client_phone}`}>Ligar para o cliente</a>
