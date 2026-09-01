@@ -49,8 +49,8 @@ const faq = [
     a: "Ao atingir o limite mensal de solicitações, novos protocolos não poderão ser criados até o próximo ciclo ou até que você faça upgrade para um plano com maior capacidade. As solicitações que já estão em andamento continuam funcionando normalmente.",
   },
   {
-    q: "Quais formas de pagamento estão disponíveis?",
-    a: "Os planos pagos poderão ser contratados por cartão de crédito, Pix e, quando disponível, boleto.",
+    q: "Como funciona a contratação de um plano pago?",
+    a: "Ao escolher um plano pago, você será direcionado para uma página segura de pagamento, onde poderá visualizar as opções de pagamento disponíveis e concluir a contratação.",
   },
   {
     q: "Posso fazer upgrade quando quiser?",
@@ -63,7 +63,6 @@ const faq = [
   { q: "O que é uma solicitação?", a: requestDefinition },
 ];
 
-
 function Planos() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -71,7 +70,7 @@ function Planos() {
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-16">
         <header className="max-w-2xl">
           <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
-            Planos simples, para cada tamanho de operação.
+            Planos simples. Para cada tamanho de operação.
           </h1>
           <p className="mt-4 text-base text-muted-foreground">
             Comece grátis e faça upgrade quando precisar de mais solicitações.
@@ -91,11 +90,9 @@ function Planos() {
           </div>
 
           <p className="mt-3 text-sm text-muted-foreground">
-            O principal limite de cada plano é a quantidade de solicitações por mês.{"\u00a0"}
-            <br />
-            <br />
-            {requestDefinition}
+            O principal limite de cada plano é a quantidade de solicitações por mês.
           </p>
+          <p className="mt-2 text-sm text-muted-foreground">{requestDefinition}</p>
         </section>
 
         <section className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -106,7 +103,6 @@ function Planos() {
                 "flex flex-col rounded-xl border border-border p-5",
                 plan.highlight && "border-primary/50 ring-1 ring-primary/30",
               )}
-
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
@@ -122,9 +118,6 @@ function Planos() {
                 {formatPrice(plan.price)}
                 <span className="text-sm font-normal text-muted-foreground">/mês</span>
               </p>
-              {plan.price > 0 ? (
-                <p className="mt-1 text-xs text-muted-foreground">Cartão, Pix ou boleto</p>
-              ) : null}
 
               <p className="mt-2 text-sm text-muted-foreground">{plan.tagline}</p>
               <p className="mt-4 text-sm font-medium text-foreground">
@@ -139,7 +132,6 @@ function Planos() {
                 ))}
               </ul>
               <div className="mt-6 pt-2">
-
                 <Button
                   asChild
                   className="w-full"
@@ -156,22 +148,6 @@ function Planos() {
             </div>
           ))}
         </section>
-
-        <section className="mt-6 rounded-xl border border-border p-5">
-          <h2 className="text-sm font-semibold text-foreground">Formas de pagamento</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Os planos pagos poderão ser contratados de forma simples e online por:
-          </p>
-          <ul className="mt-3 flex flex-wrap gap-2 text-sm text-muted-foreground">
-            {["Cartão de crédito", "Pix", "Boleto, quando disponível"].map((item) => (
-              <li key={item} className="rounded-full border border-border px-3 py-1">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-
 
         <section className="mt-16">
           <h2 className="text-lg font-semibold text-foreground">Compare os planos</h2>
@@ -207,7 +183,6 @@ function Planos() {
                           </span>
                         )}
                       </td>
-
                     ))}
                   </tr>
                 ))}
