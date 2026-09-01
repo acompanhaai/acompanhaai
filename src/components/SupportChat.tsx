@@ -76,7 +76,7 @@ export function SupportChat() {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-card">
       <div className="border-b border-border px-4 py-4">
         <h2 className="text-sm font-semibold text-foreground">Assistente do AcompanhaAí</h2>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -87,7 +87,7 @@ export function SupportChat() {
       <div
         ref={listRef}
         aria-live="polite"
-        className="max-h-[min(34rem,55vh)] min-h-32 space-y-4 overflow-y-auto px-4 py-5"
+        className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5"
       >
         {messages.length === 0 ? (
           <div className="flex flex-wrap gap-2">
