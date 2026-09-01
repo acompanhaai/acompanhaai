@@ -84,11 +84,11 @@ function DriverLogin() {
         <div className="surface w-full max-w-sm p-7">
           <h1 className="text-xl font-bold text-foreground">Área do Motorista</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Entre com o acesso que a base operacional cadastrou para você.
+             Acesse sua conta com os dados cadastrados pela base operacional
           </p>
           <form className="mt-6 space-y-4" onSubmit={submit}>
             <div className="space-y-2">
-              <Label htmlFor="driver-email">E-mail do motorista</Label>
+              <Label htmlFor="driver-email">E-mail</Label>
               <Input
                 id="driver-email"
                 name="email"
@@ -112,7 +112,7 @@ function DriverLogin() {
             </Button>
           </form>
           <p className="mt-4 text-xs text-muted-foreground">
-            Não tem acesso? Peça à base operacional para cadastrar o seu CPF na lista de motoristas.
+             Não tem acesso? Peça à base operacional para cadastrar você na lista de motoristas
           </p>
         </div>
       </main>
