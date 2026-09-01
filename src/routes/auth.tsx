@@ -180,7 +180,7 @@ function AuthPage() {
         <div className="surface w-full max-w-md p-7">
           <h1 className="text-xl font-bold text-foreground">Base Operacional</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Acesse o painel de gestão da sua assistência.
+             Acesse o painel de gestão da sua operação.
           </p>
 
           {recovering ? (
