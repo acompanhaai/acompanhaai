@@ -65,8 +65,6 @@ export const createProtocol = createServerFn({ method: "POST" })
       address_complement: data.address_complement ?? null,
       address_district: data.address_district,
       address_state: data.address_state.toUpperCase(),
-      origin_lat: data.origin_lat ?? null,
-      origin_lng: data.origin_lng ?? null,
       notes: data.notes ?? null,
       driver_id: driverId,
       status: driverId ? "aceito" : "aguardando_aceite",
