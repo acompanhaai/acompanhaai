@@ -30,7 +30,7 @@ function Suporte() {
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 py-16">
         <h1 className="text-3xl font-bold text-foreground">Central de Suporte</h1>
         <p className="mt-4 text-base text-muted-foreground">
-          Converse com nosso assistente de IA e encontre respostas sobre o AcompanhaAí.
+          Converse com nosso assistente de IA e encontre respostas sobre o AcompanhaAí
         </p>
         <div className="mt-8">
           <SupportChat />
