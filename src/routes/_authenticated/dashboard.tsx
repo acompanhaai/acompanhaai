@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -29,12 +30,19 @@ import {
   SERVICE_TYPES,
   STATUS_LABEL,
   TIMELINE_ORDER,
+  composeAddress,
+  formatCEP,
   formatDateTime,
+  formatPhone,
   formatTime,
+  isValidBRPhone,
+  isValidCEP,
+  isValidCPF,
   onlyDigits,
   statusTone,
   type ProtocolStatus,
 } from "@/lib/protocol";
+import { geocodeAddress, lookupCep } from "@/lib/address.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -64,6 +72,12 @@ type Protocol = {
   origin: string;
   origin_lat: number | null;
   origin_lng: number | null;
+  address_cep: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  address_complement: string | null;
+  address_district: string | null;
+  address_state: string | null;
   destination: string | null;
   city: string | null;
   notes: string | null;
@@ -80,6 +94,7 @@ type Driver = {
   id: string;
   name: string;
   cpf: string;
+  re: string;
   phone: string | null;
   vehicle: string | null;
   plate: string | null;
@@ -91,24 +106,28 @@ type Driver = {
 };
 
 const protocolSchema = z.object({
-  client_name: z.string().trim().min(2, "Informe o nome do cliente").max(120),
-  client_phone: z.string().trim().max(20).optional(),
-  client_cpf: z.string().trim().max(20).optional(),
+  client_name: z.string().trim().min(2, "Informe o nome completo do cliente").max(120),
+  client_phone: z.string().trim().min(10, "Informe um telefone válido").max(20).refine(isValidBRPhone, "Informe um telefone brasileiro válido"),
+  client_cpf: z.string().trim().min(11, "Informe o CPF").max(20).refine(isValidCPF, "Informe um CPF válido"),
   insurer: z.string().trim().max(120).optional(),
-  service_type: z.string().trim().max(60),
-  priority: z.string().trim().max(20),
-  origin: z.string().trim().min(3, "Informe o local de origem").max(200),
+  service_type: z.enum(SERVICE_TYPES, { message: "Selecione um tipo de serviço válido" }),
+  priority: z.enum(PRIORITIES),
+  address_cep: z.string().trim().refine(isValidCEP, "Informe um CEP válido"),
+  address_street: z.string().trim().min(2, "Informe o logradouro").max(200),
+  address_number: z.string().trim().min(1, "Informe o número").max(20),
+  address_complement: z.string().trim().max(120).optional(),
+  address_district: z.string().trim().min(2, "Informe o bairro").max(120),
+  city: z.string().trim().min(2, "Informe a cidade").max(120),
+  address_state: z.string().trim().length(2, "Informe a UF").toUpperCase(),
   destination: z.string().trim().max(200).optional(),
-  city: z.string().trim().max(120).optional(),
-  origin_lat: z.coerce.number().min(-90).max(90).optional(),
-  origin_lng: z.coerce.number().min(-180).max(180).optional(),
   notes: z.string().trim().max(1000).optional(),
 });
 
 const driverSchema = z.object({
+  re: z.string().trim().min(1, "Informe o RE").max(30),
   name: z.string().trim().min(2, "Informe o nome").max(120),
-  cpf: z.string().trim().min(11, "CPF inválido").max(14),
-  phone: z.string().trim().max(20).optional(),
+  cpf: z.string().trim().min(11, "CPF inválido").max(14).refine(isValidCPF, "Informe um CPF válido"),
+  phone: z.string().trim().max(20).optional().refine((value) => !value || isValidBRPhone(value), "Informe um telefone brasileiro válido"),
   vehicle: z.string().trim().max(80).optional(),
   plate: z.string().trim().max(10).optional(),
   city: z.string().trim().max(120).optional(),
@@ -479,7 +498,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
             <p className="text-xs font-medium text-muted-foreground">Motorista</p>
             {driver ? (
               <p className="mt-1 text-sm font-medium text-foreground">
-                {driver.name} · {driver.plate ?? "—"}
+                RE {driver.re} · RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
               </p>
             ) : (
               <div className="mt-2 flex flex-wrap gap-2">
@@ -608,30 +627,61 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
     const raw = Object.fromEntries(form.entries());
     const parsed = protocolSchema.safeParse({
       ...raw,
-      origin_lat: raw["origin_lat"] || undefined,
-      origin_lng: raw["origin_lng"] || undefined,
+      address_complement: raw["address_complement"] || undefined,
+      destination: raw["destination"] || undefined,
+      insurer: raw["insurer"] || undefined,
+      notes: raw["notes"] || undefined,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
       return;
     }
     setBusy(true);
+    const cepData = await lookupCep({ data: { cep: parsed.data.address_cep } });
+    if (!cepData) {
+      setBusy(false);
+      toast.error("CEP não encontrado", { description: "Confira o CEP e revise o endereço antes de criar." });
+      return;
+    }
+    const d = parsed.data;
+    const address = {
+      cep: d.address_cep,
+      street: d.address_street,
+      number: d.address_number,
+      city: d.city,
+      state: d.address_state,
+    };
+    const coordinates = await geocodeAddress({ data: address });
     const { data: auth } = await supabase.auth.getUser();
     const driverId = String(raw["driver_id"] ?? "");
-    const d = parsed.data;
+    const origin = composeAddress({
+      cep: d.address_cep,
+      street: d.address_street,
+      number: d.address_number,
+      complement: d.address_complement,
+      district: d.address_district,
+      city: d.city,
+      state: d.address_state,
+    });
     const { error } = await supabase.from("protocols").insert({
       number: "",
       client_name: d.client_name,
-      client_phone: d.client_phone ?? null,
-      client_cpf: d.client_cpf ? onlyDigits(d.client_cpf) : null,
+      client_phone: onlyDigits(d.client_phone),
+      client_cpf: onlyDigits(d.client_cpf),
       insurer: d.insurer ?? null,
       service_type: d.service_type,
       priority: d.priority,
-      origin: d.origin,
+      origin,
       destination: d.destination ?? null,
-      city: d.city ?? null,
-      origin_lat: d.origin_lat ?? null,
-      origin_lng: d.origin_lng ?? null,
+      city: d.city,
+      address_cep: onlyDigits(d.address_cep),
+      address_street: d.address_street,
+      address_number: d.address_number,
+      address_complement: d.address_complement ?? null,
+      address_district: d.address_district,
+      address_state: d.address_state,
+      origin_lat: coordinates?.lat ?? null,
+      origin_lng: coordinates?.lng ?? null,
       notes: d.notes ?? null,
       driver_id: driverId || null,
       status: driverId ? "aceito" : "aguardando_aceite",
@@ -662,9 +712,9 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nome do cliente" name="client_name" required />
-            <Field label="Telefone" name="client_phone" />
-            <Field label="CPF" name="client_cpf" />
+            <Field label="Nome completo do cliente" name="client_name" required />
+            <Field label="Telefone" name="client_phone" required inputMode="tel" />
+            <Field label="CPF" name="client_cpf" required inputMode="numeric" />
             <Field label="Seguradora" name="insurer" />
             <div className="space-y-2">
               <Label htmlFor="service_type">Tipo de serviço</Label>
@@ -697,13 +747,29 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
               </select>
             </div>
           </div>
-          <Field label="Local de origem" name="origin" required />
-          <Field label="Destino" name="destination" />
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Cidade" name="city" />
-            <Field label="Latitude" name="origin_lat" />
-            <Field label="Longitude" name="origin_lng" />
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-sm font-semibold text-foreground">Endereço do atendimento</p>
+            <p className="mt-1 text-xs text-muted-foreground">Informe o CEP para preencher os dados e revise tudo antes de criar.</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <Field label="CEP" name="address_cep" required inputMode="numeric" onBlur={async (e) => {
+                const result = await lookupCep({ data: { cep: e.currentTarget.value } });
+                if (!result) return;
+                const form = e.currentTarget.form;
+                if (!form) return;
+                for (const [name, value] of [["address_street", result.street], ["address_district", result.district], ["city", result.city], ["address_state", result.state]] as const) {
+                  const field = form.elements.namedItem(name);
+                  if (field instanceof HTMLInputElement && !field.value) field.value = value;
+                }
+              }} />
+              <Field label="Logradouro" name="address_street" required />
+              <Field label="Número" name="address_number" required />
+              <Field label="Complemento" name="address_complement" />
+              <Field label="Bairro" name="address_district" required />
+              <Field label="Cidade" name="city" required />
+              <Field label="Estado/UF" name="address_state" required maxLength={2} />
+            </div>
           </div>
+          <Field label="Destino" name="destination" />
           <div className="space-y-2">
             <Label htmlFor="driver_id">Motorista (opcional)</Label>
             <select
@@ -715,7 +781,7 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
               <option value="">Aguardar aceite</option>
               {drivers.map((d) => (
                 <option key={d.id} value={d.id}>
-                  {d.name}
+                  RE {d.re} · {d.name}
                 </option>
               ))}
             </select>
@@ -750,9 +816,10 @@ function NewDriverDialog() {
     }
     setBusy(true);
     const { error } = await supabase.from("drivers").insert({
+      re: parsed.data.re,
       name: parsed.data.name,
       cpf: onlyDigits(parsed.data.cpf),
-      phone: parsed.data.phone ?? null,
+      phone: parsed.data.phone ? onlyDigits(parsed.data.phone) : null,
       vehicle: parsed.data.vehicle ?? null,
       plate: parsed.data.plate ?? null,
       city: parsed.data.city ?? null,
@@ -781,10 +848,11 @@ function NewDriverDialog() {
           <DialogTitle>Cadastrar motorista</DialogTitle>
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
+          <Field label="RE" name="re" required />
           <Field label="Nome" name="name" required />
-          <Field label="CPF (usado no login do app)" name="cpf" required />
+          <Field label="CPF (usado no login do app)" name="cpf" required inputMode="numeric" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Telefone" name="phone" />
+            <Field label="Telefone" name="phone" inputMode="tel" />
             <Field label="Cidade" name="city" />
             <Field label="Veículo" name="vehicle" />
             <Field label="Placa" name="plate" />
@@ -804,15 +872,21 @@ function Field({
   label,
   name,
   required,
+  onBlur,
+  inputMode,
+  maxLength,
 }: {
   label: string;
   name: string;
   required?: boolean;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  maxLength?: number;
 }) {
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} required={required} maxLength={200} />
+      <Input id={name} name={name} required={required} maxLength={maxLength ?? 200} inputMode={inputMode} onBlur={onBlur} />
     </div>
   );
 }
