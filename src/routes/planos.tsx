@@ -41,17 +41,28 @@ export const Route = createFileRoute("/planos")({
 
 const faq = [
   {
-    q: "O plano Free é realmente gratuito?",
-    a: "Sim. O plano Free custa R$ 0 por mês e permite até 10 solicitações mensais. Não exige cartão de crédito e não é um período de teste.",
+    q: "O plano Acompanha é realmente gratuito?",
+    a: "Sim. O plano Acompanha custa R$ 0/mês e permite acompanhar até 10 solicitações por mês. Não é necessário cartão de crédito para começar.",
   },
   {
     q: "O que acontece quando eu atingir o limite?",
-    a: "Você pode esperar o próximo ciclo mensal ou fazer upgrade para continuar criando solicitações. As solicitações já abertas continuam funcionando normalmente.",
+    a: "Ao atingir o limite mensal de solicitações, novos protocolos não poderão ser criados até o próximo ciclo ou até que você faça upgrade para um plano com maior capacidade. As solicitações que já estão em andamento continuam funcionando normalmente.",
   },
-  { q: "Posso fazer upgrade quando quiser?", a: "Sim, a qualquer momento." },
-  { q: "Posso fazer downgrade?", a: "Sim, de acordo com as regras da assinatura." },
+  {
+    q: "Quais formas de pagamento estão disponíveis?",
+    a: "Os planos pagos poderão ser contratados por cartão de crédito, Pix e, quando disponível, boleto.",
+  },
+  {
+    q: "Posso fazer upgrade quando quiser?",
+    a: "Sim. Você pode fazer upgrade para um plano superior quando precisar de mais solicitações ou recursos.",
+  },
+  {
+    q: "Posso fazer downgrade?",
+    a: "Sim, desde que o plano desejado esteja disponível para sua conta e respeitando as condições de cobrança aplicáveis.",
+  },
   { q: "O que é uma solicitação?", a: requestDefinition },
 ];
+
 
 function Planos() {
   return (
