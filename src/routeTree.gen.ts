@@ -23,6 +23,7 @@ import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
+import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -93,6 +94,11 @@ const AcompanharQueryRoute = AcompanharQueryRouteImport.update({
   path: '/acompanhar/$query',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSupportChatRoute = ApiSupportChatRouteImport.update({
+  id: '/api/support-chat',
+  path: '/api/support-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
+  '/api/support-chat': typeof ApiSupportChatRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
 export interface FileRoutesByTo {
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
+  '/api/support-chat': typeof ApiSupportChatRoute
   '/acompanhar': typeof AcompanharIndexRoute
 }
 export interface FileRoutesById {
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
+  '/api/support-chat': typeof ApiSupportChatRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
 export interface FileRouteTypes {
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/dashboard'
     | '/acompanhar/$query'
+    | '/api/support-chat'
     | '/acompanhar/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/dashboard'
     | '/acompanhar/$query'
+    | '/api/support-chat'
     | '/acompanhar'
   id:
     | '__root__'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/_authenticated/dashboard'
     | '/acompanhar/$query'
+    | '/api/support-chat'
     | '/acompanhar/'
   fileRoutesById: FileRoutesById
 }
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   SuporteRoute: typeof SuporteRoute
   TermosRoute: typeof TermosRoute
   AcompanharQueryRoute: typeof AcompanharQueryRoute
+  ApiSupportChatRoute: typeof ApiSupportChatRoute
   AcompanharIndexRoute: typeof AcompanharIndexRoute
 }
 
@@ -306,6 +319,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcompanharQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/support-chat': {
+      id: '/api/support-chat'
+      path: '/api/support-chat'
+      fullPath: '/api/support-chat'
+      preLoaderRoute: typeof ApiSupportChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -333,6 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuporteRoute: SuporteRoute,
   TermosRoute: TermosRoute,
   AcompanharQueryRoute: AcompanharQueryRoute,
+  ApiSupportChatRoute: ApiSupportChatRoute,
   AcompanharIndexRoute: AcompanharIndexRoute,
 }
 export const routeTree = rootRouteImport
