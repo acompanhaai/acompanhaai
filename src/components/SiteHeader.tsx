@@ -3,6 +3,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 
 const links = [
+  { to: "/planos", label: "Planos" },
   { to: "/sobre", label: "Sobre" },
   { to: "/suporte", label: "Suporte" },
   { to: "/contato", label: "Falar com o time" },
