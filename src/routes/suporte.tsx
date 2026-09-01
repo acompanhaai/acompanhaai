@@ -172,23 +172,16 @@ function Suporte() {
             <div>
               <h2 className="text-lg font-semibold text-foreground">Ainda precisa de ajuda?</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Nosso assistente de IA pode tirar dúvidas mais específicas sobre a plataforma.
+                Fale com nosso assistente em uma aba dedicada e tire dúvidas mais específicas.
               </p>
             </div>
-            <Button
-              type="button"
-              variant={showChat ? "secondary" : "default"}
-              onClick={() => setShowChat((value) => !value)}
-            >
-              <MessageCircle className="mr-2 h-4 w-4" />
-              {showChat ? "Fechar conversa" : "Falar com o assistente"}
+            <Button asChild type="button">
+              <Link to="/suporte/assistente" target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Falar com o assistente
+              </Link>
             </Button>
           </div>
-          {showChat ? (
-            <div className="mt-6">
-              <SupportChat />
-            </div>
-          ) : null}
         </section>
       </main>
       <SiteFooter />

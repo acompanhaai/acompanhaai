@@ -24,6 +24,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
+import { Route as SuporteAssistenteRouteImport } from './routes/suporte.assistente'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -99,6 +100,11 @@ const ApiSupportChatRoute = ApiSupportChatRouteImport.update({
   path: '/api/support-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuporteAssistenteRoute = SuporteAssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
+  getParentRoute: () => SuporteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,11 +115,12 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
-  '/suporte': typeof SuporteRoute
+  '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
+  '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
 export interface FileRoutesByTo {
@@ -125,11 +132,12 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
-  '/suporte': typeof SuporteRoute
+  '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
+  '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar': typeof AcompanharIndexRoute
 }
 export interface FileRoutesById {
@@ -143,11 +151,12 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
-  '/suporte': typeof SuporteRoute
+  '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
+  '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar/': typeof AcompanharIndexRoute
 }
 export interface FileRouteTypes {
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
+    | '/suporte/assistente'
     | '/acompanhar/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
+    | '/suporte/assistente'
     | '/acompanhar'
   id:
     | '__root__'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
+    | '/suporte/assistente'
     | '/acompanhar/'
   fileRoutesById: FileRoutesById
 }
@@ -212,7 +224,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SobreRoute: typeof SobreRoute
-  SuporteRoute: typeof SuporteRoute
+  SuporteRoute: typeof SuporteRouteWithChildren
   TermosRoute: typeof TermosRoute
   AcompanharQueryRoute: typeof AcompanharQueryRoute
   ApiSupportChatRoute: typeof ApiSupportChatRoute
@@ -326,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSupportChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/suporte/assistente': {
+      id: '/suporte/assistente'
+      path: '/assistente'
+      fullPath: '/suporte/assistente'
+      preLoaderRoute: typeof SuporteAssistenteRouteImport
+      parentRoute: typeof SuporteRoute
+    }
   }
 }
 
@@ -340,6 +359,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface SuporteRouteChildren {
+  SuporteAssistenteRoute: typeof SuporteAssistenteRoute
+}
+
+const SuporteRouteChildren: SuporteRouteChildren = {
+  SuporteAssistenteRoute: SuporteAssistenteRoute,
+}
+
+const SuporteRouteWithChildren =
+  SuporteRoute._addFileChildren(SuporteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -350,7 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SobreRoute: SobreRoute,
-  SuporteRoute: SuporteRoute,
+  SuporteRoute: SuporteRouteWithChildren,
   TermosRoute: TermosRoute,
   AcompanharQueryRoute: AcompanharQueryRoute,
   ApiSupportChatRoute: ApiSupportChatRoute,
