@@ -61,9 +61,14 @@ export const finishWithCode = createServerFn({ method: "POST" })
     }
 
     const now = new Date().toISOString();
+    const completionPatch = {
+      status: "concluido",
+      finished_at: now,
+      ...(protocol.status === "chegou" ? {} : { arrived_at: now }),
+    };
     const { error } = await supabaseAdmin
       .from("protocols")
-      .update({ status: "concluido", finished_at: now, arrived_at: protocol.status === "chegou" ? undefined : now })
+      .update(completionPatch)
       .eq("id", data.protocolId)
       .neq("status", "concluido");
     if (error) return { ok: false, error: "Não foi possível finalizar agora." };

@@ -658,7 +658,7 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
       cep: d.address_cep,
       street: d.address_street,
       number: d.address_number,
-      complement: d.address_complement,
+      complement: d.address_complement ?? null,
       district: d.address_district,
       city: d.city,
       state: d.address_state,
