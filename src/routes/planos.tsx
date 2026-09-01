@@ -102,8 +102,9 @@ function Planos() {
               key={plan.id}
               className={cn(
                 "flex flex-col rounded-xl border border-border p-5",
-                plan.highlight && "border-primary/50",
+                plan.highlight && "border-primary/50 ring-1 ring-primary/30",
               )}
+
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground">
@@ -127,7 +128,7 @@ function Planos() {
               <p className="mt-4 text-sm font-medium text-foreground">
                 {formatRequests(plan.requests)} solicitações por mês
               </p>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2">
                     <Check className="mt-0.5 size-4 shrink-0 text-primary-strong" />
@@ -136,6 +137,7 @@ function Planos() {
                 ))}
               </ul>
               <div className="mt-6 pt-2">
+
                 <Button
                   asChild
                   className="w-full"
@@ -152,6 +154,22 @@ function Planos() {
             </div>
           ))}
         </section>
+
+        <section className="mt-6 rounded-xl border border-border p-5">
+          <h2 className="text-sm font-semibold text-foreground">Formas de pagamento</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Os planos pagos poderão ser contratados de forma simples e online por:
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2 text-sm text-muted-foreground">
+            {["Cartão de crédito", "Pix", "Boleto, quando disponível"].map((item) => (
+              <li key={item} className="rounded-full border border-border px-3 py-1">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+
 
         <section className="mt-16">
           <h2 className="text-lg font-semibold text-foreground">Compare os planos</h2>
