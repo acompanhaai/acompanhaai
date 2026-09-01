@@ -79,19 +79,17 @@ function Planos() {
         </header>
 
         <section className="mt-10 rounded-xl border border-border p-5">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            {plans.map((plan, i) => (
-              <span key={plan.id} className="flex items-center gap-3">
-                {i > 0 ? <span className="text-muted-foreground">→</span> : null}
-                <span className="text-sm">
-                  <span className="font-semibold text-foreground">
-                    {formatRequests(plan.requests)}
-                  </span>{" "}
-                  <span className="text-muted-foreground">{plan.name}</span>
-                </span>
-              </span>
-            ))}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+            <span className="font-semibold text-foreground">10</span>
+            <span className="text-muted-foreground">→</span>
+            <span className="font-semibold text-foreground">100</span>
+            <span className="text-muted-foreground">→</span>
+            <span className="font-semibold text-foreground">500</span>
+            <span className="text-muted-foreground">→</span>
+            <span className="font-semibold text-foreground">2.000</span>
+            <span className="text-muted-foreground">solicitações/mês</span>
           </div>
+
           <p className="mt-3 text-sm text-muted-foreground">
             O principal limite de cada plano é a quantidade de solicitações por mês.{" "}
             {requestDefinition}
@@ -121,6 +119,10 @@ function Planos() {
                 {formatPrice(plan.price)}
                 <span className="text-sm font-normal text-muted-foreground">/mês</span>
               </p>
+              {plan.price > 0 ? (
+                <p className="mt-1 text-xs text-muted-foreground">Cartão, Pix ou boleto</p>
+              ) : null}
+
               <p className="mt-2 text-sm text-muted-foreground">{plan.tagline}</p>
               <p className="mt-4 text-sm font-medium text-foreground">
                 {formatRequests(plan.requests)} solicitações por mês
