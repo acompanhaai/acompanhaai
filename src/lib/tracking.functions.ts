@@ -82,11 +82,27 @@ export const getPublicTracking = createServerFn({ method: "GET" })
       .order("created_at", { ascending: true })
       .limit(200);
 
+    let confirmation_code: string | null = null;
+    if (["em_deslocamento", "chegou", "em_atendimento"].includes(p.status)) {
+      const { data: codeRow } = await supabaseAdmin
+        .from("protocol_codes")
+        .select("code")
+        .eq("protocol_id", p.id)
+        .maybeSingle();
+      confirmation_code = codeRow?.code ?? null;
+    }
+
     return {
       number: p.number,
       status: p.status,
       client_name: p.client_name,
       origin: p.origin,
+      address_cep: p.address_cep,
+      address_street: p.address_street,
+      address_number: p.address_number,
+      address_complement: p.address_complement,
+      address_district: p.address_district,
+      address_state: p.address_state,
       destination: p.destination,
       service_type: p.service_type,
       insurer: p.insurer,
@@ -98,6 +114,7 @@ export const getPublicTracking = createServerFn({ method: "GET" })
       finished_at: p.finished_at,
       origin_lat: p.origin_lat,
       origin_lng: p.origin_lng,
+      confirmation_code,
       driver,
       trail: (trail ?? []).map((t) => ({ lat: t.lat, lng: t.lng })),
     };
