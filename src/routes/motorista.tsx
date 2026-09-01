@@ -41,7 +41,6 @@ const FLOW: { status: ProtocolStatus; label: string; stamp: string }[] = [
   { status: "em_deslocamento", label: "Iniciar deslocamento", stamp: "en_route_at" },
   { status: "chegou", label: "Cheguei ao local", stamp: "arrived_at" },
   { status: "em_atendimento", label: "Iniciar atendimento", stamp: "service_started_at" },
-  { status: "concluido", label: "Concluir atendimento", stamp: "finished_at" },
 ];
 
 function DriverGate() {
