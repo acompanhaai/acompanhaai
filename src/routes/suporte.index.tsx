@@ -171,11 +171,11 @@ function Suporte() {
             <div>
               <h2 className="text-lg font-semibold text-foreground">Ainda precisa de ajuda?</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Fale com nosso assistente em uma aba dedicada e tire dúvidas mais específicas.
+                Abra o atendimento e converse com nosso assistente sobre dúvidas mais específicas.
               </p>
             </div>
             <Button asChild type="button">
-              <Link to="/suporte/assistente" target="_blank" rel="noopener noreferrer">
+              <Link to="/suporte/assistente">
                 <MessageCircle className="mr-2 h-4 w-4" />
                 Falar com o assistente
               </Link>
