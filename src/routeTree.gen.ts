@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
@@ -48,6 +49,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sobre': typeof SobreRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sobre': typeof SobreRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar': typeof AcompanharIndexRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sobre': typeof SobreRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/acompanhar/': typeof AcompanharIndexRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/motorista'
     | '/reset-password'
+    | '/sobre'
     | '/dashboard'
     | '/acompanhar/$query'
     | '/acompanhar/'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/motorista'
     | '/reset-password'
+    | '/sobre'
     | '/dashboard'
     | '/acompanhar/$query'
     | '/acompanhar'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/motorista'
     | '/reset-password'
+    | '/sobre'
     | '/_authenticated/dashboard'
     | '/acompanhar/$query'
     | '/acompanhar/'
@@ -137,6 +149,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   MotoristaRoute: typeof MotoristaRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SobreRoute: typeof SobreRoute
   AcompanharQueryRoute: typeof AcompanharQueryRoute
   AcompanharIndexRoute: typeof AcompanharIndexRoute
 }
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -227,6 +247,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   MotoristaRoute: MotoristaRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SobreRoute: SobreRoute,
   AcompanharQueryRoute: AcompanharQueryRoute,
   AcompanharIndexRoute: AcompanharIndexRoute,
 }
