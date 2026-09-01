@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { SupportChat } from "@/components/SupportChat";
 
 export const Route = createFileRoute("/suporte/assistente")({
@@ -28,27 +26,22 @@ export const Route = createFileRoute("/suporte/assistente")({
 
 function Assistente() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <SiteHeader />
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-12">
+    <div className="flex h-[100dvh] flex-col bg-background">
+      <header className="flex items-center gap-3 border-b border-border px-4 py-3">
         <Link
           to="/suporte"
-          className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          aria-label="Voltar para a Central de Suporte"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Voltar para a Central de Suporte
+          <span className="hidden sm:inline">Voltar</span>
         </Link>
+        <h1 className="text-sm font-semibold text-foreground">Atendimento AcompanhaAí</h1>
+      </header>
 
-        <h1 className="mt-6 text-3xl font-bold text-foreground">Assistente AcompanhaAí</h1>
-        <p className="mt-3 text-base text-muted-foreground">
-          Respostas rápidas e diretas sobre a plataforma, sua conta, protocolos e planos.
-        </p>
-
-        <div className="mt-8">
-          <SupportChat />
-        </div>
+      <main className="mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col p-3 sm:p-4">
+        <SupportChat />
       </main>
-      <SiteFooter />
     </div>
   );
 }
