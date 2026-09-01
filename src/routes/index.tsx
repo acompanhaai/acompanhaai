@@ -50,9 +50,6 @@ function Home() {
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
           <Logo />
           <nav className="flex items-center gap-1">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/auth">Login</Link>
-            </Button>
             <Button asChild size="sm">
               <Link to="/auth" search={{ mode: "signup" }}>
                 Criar conta
