@@ -69,7 +69,7 @@ function Home() {
               Assistência 24h em tempo real
             </span>
             <h1 className="mt-6 text-4xl font-extrabold leading-tight text-foreground sm:text-5xl">
-              Ninguém mais precisa perguntar onde está o guincho.
+              Chega de perguntar onde está o guincho
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
               Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para o
