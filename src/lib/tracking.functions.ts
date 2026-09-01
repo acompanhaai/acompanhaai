@@ -10,6 +10,12 @@ export type PublicTracking = {
   status: string;
   client_name: string;
   origin: string;
+  address_cep: string | null;
+  address_street: string | null;
+  address_number: string | null;
+  address_complement: string | null;
+  address_district: string | null;
+  address_state: string | null;
   destination: string | null;
   service_type: string | null;
   insurer: string | null;
@@ -21,6 +27,7 @@ export type PublicTracking = {
   finished_at: string | null;
   origin_lat: number | null;
   origin_lng: number | null;
+  confirmation_code: string | null;
   driver: {
     name: string;
     photo_url: string | null;

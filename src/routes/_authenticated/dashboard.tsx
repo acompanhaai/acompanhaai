@@ -341,14 +341,17 @@ function Dashboard() {
               {(drivers.data ?? []).map((d) => (
                 <div key={d.id} className="surface p-4">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold text-foreground">{d.name}</p>
-                    <span
-                      className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
-                        d.status === "disponivel"
-                          ? "border-primary/30 bg-primary/10 text-primary"
-                          : "border-border text-muted-foreground"
-                      }`}
-                    >
+                   <div>
+                     <p className="font-semibold text-foreground">{d.name}</p>
+                     <p className="text-xs text-muted-foreground">RE {d.re}</p>
+                   </div>
+                     <span
+                       className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                         d.status === "disponivel"
+                           ? "border-primary/30 bg-primary/10 text-primary"
+                           : "border-border text-muted-foreground"
+                       }`}
+                     >
                       {DRIVER_STATUS_LABEL[d.status] ?? d.status}
                     </span>
                   </div>
@@ -414,13 +417,16 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
     points.push({ lat: driver.last_lat, lng: driver.last_lng, label: driver.name, kind: "driver" });
 
   async function updateStatus(status: string) {
+    if (status === "concluido") {
+      toast.error("A finalização exige o código informado pelo cliente.");
+      return;
+    }
     setBusy(true);
     const stamps: Record<string, string> = {
       aceito: "accepted_at",
       em_deslocamento: "en_route_at",
       chegou: "arrived_at",
       em_atendimento: "service_started_at",
-      concluido: "finished_at",
       cancelado: "cancelled_at",
     };
     const now = new Date().toISOString();
@@ -428,7 +434,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
     const patch = { status, ...(stamp ? { [stamp]: now } : {}) };
     const { error } = await supabase.from("protocols").update(patch).eq("id", protocol.id);
     setBusy(false);
-    if (error) toast.error("Não foi possível atualizar", { description: error.message });
+    if (error) toast.error("Não foi possível atualizar", { description: "A transição não foi aceita pelo atendimento." });
     else {
       toast.success(`Status: ${STATUS_LABEL[status as ProtocolStatus] ?? status}`);
       queryClient.invalidateQueries({ queryKey: ["protocols"] });
@@ -495,51 +501,51 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
           </span>
         </div>
 
-        <div className="mt-4 space-y-3">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Motorista</p>
-            {driver ? (
-              <p className="mt-1 text-sm font-medium text-foreground">
-                RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
-              </p>
-            ) : (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {drivers.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Cadastre motoristas primeiro.</p>
-                ) : (
-                  drivers.map((d) => (
-                    <Button
-                      key={d.id}
-                      size="sm"
-                      variant="outline"
-                      disabled={busy}
-                      onClick={() => assignDriver(d.id)}
-                    >
-                      Designar {d.name.split(" ")[0]}
-                    </Button>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
+         <div className="mt-4 space-y-3">
+           <div>
+             <p className="text-xs font-medium text-muted-foreground">Motorista</p>
+             {driver ? (
+               <p className="mt-1 text-sm font-medium text-foreground">
+                 RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
+               </p>
+             ) : (
+               <div className="mt-2 flex flex-wrap gap-2">
+                 {drivers.length === 0 ? (
+                   <p className="text-sm text-muted-foreground">Cadastre motoristas primeiro.</p>
+                 ) : (
+                   drivers.map((d) => (
+                     <Button
+                       key={d.id}
+                       size="sm"
+                       variant="outline"
+                       disabled={busy}
+                       onClick={() => assignDriver(d.id)}
+                     >
+                       Designar RE {d.re}
+                     </Button>
+                   ))
+                 )}
+               </div>
+             )}
+           </div>
 
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Alterar status</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {nextStatuses.map((s) => (
-                <Button
-                  key={s}
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => updateStatus(s)}
-                >
-                  {STATUS_LABEL[s]}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
+           <div>
+             <p className="text-xs font-medium text-muted-foreground">Alterar status</p>
+             <div className="mt-2 flex flex-wrap gap-2">
+               {nextStatuses.filter((s) => s !== "concluido").map((s) => (
+                 <Button
+                   key={s}
+                   size="sm"
+                   variant="secondary"
+                   disabled={busy}
+                   onClick={() => updateStatus(s)}
+                 >
+                   {STATUS_LABEL[s]}
+                 </Button>
+               ))}
+             </div>
+           </div>
+         </div>
       </div>
 
       <div className="surface overflow-hidden">
