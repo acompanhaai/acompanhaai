@@ -39,7 +39,7 @@ export function Reveal({ children, className, delay = 0, as: Tag = "div" }: Reve
           }
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
+      { rootMargin: "0px 0px -4% 0px", threshold: 0.05 },
     );
 
     observer.observe(node);
@@ -50,7 +50,7 @@ export function Reveal({ children, className, delay = 0, as: Tag = "div" }: Reve
     <Tag
       ref={ref as never}
       data-revealed={visible ? "true" : "false"}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+      style={delay ? { transitionDelay: `${Math.round(delay * 1.8)}ms` } : undefined}
       className={cn("reveal", className)}
     >
       {children}
