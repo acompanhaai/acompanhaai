@@ -15,7 +15,6 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as MotoristaRouteImport } from './routes/motorista'
-import { Route as PlanoRouteImport } from './routes/plano'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -23,6 +22,7 @@ import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
@@ -60,11 +60,6 @@ const MotoristaRoute = MotoristaRouteImport.update({
   path: '/motorista',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlanoRoute = PlanoRouteImport.update({
-  id: '/plano',
-  path: '/plano',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PlanosRoute = PlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -98,6 +93,11 @@ const TermosRoute = TermosRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlanoRoute = AuthenticatedPlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AcompanharIndexRoute = AcompanharIndexRouteImport.update({
@@ -143,7 +143,6 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
-  '/plano': typeof PlanoRoute
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -151,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/plano': typeof AuthenticatedPlanoRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/checkout/sucesso': typeof CheckoutSucessoRoute
@@ -165,13 +165,13 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
-  '/plano': typeof PlanoRoute
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/plano': typeof AuthenticatedPlanoRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/checkout/sucesso': typeof CheckoutSucessoRoute
@@ -188,7 +188,6 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
-  '/plano': typeof PlanoRoute
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -196,6 +195,7 @@ export interface FileRoutesById {
   '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/checkout/sucesso': typeof CheckoutSucessoRoute
@@ -212,7 +212,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contato'
     | '/motorista'
-    | '/plano'
     | '/planos'
     | '/privacidade'
     | '/reset-password'
@@ -220,6 +219,7 @@ export interface FileRouteTypes {
     | '/suporte'
     | '/termos'
     | '/dashboard'
+    | '/plano'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/checkout/sucesso'
@@ -234,13 +234,13 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contato'
     | '/motorista'
-    | '/plano'
     | '/planos'
     | '/privacidade'
     | '/reset-password'
     | '/sobre'
     | '/termos'
     | '/dashboard'
+    | '/plano'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/checkout/sucesso'
@@ -256,7 +256,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contato'
     | '/motorista'
-    | '/plano'
     | '/planos'
     | '/privacidade'
     | '/reset-password'
@@ -264,6 +263,7 @@ export interface FileRouteTypes {
     | '/suporte'
     | '/termos'
     | '/_authenticated/dashboard'
+    | '/_authenticated/plano'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/checkout/sucesso'
@@ -280,7 +280,6 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRouteWithChildren
   ContatoRoute: typeof ContatoRoute
   MotoristaRoute: typeof MotoristaRoute
-  PlanoRoute: typeof PlanoRoute
   PlanosRoute: typeof PlanosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -337,13 +336,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MotoristaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/plano': {
-      id: '/plano'
-      path: '/plano'
-      fullPath: '/plano'
-      preLoaderRoute: typeof PlanoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/planos': {
       id: '/planos'
       path: '/planos'
@@ -391,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/plano': {
+      id: '/_authenticated/plano'
+      path: '/plano'
+      fullPath: '/plano'
+      preLoaderRoute: typeof AuthenticatedPlanoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/acompanhar/': {
@@ -447,10 +446,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -488,7 +489,6 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRouteWithChildren,
   ContatoRoute: ContatoRoute,
   MotoristaRoute: MotoristaRoute,
-  PlanoRoute: PlanoRoute,
   PlanosRoute: PlanosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,

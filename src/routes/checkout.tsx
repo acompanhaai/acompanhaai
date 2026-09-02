@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, formatRequests, planById, plans, type PlanId } from "@/config/plans";
 import { supabase } from "@/integrations/supabase/client";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { PLAN_TO_PRICE } from "@/lib/plan";
 
 const searchSchema = z.object({
   plan: z.enum(["free", "start", "growth", "scale"]).optional(),
@@ -36,17 +37,13 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
-const PRICE_BY_PLAN: Partial<Record<PlanId, string>> = {
-  start: "acompanha_plus_monthly",
-  growth: "acompanha_pro_monthly",
-  scale: "acompanha_max_monthly",
-};
+const PRICE_BY_PLAN: Partial<Record<PlanId, string>> = PLAN_TO_PRICE;
 
 function CheckoutPage() {
   const { plan: planParam } = Route.useSearch();
   const navigate = useNavigate();
   const { openCheckout, loading } = usePaddleCheckout();
-  const [user, setUser] = useState<{ id: string; email?: string | undefined } | null>(null);
+  const [user, setUser] = useState<{ id: string; email?: string | undefined; company?: string | undefined } | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
   const [started, setStarted] = useState(false);
 
@@ -54,12 +51,17 @@ function CheckoutPage() {
   const priceId = plan ? PRICE_BY_PLAN[plan.id] : undefined;
 
   useEffect(() => {
-    supabase.auth
-      .getUser()
-      .then(({ data }) => {
-        if (data.user) setUser({ id: data.user.id, email: data.user.email ?? undefined });
-      })
-      .finally(() => setCheckingUser(false));
+    async function loadCheckoutUser() {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const { data: profile } = await supabase.from("profiles").select("company").eq("id", data.user.id).maybeSingle();
+      setUser({
+        id: data.user.id,
+        email: data.user.email ?? undefined,
+        company: profile?.company?.trim() || undefined,
+      });
+    }
+    loadCheckoutUser().finally(() => setCheckingUser(false));
   }, []);
 
   async function start() {
@@ -69,7 +71,11 @@ function CheckoutPage() {
       await openCheckout({
         priceId,
         customerEmail: user.email,
-        customData: { userId: user.id },
+        customData: {
+          userId: user.id,
+          company: user.company ?? "",
+          plan: plan?.id ?? "",
+        },
         frameTarget: "checkout-container",
         successUrl: `${window.location.origin}/checkout/sucesso`,
       });
@@ -91,18 +97,21 @@ function CheckoutPage() {
             {plans
               .filter((p) => p.price > 0)
               .map((p) => (
-                <button
+                <Button
                   key={p.id}
                   type="button"
+                  variant="outline"
                   onClick={() => navigate({ to: "/checkout", search: { plan: p.id } })}
-                  className="rounded-xl border border-border p-4 text-left transition-colors hover:border-primary/50"
+                  className="h-auto justify-start rounded-xl p-4 text-left"
                 >
-                  <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                  <p className="mt-1 text-lg font-bold text-foreground">
-                    {formatPrice(p.price)}
-                    <span className="text-xs font-normal text-muted-foreground">/mês</span>
-                  </p>
-                </button>
+                  <span>
+                    <span className="block text-sm font-semibold text-foreground">{p.name}</span>
+                    <span className="mt-1 block text-lg font-bold text-foreground">
+                      {formatPrice(p.price)}
+                      <span className="text-xs font-normal text-muted-foreground">/mês</span>
+                    </span>
+                  </span>
+                </Button>
               ))}
           </div>
         </main>
