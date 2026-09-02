@@ -139,7 +139,7 @@ function CheckoutPage() {
         </p>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="surface p-6">
+          <section className="surface surface-elevated p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Pagamento
             </h2>
@@ -187,7 +187,7 @@ function CheckoutPage() {
             </p>
           </section>
 
-          <aside className="surface h-fit p-6">
+          <aside className="surface surface-elevated h-fit p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Resumo do plano
             </h2>

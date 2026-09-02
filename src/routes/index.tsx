@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ArrowRight, Building2, MapPin, Truck } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { Reveal } from "@/components/Reveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { resolveHomePath } from "@/lib/session";
@@ -73,41 +74,49 @@ function Home() {
       <main className="flex-1">
         <section className="grid-fade border-b border-border">
           <div className="mx-auto w-full max-w-3xl px-5 py-20 text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong">
-              Assistência 24h em tempo real
-            </span>
-            <h1 className="mt-6 text-4xl font-extrabold leading-tight text-foreground sm:text-5xl">
-              Chega de perguntar onde está o guincho!
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-              Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para o
-              motorista e para o segurado :)
-            </p>
+            <Reveal>
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong">
+                Assistência 24h em tempo real
+              </span>
+            </Reveal>
+            <Reveal delay={80}>
+              <h1 className="mt-6 text-4xl font-extrabold leading-tight text-foreground sm:text-5xl">
+                Chega de perguntar onde está o guincho!
+              </h1>
+            </Reveal>
+            <Reveal delay={160}>
+              <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
+                Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para o
+                motorista e para o segurado :)
+              </p>
+            </Reveal>
           </div>
         </section>
 
         <section className="mx-auto grid w-full max-w-6xl gap-4 px-5 py-14 md:grid-cols-3">
-          {cards.map((card) => (
-            <Link
-              key={card.title}
-              to={card.to}
-              className="surface group flex flex-col gap-4 p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-soft)]"
-            >
-              <span className="flex size-11 items-center justify-center rounded-xl bg-primary/12 text-primary-strong">
-                <card.icon className="size-5" />
-              </span>
-              <div>
-                <h2 className="text-base font-semibold text-foreground">{card.title}</h2>
-                <p className="mt-1.5 text-sm text-muted-foreground">{card.description}</p>
-              </div>
-              <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-primary-strong">
-                Acessar
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </Link>
+          {cards.map((card, i) => (
+            <Reveal key={card.title} delay={i * 90} className="flex">
+              <Link
+                to={card.to}
+                className="surface elevate group flex w-full flex-col gap-4 p-6 active:translate-y-0"
+              >
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/12 text-primary-strong transition-transform duration-200 group-hover:scale-105">
+                  <card.icon className="size-5" />
+                </span>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">{card.title}</h2>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{card.description}</p>
+                </div>
+                <span className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-primary-strong">
+                  Acessar
+                  <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </span>
+              </Link>
+            </Reveal>
           ))}
         </section>
       </main>
+
 
       <SiteFooter />
     </div>

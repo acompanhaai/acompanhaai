@@ -367,7 +367,7 @@ function Dashboard() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {(drivers.data ?? []).map((d) => (
-                <div key={d.id} className="surface p-4">
+                <div key={d.id} className="surface surface-elevated p-4">
                   <div className="flex items-center justify-between gap-2">
                    <div>
                      <p className="font-semibold text-foreground">{d.name}</p>
@@ -407,7 +407,7 @@ function Dashboard() {
 
 function Kpi({ label, value }: { label: string; value: number }) {
   return (
-    <div className="surface p-4">
+    <div className="surface surface-elevated p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-2 text-3xl font-bold text-foreground">{value}</p>
     </div>
@@ -423,7 +423,7 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
 
   return (
     <section className="mt-5 grid gap-3 lg:grid-cols-[1.25fr_1fr]" aria-label="Plano e utilização">
-      <div className="surface p-5">
+      <div className="surface surface-elevated p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -451,7 +451,7 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
         ) : null}
       </div>
 
-      <div className="surface p-5">
+      <div className="surface surface-elevated p-5">
         <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <CreditCard className="size-4 text-primary" /> Plano da conta
         </p>
@@ -578,7 +578,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
 
   return (
     <div className="space-y-5">
-      <div className="surface p-5">
+      <div className="surface surface-elevated p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-medium text-muted-foreground">{protocol.number}</p>
@@ -647,7 +647,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
          </div>
       </div>
 
-      <div className="surface overflow-hidden">
+      <div className="surface surface-elevated overflow-hidden">
         <div className="h-[300px]">
           {points.length > 0 ? (
             <MapView points={points} />
@@ -659,7 +659,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
         </div>
       </div>
 
-      <div className="surface p-5">
+      <div className="surface surface-elevated p-5">
         <h3 className="text-sm font-semibold text-foreground">Linha do tempo</h3>
         <ol className="mt-3 space-y-2.5">
           {TIMELINE_ORDER.map((step) => {
@@ -689,7 +689,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
         </ol>
       </div>
 
-      <div className="surface p-5">
+      <div className="surface surface-elevated p-5">
         <h3 className="text-sm font-semibold text-foreground">Chat com o motorista</h3>
         <div className="mt-3 max-h-56 space-y-2 overflow-y-auto">
           {(messages.data ?? []).length === 0 ? (

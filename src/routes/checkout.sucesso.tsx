@@ -26,7 +26,7 @@ function CheckoutSuccess() {
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-5 py-12">
-        <section className="surface w-full max-w-lg p-8 text-center">
+        <section className="surface surface-elevated w-full max-w-lg p-8 text-center">
           <Clock3 className="mx-auto size-12 text-primary-strong" aria-hidden="true" />
           <h1 className="mt-5 text-2xl font-bold text-foreground">Pagamento em processamento</h1>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">

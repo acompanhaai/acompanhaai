@@ -83,7 +83,7 @@ function DriverLogin() {
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-5 py-12">
-        <div className="surface w-full max-w-sm p-7">
+        <div className="surface surface-elevated w-full max-w-sm p-7">
           <h1 className="text-xl font-bold text-foreground">Área do Motorista</h1>
           <p className="mt-1 text-sm text-muted-foreground">
              Acesse sua conta com os dados cadastrados pela base operacional
@@ -311,7 +311,7 @@ function DriverApp() {
           </div>
         ) : (
           <>
-            <div className="surface flex flex-wrap items-center justify-between gap-4 p-5">
+            <div className="surface surface-elevated flex flex-wrap items-center justify-between gap-4 p-5">
               <div>
                 <h1 className="text-xl font-bold text-foreground">Olá, {driver.data.name}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -335,7 +335,7 @@ function DriverApp() {
             ) : null}
 
             {active ? (
-              <div className="surface mt-5 p-5">
+              <div className="surface surface-elevated mt-5 p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs text-muted-foreground">{active.number}</p>

@@ -77,7 +77,7 @@ function Planos() {
           </p>
         </header>
 
-        <section className="mt-10 rounded-xl border border-border p-5">
+        <section className="surface-elevated mt-10 rounded-xl border border-border p-5">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
             <span className="font-semibold text-foreground">10</span>
             <span className="text-muted-foreground">→</span>
@@ -100,7 +100,7 @@ function Planos() {
             <div
               key={plan.id}
               className={cn(
-                "flex flex-col rounded-xl border border-border p-5",
+                "surface-elevated flex flex-col rounded-xl border border-border p-5",
                 plan.highlight && "border-primary/50 ring-1 ring-primary/30",
               )}
             >

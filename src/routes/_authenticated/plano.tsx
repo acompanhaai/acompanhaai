@@ -94,7 +94,7 @@ function PlanPage() {
           </div>
         ) : (
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <section className="surface p-6">
+            <section className="surface surface-elevated p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -125,7 +125,7 @@ function PlanPage() {
               </div>
             </section>
 
-            <aside className="surface p-6">
+            <aside className="surface surface-elevated p-6">
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <ReceiptText className="size-4 text-primary" /> Detalhes da cobrança
               </p>
