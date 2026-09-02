@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as MotoristaRouteImport } from './routes/motorista'
+import { Route as PlanoRouteImport } from './routes/plano'
 import { Route as PlanosRouteImport } from './routes/planos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -57,6 +58,11 @@ const ContatoRoute = ContatoRouteImport.update({
 const MotoristaRoute = MotoristaRouteImport.update({
   id: '/motorista',
   path: '/motorista',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanoRoute = PlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanosRoute = PlanosRouteImport.update({
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
+  '/plano': typeof PlanoRoute
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
+  '/plano': typeof PlanoRoute
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
+  '/plano': typeof PlanoRoute
   '/planos': typeof PlanosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contato'
     | '/motorista'
+    | '/plano'
     | '/planos'
     | '/privacidade'
     | '/reset-password'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contato'
     | '/motorista'
+    | '/plano'
     | '/planos'
     | '/privacidade'
     | '/reset-password'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contato'
     | '/motorista'
+    | '/plano'
     | '/planos'
     | '/privacidade'
     | '/reset-password'
@@ -268,6 +280,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRouteWithChildren
   ContatoRoute: typeof ContatoRoute
   MotoristaRoute: typeof MotoristaRoute
+  PlanoRoute: typeof PlanoRoute
   PlanosRoute: typeof PlanosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       path: '/motorista'
       fullPath: '/motorista'
       preLoaderRoute: typeof MotoristaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plano': {
+      id: '/plano'
+      path: '/plano'
+      fullPath: '/plano'
+      preLoaderRoute: typeof PlanoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planos': {
@@ -468,6 +488,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRouteWithChildren,
   ContatoRoute: ContatoRoute,
   MotoristaRoute: MotoristaRoute,
+  PlanoRoute: PlanoRoute,
   PlanosRoute: PlanosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,

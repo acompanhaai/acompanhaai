@@ -11,7 +11,7 @@ import { formatPeriodDate, usagePercent } from "@/lib/plan";
 import { createCustomerPortalSession } from "@/lib/billing.functions";
 import { getPaddleEnvironment } from "@/lib/paddle";
 
-export const Route = createFileRoute("/_authenticated/plano")({
+export const Route = createFileRoute("/plano")({
   head: () => ({
     meta: [
       { title: "Plano e assinatura — AcompanhaAí" },
