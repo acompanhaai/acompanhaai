@@ -109,7 +109,7 @@ function AuthPage() {
       return;
     }
     toast.success("Bem-vindo de volta!");
-    navigate({ to: path, replace: true });
+    goAfterAuth(path);
   }
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
@@ -154,7 +154,7 @@ function AuthPage() {
     if (data.session) {
       toast.success("Conta criada!");
       const path = await resolveHomePath();
-      navigate({ to: path ?? "/dashboard", replace: true });
+      goAfterAuth(path ?? "/dashboard");
     } else {
       toast.success("Confirme seu e-mail", {
         description: "Enviamos um link de verificação para sua caixa de entrada.",
