@@ -22,8 +22,8 @@ export function SiteHeader() {
               <Link
                 key={link.to}
                 to={link.to}
-                className="whitespace-nowrap transition-colors hover:text-foreground"
-                activeProps={{ className: "text-foreground font-medium" }}
+                className="nav-link whitespace-nowrap transition-colors hover:text-foreground"
+                 activeProps={{ className: "nav-link text-foreground font-medium" }}
               >
                 {link.label}
               </Link>
@@ -40,8 +40,8 @@ export function SiteHeader() {
             <Link
               key={link.to}
               to={link.to}
-              className="transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground font-medium" }}
+              className="nav-link transition-colors hover:text-foreground"
+              activeProps={{ className: "nav-link text-foreground font-medium" }}
             >
               {link.label}
             </Link>

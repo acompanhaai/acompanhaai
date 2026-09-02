@@ -22,7 +22,7 @@ function CheckoutSuccess() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center px-5">
-          <Link to="/" className="shrink-0"><Logo /></Link>
+          <Link to="/" className="interactive shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><Logo /></Link>
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-5 py-12">

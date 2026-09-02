@@ -75,7 +75,7 @@ function TrackingPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-5">
-          <Link to="/" className="min-w-0">
+          <Link to="/" className="interactive min-w-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <Logo />
           </Link>
           <Button className="shrink-0" variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching} loading={isFetching}>
