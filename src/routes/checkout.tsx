@@ -47,15 +47,19 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const { openCheckout, loading } = usePaddleCheckout();
   const [user, setUser] = useState<{ id: string; email?: string | undefined } | null>(null);
+  const [checkingUser, setCheckingUser] = useState(true);
   const [started, setStarted] = useState(false);
 
   const plan = planParam ? planById(planParam) : null;
   const priceId = plan ? PRICE_BY_PLAN[plan.id] : undefined;
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUser({ id: data.user.id, email: data.user.email ?? undefined });
-    });
+    supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (data.user) setUser({ id: data.user.id, email: data.user.email ?? undefined });
+      })
+      .finally(() => setCheckingUser(false));
   }, []);
 
   async function start() {
