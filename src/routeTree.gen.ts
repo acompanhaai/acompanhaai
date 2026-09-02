@@ -22,6 +22,7 @@ import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedPlanoRouteImport } from './routes/_authenticated/plano'
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
@@ -94,6 +95,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlanoRoute = AuthenticatedPlanoRouteImport.update({
+  id: '/plano',
+  path: '/plano',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AcompanharIndexRoute = AcompanharIndexRouteImport.update({
   id: '/acompanhar/',
   path: '/acompanhar/',
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/plano': typeof AuthenticatedPlanoRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/checkout/sucesso': typeof CheckoutSucessoRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/plano': typeof AuthenticatedPlanoRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/checkout/sucesso': typeof CheckoutSucessoRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/suporte': typeof SuporteRouteWithChildren
   '/termos': typeof TermosRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/plano': typeof AuthenticatedPlanoRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
   '/checkout/sucesso': typeof CheckoutSucessoRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/suporte'
     | '/termos'
     | '/dashboard'
+    | '/plano'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/checkout/sucesso'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/dashboard'
+    | '/plano'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/checkout/sucesso'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/suporte'
     | '/termos'
     | '/_authenticated/dashboard'
+    | '/_authenticated/plano'
     | '/acompanhar/$query'
     | '/api/support-chat'
     | '/checkout/sucesso'
@@ -373,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/plano': {
+      id: '/_authenticated/plano'
+      path: '/plano'
+      fullPath: '/plano'
+      preLoaderRoute: typeof AuthenticatedPlanoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/acompanhar/': {
       id: '/acompanhar/'
       path: '/acompanhar'
@@ -427,10 +446,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPlanoRoute: typeof AuthenticatedPlanoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPlanoRoute: AuthenticatedPlanoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

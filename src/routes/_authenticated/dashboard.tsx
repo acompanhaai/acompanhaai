@@ -456,9 +456,12 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
               {usage.price === 0 ? "Gratuito" : `R$ ${usage.price.toLocaleString("pt-BR")}/mês`}
             </p>
           </div>
-          <Link to="/planos" className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong">
-            {usage.planId === "scale" ? "Ver planos" : `Ir para ${planLabel(upgradePlan)}`} <ArrowUpRight className="size-4" />
-          </Link>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <Link to="/plano" className="text-sm font-semibold text-primary transition-colors hover:text-primary-strong">Ver assinatura</Link>
+            <Link to="/planos" className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong">
+              {usage.planId === "scale" ? "Ver planos" : `Ir para ${planLabel(upgradePlan)}`} <ArrowUpRight className="size-4" />
+            </Link>
+          </div>
         </div>
         <p className="mt-4 text-xs text-muted-foreground">O histórico permanece disponível mesmo quando o limite mensal é atingido.</p>
       </div>

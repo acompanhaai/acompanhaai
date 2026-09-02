@@ -3,8 +3,10 @@ import { createClient } from "@supabase/supabase-js";
 import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
 import { PRODUCT_TO_PLAN } from "@/lib/plan";
 
-let _supabase: ReturnType<typeof createClient<any>> | null = null;
-function getSupabase() {
+type PaymentDatabase = ReturnType<typeof createClient<any>>;
+let _supabase: PaymentDatabase | null = null;
+
+function getSupabase(): PaymentDatabase {
   if (!_supabase) {
     const url = process.env["SUPABASE_URL"];
     const key = process.env["SUPABASE_SERVICE_ROLE_KEY"];
@@ -14,9 +16,37 @@ function getSupabase() {
   return _supabase;
 }
 
+async function claimWebhookEvent(eventId: string, environment: PaddleEnv, eventType: string) {
+  const { error } = await getSupabase().from("payment_webhook_events").insert({
+    event_id: eventId,
+    environment,
+    event_type: eventType,
+  });
+
+  if (!error) return true;
+  if (error.code === "23505") return false;
+  throw error;
+}
+
+async function applyPlan(
+  userId: string,
+  productId: string,
+  status: string,
+  periodStart: string | null | undefined,
+  periodEnd: string | null | undefined,
+) {
+  const { error } = await getSupabase().rpc("apply_subscription_plan", {
+    _user_id: userId,
+    _plan: PRODUCT_TO_PLAN[productId] ?? "free",
+    _status: status || "active",
+    _period_start: periodStart ?? new Date().toISOString(),
+    _period_end: periodEnd ?? null,
+  });
+  if (error) throw error;
+}
+
 async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
   const { id, customerId, items, status, currentBillingPeriod, customData } = data;
-
   const userId = customData?.userId;
   if (!userId) {
     console.error("No userId in customData");
@@ -31,34 +61,23 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     return;
   }
 
-  const subscriptionWrite = await getSupabase()
-    .from("subscriptions")
-    .upsert(
-      {
-        user_id: userId,
-        paddle_subscription_id: id,
-        paddle_customer_id: customerId,
-        product_id: productId,
-        price_id: priceId,
-        status,
-        current_period_start: currentBillingPeriod?.startsAt,
-        current_period_end: currentBillingPeriod?.endsAt,
-        environment: env,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "paddle_subscription_id" },
-    );
-  if (subscriptionWrite.error) throw subscriptionWrite.error;
-
-  const planId = PRODUCT_TO_PLAN[productId] ?? "free";
-  const { error } = await getSupabase().rpc("apply_subscription_plan", {
-    _user_id: userId,
-    _plan: planId,
-    _status: status ?? "active",
-    _period_start: currentBillingPeriod?.startsAt ?? new Date().toISOString(),
-    _period_end: currentBillingPeriod?.endsAt ?? null,
-  });
+  const { error } = await getSupabase().from("subscriptions").upsert(
+    {
+      user_id: userId,
+      paddle_subscription_id: id,
+      paddle_customer_id: customerId,
+      product_id: productId,
+      price_id: priceId,
+      status,
+      current_period_start: currentBillingPeriod?.startsAt,
+      current_period_end: currentBillingPeriod?.endsAt,
+      environment: env,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "paddle_subscription_id" },
+  );
   if (error) throw error;
+  await applyPlan(userId, productId, status, currentBillingPeriod?.startsAt, currentBillingPeriod?.endsAt);
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
@@ -90,57 +109,82 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
     .eq("paddle_subscription_id", id)
     .eq("environment", env);
   if (error) throw error;
-
-  const planUpdate = await getSupabase().rpc("apply_subscription_plan", {
-    _user_id: current.user_id,
-    _plan: PRODUCT_TO_PLAN[productId] ?? "free",
-    _status: status ?? "active",
-    _period_start: currentBillingPeriod?.startsAt ?? new Date().toISOString(),
-    _period_end: currentBillingPeriod?.endsAt ?? null,
-  });
-  if (planUpdate.error) throw planUpdate.error;
+  await applyPlan(current.user_id, productId, status, currentBillingPeriod?.startsAt, currentBillingPeriod?.endsAt);
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
+  const { data: subscription, error: lookupError } = await getSupabase()
+    .from("subscriptions")
+    .select("user_id, product_id, current_period_start, current_period_end")
+    .eq("paddle_subscription_id", data.id)
+    .eq("environment", env)
+    .maybeSingle();
+  if (lookupError || !subscription) throw lookupError ?? new Error("Subscription not found");
+
   const { error } = await getSupabase()
     .from("subscriptions")
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("paddle_subscription_id", data.id)
     .eq("environment", env);
   if (error) throw error;
+  await applyPlan(subscription.user_id, subscription.product_id, "canceled", subscription.current_period_start, subscription.current_period_end);
+}
 
-  const subscription = await getSupabase()
+async function handleTransactionPaymentFailed(data: any, env: PaddleEnv) {
+  if (!data.subscriptionId) return;
+  const { data: subscription, error } = await getSupabase()
     .from("subscriptions")
     .select("user_id, product_id, current_period_start, current_period_end")
-    .eq("paddle_subscription_id", data.id)
+    .eq("paddle_subscription_id", data.subscriptionId)
     .eq("environment", env)
     .maybeSingle();
-  if (subscription.error || !subscription.data) throw subscription.error ?? new Error("Subscription not found");
-  const planUpdate = await getSupabase().rpc("apply_subscription_plan", {
-    _user_id: subscription.data.user_id,
-    _plan: PRODUCT_TO_PLAN[subscription.data.product_id] ?? "free",
-    _status: "canceled",
-    _period_start: subscription.data.current_period_start,
-    _period_end: subscription.data.current_period_end,
-  });
-  if (planUpdate.error) throw planUpdate.error;
+  if (error || !subscription) throw error ?? new Error("Subscription not found");
+
+  const { error: updateError } = await getSupabase()
+    .from("subscriptions")
+    .update({ status: "past_due", updated_at: new Date().toISOString() })
+    .eq("paddle_subscription_id", data.subscriptionId)
+    .eq("environment", env);
+  if (updateError) throw updateError;
+  await applyPlan(subscription.user_id, subscription.product_id, "past_due", subscription.current_period_start, subscription.current_period_end);
 }
 
 async function handleWebhook(req: Request, env: PaddleEnv) {
   const event = await verifyWebhook(req, env);
+  const claimed = await claimWebhookEvent(event.eventId, env, event.eventType);
+  if (!claimed) return;
 
-  switch (event.eventType) {
-    case EventName.SubscriptionCreated:
-      await handleSubscriptionCreated(event.data, env);
-      break;
-    case EventName.SubscriptionUpdated:
-      await handleSubscriptionUpdated(event.data, env);
-      break;
-    case EventName.SubscriptionCanceled:
-      await handleSubscriptionCanceled(event.data, env);
-      break;
-    default:
-      console.log("Unhandled event:", event.eventType);
+  try {
+    switch (event.eventType) {
+      case EventName.SubscriptionCreated:
+        await handleSubscriptionCreated(event.data, env);
+        break;
+      case EventName.SubscriptionUpdated:
+      case EventName.SubscriptionActivated:
+      case EventName.SubscriptionPastDue:
+      case EventName.SubscriptionPaused:
+      case EventName.SubscriptionResumed:
+      case EventName.SubscriptionTrialing:
+        await handleSubscriptionUpdated(event.data, env);
+        break;
+      case EventName.SubscriptionCanceled:
+        await handleSubscriptionCanceled(event.data, env);
+        break;
+      case EventName.TransactionPaymentFailed:
+        await handleTransactionPaymentFailed(event.data, env);
+        break;
+      case EventName.TransactionCompleted:
+      case EventName.TransactionPaid:
+        console.log("Payment event received:", event.eventType);
+        break;
+      default:
+        console.log("Unhandled event:", event.eventType);
+    }
+  } catch (error) {
+    // Libera a reivindicação para que a tentativa automática do Paddle possa
+    // reprocessar o evento após uma falha transitória de banco ou rede.
+    await getSupabase().from("payment_webhook_events").delete().eq("event_id", event.eventId);
+    throw error;
   }
 }
 
@@ -149,12 +193,15 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
     handlers: {
       POST: async ({ request }) => {
         const url = new URL(request.url);
-        const env = (url.searchParams.get("env") || "sandbox") as PaddleEnv;
+        const value = url.searchParams.get("env");
+        if (value !== "sandbox" && value !== "live") {
+          return new Response("Invalid payment environment", { status: 400 });
+        }
         try {
-          await handleWebhook(request, env);
+          await handleWebhook(request, value);
           return Response.json({ received: true });
-        } catch (e) {
-          console.error("Webhook error:", e);
+        } catch (error) {
+          console.error("Webhook error:", error);
           return new Response("Webhook error", { status: 400 });
         }
       },
