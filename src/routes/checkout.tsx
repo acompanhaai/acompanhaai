@@ -149,9 +149,28 @@ function CheckoutPage() {
                   As formas de pagamento disponíveis para a sua conta aparecem no formulário
                   seguro abaixo.
                 </p>
-                <Button className="mt-5 w-full" onClick={start} disabled={loading || !user}>
-                  {loading ? "Abrindo pagamento..." : "Ir para o pagamento"}
-                </Button>
+                {!checkingUser && !user ? (
+                  <>
+                    <Button asChild className="mt-5 w-full">
+                      <Link to="/auth" search={{ mode: "signup", plan: plan.id }}>
+                        Criar conta e continuar
+                      </Link>
+                    </Button>
+                    <Button asChild variant="ghost" className="mt-2 w-full">
+                      <Link to="/auth" search={{ mode: "login", plan: plan.id }}>
+                        Já tenho conta
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    className="mt-5 w-full"
+                    onClick={start}
+                    disabled={loading || checkingUser}
+                  >
+                    {loading ? "Abrindo pagamento..." : "Ir para o pagamento"}
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="mt-4">
