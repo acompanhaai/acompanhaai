@@ -603,15 +603,16 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
                    <p className="text-sm text-muted-foreground">Cadastre motoristas primeiro.</p>
                  ) : (
                    drivers.map((d) => (
-                     <Button
-                       key={d.id}
-                       size="sm"
-                       variant="outline"
-                       disabled={busy}
-                       onClick={() => assignDriver(d.id)}
-                     >
-                       Designar RE {d.re}
-                     </Button>
+                      <Button
+                        key={d.id}
+                        size="sm"
+                        variant="outline"
+                        disabled={busy}
+                        loading={busy}
+                        onClick={() => assignDriver(d.id)}
+                      >
+                        {busy ? "Designando..." : `Designar RE ${d.re}`}
+                      </Button>
                    ))
                  )}
                </div>
@@ -622,15 +623,16 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
              <p className="text-xs font-medium text-muted-foreground">Alterar status</p>
              <div className="mt-2 flex flex-wrap gap-2">
                {nextStatuses.filter((s) => s !== "concluido").map((s) => (
-                 <Button
-                   key={s}
-                   size="sm"
-                   variant="secondary"
-                   disabled={busy}
-                   onClick={() => updateStatus(s)}
-                 >
-                   {STATUS_LABEL[s]}
-                 </Button>
+                  <Button
+                    key={s}
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy}
+                    loading={busy}
+                    onClick={() => updateStatus(s)}
+                  >
+                    {busy ? "Atualizando..." : STATUS_LABEL[s]}
+                  </Button>
                ))}
              </div>
            </div>
@@ -704,8 +706,8 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
         </div>
         <form className="mt-3 flex gap-2" onSubmit={sendMessage}>
           <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} />
-          <Button type="submit" size="icon" aria-label="Enviar mensagem">
-            <Send className="size-4" />
+          <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messages.isFetching} loading={messages.isFetching}>
+            {!messages.isFetching ? <Send className="size-4" /> : null}
           </Button>
         </form>
       </div>
@@ -868,7 +870,7 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
             <Textarea id="notes" name="notes" rows={3} maxLength={1000} />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={busy}>
+            <Button type="submit" disabled={busy} loading={busy}>
               {busy ? "Criando..." : "Criar protocolo"}
             </Button>
           </DialogFooter>
@@ -928,7 +930,7 @@ function NewDriverDialog() {
             <Field label="Placa" name="plate" />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={busy}>
+            <Button type="submit" disabled={busy} loading={busy}>
               {busy ? "Salvando..." : "Cadastrar"}
             </Button>
           </DialogFooter>
