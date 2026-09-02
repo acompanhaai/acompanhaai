@@ -397,6 +397,11 @@
   .route-progress,
   .usage-progress { animation: none; transition: none; }
 
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .elevate:hover,
+  .elevate-sm:hover { transform: none; }
+
+
   *,
   *::before,
   *::after {
