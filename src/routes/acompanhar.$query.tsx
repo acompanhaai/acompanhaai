@@ -131,6 +131,24 @@ function TrackingPage() {
               </span>
             </div>
 
+            {data.confirmation_code && data.status !== "concluido" ? (
+              <div className="rounded-xl border-2 border-warning/40 bg-warning/10 p-6 text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Código de confirmação
+                </p>
+                <p className="mt-2 text-4xl font-bold tracking-[0.35em] text-foreground">
+                  {data.confirmation_code}
+                </p>
+                <p className="mt-3 text-sm font-semibold text-foreground">
+                  ⚠️ Só informe este código quando o motorista chegar ao local.
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Nunca informe o código durante o deslocamento. O atendimento só é finalizado
+                  depois que você passar estes 4 dígitos ao motorista.
+                </p>
+              </div>
+            ) : null}
+
             <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
               <div className="surface overflow-hidden">
                 <div className="h-full min-h-[420px]">
