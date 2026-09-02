@@ -141,7 +141,7 @@ function Suporte() {
                     <button
                       type="button"
                       onClick={() => setOpenId(isOpen ? null : article.id)}
-                      className="flex w-full items-center justify-between rounded-md text-left transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="interactive flex w-full items-center justify-between rounded-md text-left transition-[color,transform] duration-200 hover:text-primary active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       aria-expanded={isOpen}
                       aria-controls={`article-${article.id}`}
                     >

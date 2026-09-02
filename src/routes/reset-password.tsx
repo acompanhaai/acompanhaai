@@ -52,7 +52,7 @@ function ResetPassword() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-5">
-          <Link to="/">
+          <Link to="/" className="interactive inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             <Logo />
           </Link>
         </div>
