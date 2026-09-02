@@ -275,9 +275,13 @@
   [role="switch"]:active,
   [role="checkbox"]:active,
   [role="radio"]:active,
+  a[href]:active,
   summary:active {
-    transform: scale(0.985);
+    transform: scale(0.96);
+    filter: brightness(0.96);
+    transition-duration: 80ms;
   }
+
 
   :focus-visible {
     outline: 2px solid var(--color-ring);
