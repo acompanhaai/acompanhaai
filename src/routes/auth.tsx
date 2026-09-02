@@ -204,7 +204,7 @@ function AuthPage() {
                 <Label htmlFor="recover-email">E-mail da conta</Label>
                 <Input id="recover-email" name="email" type="email" required />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading} loading={loading}>
                 {loading ? "Enviando..." : "Enviar link de recuperação"}
               </Button>
               <Button
@@ -239,7 +239,7 @@ function AuthPage() {
                       autoComplete="current-password"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading} loading={loading}>
                     {loading ? "Entrando..." : "Entrar"}
                   </Button>
                   <Button
@@ -321,7 +321,7 @@ function AuthPage() {
                       <Input id="confirm" name="confirm" type="password" required />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading} loading={loading}>
                     {loading ? "Criando..." : "Criar conta"}
                   </Button>
                 </form>

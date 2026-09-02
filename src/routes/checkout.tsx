@@ -167,6 +167,7 @@ function CheckoutPage() {
                     className="mt-5 w-full"
                     onClick={start}
                     disabled={loading || checkingUser}
+                    loading={loading}
                   >
                     {loading ? "Abrindo pagamento..." : "Ir para o pagamento"}
                   </Button>

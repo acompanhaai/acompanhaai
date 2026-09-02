@@ -109,7 +109,7 @@ function DriverLogin() {
                 autoComplete="current-password"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading} loading={loading}>
               {loading ? "Entrando..." : "Entrar como motorista"}
             </Button>
           </form>
