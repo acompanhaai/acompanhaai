@@ -321,6 +321,7 @@ function DriverApp() {
               <Button
                 variant={sharing ? "secondary" : "default"}
                 onClick={() => setSharing((v) => !v)}
+                aria-pressed={sharing}
               >
                 <Navigation className={sharing ? "size-4 animate-pulse" : "size-4"} />
                 {sharing ? "Enviando posição" : "Compartilhar posição"}
@@ -511,8 +512,8 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
       </div>
       <form className="mt-3 flex gap-2" onSubmit={send}>
         <Input name="body" placeholder="Mensagem para a base" maxLength={1000} />
-        <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messages.isFetching} loading={messages.isFetching}>
-          {!messages.isFetching ? <Send className="size-4" /> : null}
+        <Button type="submit" size="icon" aria-label="Enviar mensagem">
+          <Send className="size-4" />
         </Button>
       </form>
     </div>

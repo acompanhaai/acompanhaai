@@ -706,8 +706,8 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
         </div>
         <form className="mt-3 flex gap-2" onSubmit={sendMessage}>
           <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} />
-          <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messages.isFetching} loading={messages.isFetching}>
-            {!messages.isFetching ? <Send className="size-4" /> : null}
+          <Button type="submit" size="icon" aria-label="Enviar mensagem">
+            <Send className="size-4" />
           </Button>
         </form>
       </div>
