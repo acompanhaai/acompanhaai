@@ -48,9 +48,9 @@ function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
-          <Logo />
-          <nav className="flex items-center gap-1">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-5">
+          <Logo className="min-w-0" />
+          <nav className="flex shrink-0 items-center gap-1">
             <Button asChild size="sm">
               <Link to="/auth" search={{ mode: "login" }}>
                 Entrar

@@ -11,10 +11,12 @@ export function Logo({
   withText?: boolean;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
+    <span className={cn("inline-flex min-w-0 max-w-full items-center gap-2", className)}>
       <img src={icone.url} alt="AcompanhaAí" width={size} height={size} className="shrink-0" />
       {withText ? (
-        <span className="text-lg font-extrabold tracking-tight text-foreground">AcompanhaAí</span>
+        <span className="truncate text-lg font-extrabold tracking-tight text-foreground">
+          AcompanhaAí
+        </span>
       ) : null}
     </span>
   );

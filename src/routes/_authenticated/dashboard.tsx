@@ -215,11 +215,11 @@ function Dashboard() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-5">
-          <Link to="/">
+        <div className="mx-auto flex min-h-16 w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-2 sm:flex-nowrap sm:py-0">
+          <Link to="/" className="min-w-0">
             <Logo />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <NewProtocolDialog drivers={drivers.data ?? []} />
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="size-4" />
