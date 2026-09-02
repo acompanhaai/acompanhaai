@@ -450,6 +450,7 @@ function DriverApp() {
 }
 
 function DriverChat({ protocolId, driverName }: { protocolId: string; driverName: string }) {
+  const [messageBusy, setMessageBusy] = useState(false);
   const messages = useQuery({
     queryKey: ["messages", protocolId],
     queryFn: async () => {
@@ -466,25 +467,32 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
 
   async function send(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (messageBusy) return;
     const input = e.currentTarget.elements.namedItem("body") as HTMLInputElement;
     const body = input.value.trim();
     if (!body) return;
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) {
-      toast.error("Sessão expirada", { description: "Entre novamente para enviar mensagens." });
-      return;
-    }
-    const { error } = await supabase.from("messages").insert({
-      protocol_id: protocolId,
-      body: body.slice(0, 1000),
-      sender_role: "motorista",
-      sender_id: auth.user.id,
-      sender_name: driverName,
-    });
-    if (error) toast.error("Mensagem não enviada", { description: error.message });
-    else {
+    setMessageBusy(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        toast.error("Sessão expirada", { description: "Entre novamente para enviar mensagens." });
+        return;
+      }
+      const { error } = await supabase.from("messages").insert({
+        protocol_id: protocolId,
+        body: body.slice(0, 1000),
+        sender_role: "motorista",
+        sender_id: auth.user.id,
+        sender_name: driverName,
+      });
+      if (error) {
+        toast.error("Mensagem não enviada", { description: error.message });
+        return;
+      }
       input.value = "";
-      messages.refetch();
+      await messages.refetch();
+    } finally {
+      setMessageBusy(false);
     }
   }
 
@@ -511,9 +519,9 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
         )}
       </div>
       <form className="mt-3 flex gap-2" onSubmit={send}>
-        <Input name="body" placeholder="Mensagem para a base" maxLength={1000} />
-        <Button type="submit" size="icon" aria-label="Enviar mensagem">
-          <Send className="size-4" />
+        <Input name="body" placeholder="Mensagem para a base" maxLength={1000} disabled={messageBusy} />
+        <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messageBusy} loading={messageBusy}>
+          {!messageBusy ? <Send className="size-4" /> : null}
         </Button>
       </form>
     </div>

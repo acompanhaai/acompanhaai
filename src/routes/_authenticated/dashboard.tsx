@@ -478,6 +478,7 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
 function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Driver[] }) {
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [messageBusy, setMessageBusy] = useState(false);
   const driver = drivers.find((d) => d.id === protocol.driver_id) ?? null;
 
   const messages = useQuery({
@@ -548,21 +549,28 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
 
   async function sendMessage(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (messageBusy) return;
     const input = e.currentTarget.elements.namedItem("body") as HTMLInputElement;
     const body = input.value.trim();
     if (!body) return;
-    const { data: auth } = await supabase.auth.getUser();
-    const { error } = await supabase.from("messages").insert({
-      protocol_id: protocol.id,
-      body: body.slice(0, 1000),
-      sender_role: "base",
-      sender_id: auth.user?.id ?? null,
-      sender_name: (auth.user?.user_metadata?.["full_name"] as string) ?? "Base operacional",
-    });
-    if (error) toast.error("Mensagem não enviada", { description: error.message });
-    else {
+    setMessageBusy(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const { error } = await supabase.from("messages").insert({
+        protocol_id: protocol.id,
+        body: body.slice(0, 1000),
+        sender_role: "base",
+        sender_id: auth.user?.id ?? null,
+        sender_name: (auth.user?.user_metadata?.["full_name"] as string) ?? "Base operacional",
+      });
+      if (error) {
+        toast.error("Mensagem não enviada", { description: error.message });
+        return;
+      }
       input.value = "";
-      messages.refetch();
+      await messages.refetch();
+    } finally {
+      setMessageBusy(false);
     }
   }
 
@@ -705,9 +713,9 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
           )}
         </div>
         <form className="mt-3 flex gap-2" onSubmit={sendMessage}>
-          <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} />
-          <Button type="submit" size="icon" aria-label="Enviar mensagem">
-            <Send className="size-4" />
+          <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} disabled={messageBusy} />
+          <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messageBusy} loading={messageBusy}>
+            {!messageBusy ? <Send className="size-4" /> : null}
           </Button>
         </form>
       </div>
