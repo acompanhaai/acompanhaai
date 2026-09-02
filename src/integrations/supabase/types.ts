@@ -280,6 +280,27 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_webhook_events: {
+        Row: {
+          environment: string
+          event_id: string
+          event_type: string
+          processed_at: string
+        }
+        Insert: {
+          environment: string
+          event_id: string
+          event_type: string
+          processed_at?: string
+        }
+        Update: {
+          environment?: string
+          event_id?: string
+          event_type?: string
+          processed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company: string | null
