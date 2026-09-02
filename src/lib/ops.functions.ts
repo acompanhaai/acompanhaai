@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isValidBRPhone, isValidCPF, isValidCEP, SERVICE_TYPES, PRIORITIES } from "@/lib/protocol";
 import { composeAddress } from "@/lib/protocol";
+import { PLAN_LIMIT_CODE } from "@/lib/plan";
 
 const protocolInput = z.object({
   client_name: z.string().trim().min(2).max(120),
@@ -37,7 +38,16 @@ export const createProtocol = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => protocolInput.parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Autoridade do limite: o banco reserva o slot do período atual.
+    const { data: reserved, error: reserveError } = await supabaseAdmin.rpc("reserve_request_slot", {
+      _user_id: userId,
+    });
+    if (reserveError) throw new Error("Não foi possível validar o seu plano agora.");
+    if (!reserved) throw new Error(PLAN_LIMIT_CODE);
+
     const origin = composeAddress({
       cep: data.address_cep,
       street: data.address_street,
@@ -71,8 +81,12 @@ export const createProtocol = createServerFn({ method: "POST" })
       accepted_at: driverId ? new Date().toISOString() : null,
       created_by: context.userId,
     }).select("id").single();
-    if (error) throw new Error("Não foi possível criar o atendimento.");
-    return { id: row.id };
+    if (error) {
+      // Devolve a reserva quando a criação não se concretiza.
+      await supabaseAdmin.rpc("release_request_slot", { _user_id: userId });
+      throw new Error("Não foi possível criar o atendimento.");
+    }
+    return { id: row.id, usage: { used: reserved.requests_used, limit: reserved.requests_limit } };
   });
 
 export const createDriver = createServerFn({ method: "POST" })

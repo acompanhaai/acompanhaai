@@ -13,6 +13,9 @@ export const PLAN_TO_PRICE: Record<Exclude<PlanId, "free">, string> = {
   scale: "acompanha_max_monthly",
 };
 
+/** Código estável usado entre backend e frontend para a experiência de upgrade. */
+export const PLAN_LIMIT_CODE = "PLAN_LIMIT_REACHED";
+
 export type PlanUsage = {
   planId: PlanId;
   planName: string;
@@ -22,28 +25,12 @@ export type PlanUsage = {
   remaining: number;
   periodStart: string;
   periodEnd: string;
-  status: "free" | "active" | "trialing" | "past_due" | "canceled";
+  status: string;
   company: string | null;
 };
 
-/**
- * Período mensal do plano gratuito, ancorado no dia de criação da conta.
- * Renova sozinho: nunca depende de alguém abrir o dashboard.
- */
-export function freePeriod(anchorISO: string, now = new Date()) {
-  const anchor = new Date(anchorISO);
-  const day = anchor.getUTCDate();
-  const start = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), Math.min(day, daysInMonth(now)), 0, 0, 0),
-  );
-  if (start > now) start.setUTCMonth(start.getUTCMonth() - 1);
-  const end = new Date(start);
-  end.setUTCMonth(end.getUTCMonth() + 1);
-  return { start, end };
-}
-
-function daysInMonth(d: Date) {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+export function isPlanId(value: string): value is PlanId {
+  return value === "free" || value === "start" || value === "growth" || value === "scale";
 }
 
 export function usagePercent(usage: Pick<PlanUsage, "used" | "limit">) {
@@ -54,15 +41,15 @@ export function usagePercent(usage: Pick<PlanUsage, "used" | "limit">) {
 export type UsageLevel = "ok" | "warn70" | "warn80" | "warn90" | "full";
 
 export function usageLevel(usage: Pick<PlanUsage, "used" | "limit">): UsageLevel {
-  const pct = usagePercent(usage);
   if (usage.used >= usage.limit) return "full";
+  const pct = usagePercent(usage);
   if (pct >= 90) return "warn90";
   if (pct >= 80) return "warn80";
   if (pct >= 70) return "warn70";
   return "ok";
 }
 
-export function usageMessage(usage: PlanUsage): string | null {
+export function usageMessage(usage: Pick<PlanUsage, "used" | "limit">): string | null {
   switch (usageLevel(usage)) {
     case "warn70":
       return `Você já utilizou ${usage.used} de ${usage.limit} solicitações.`;
@@ -82,12 +69,20 @@ export function daysUntil(iso: string, now = new Date()) {
   return Math.max(0, Math.ceil(diff / 86_400_000));
 }
 
-export function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "long" });
+export function formatPeriodDate(iso: string) {
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
-export const upgradeTargets = plans.filter((p) => p.price > 0);
-export const planLabel = (id: PlanId) => planById(id).name;
+/** Próximo plano recomendado para upgrade a partir do plano atual. */
+export function nextPlan(current: PlanId) {
+  const order: PlanId[] = ["free", "start", "growth", "scale"];
+  const index = order.indexOf(current);
+  return order[Math.min(index + 1, order.length - 1)] ?? "start";
+}
 
-/** Código estável usado entre backend e frontend para a experiência de upgrade. */
-export const PLAN_LIMIT_CODE = "PLAN_LIMIT_REACHED";
+export const paidPlans = plans.filter((p) => p.price > 0);
+export const planLabel = (id: PlanId) => planById(id).name;

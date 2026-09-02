@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_plans: {
+        Row: {
+          created_at: string
+          period_end: string
+          period_start: string
+          plan_id: string
+          requests_limit: number
+          requests_used: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          period_end?: string
+          period_start?: string
+          plan_id?: string
+          requests_limit?: number
+          requests_used?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          period_end?: string
+          period_start?: string
+          plan_id?: string
+          requests_limit?: number
+          requests_used?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -522,7 +558,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_subscription_plan: {
+        Args: {
+          _period_end: string
+          _period_start: string
+          _plan: string
+          _status: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       current_driver_id: { Args: never; Returns: string }
+      ensure_account_plan: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          period_end: string
+          period_start: string
+          plan_id: string
+          requests_limit: number
+          requests_used: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_plans"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
@@ -537,6 +603,28 @@ export type Database = {
       is_staff: { Args: never; Returns: boolean }
       is_valid_br_phone: { Args: { value: string }; Returns: boolean }
       is_valid_cpf: { Args: { value: string }; Returns: boolean }
+      plan_request_limit: { Args: { _plan: string }; Returns: number }
+      release_request_slot: { Args: { _user_id: string }; Returns: undefined }
+      reserve_request_slot: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          period_end: string
+          period_start: string
+          plan_id: string
+          requests_limit: number
+          requests_used: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_plans"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "admin" | "operator" | "driver"
