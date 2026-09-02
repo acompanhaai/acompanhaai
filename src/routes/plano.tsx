@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, ExternalLink, Loader2, ReceiptText } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, ExternalLink, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAccountPlan } from "@/lib/plan.functions";
@@ -32,7 +32,7 @@ function PlanPage() {
   const environment = getPaddleEnvironment();
   const planQuery = useQuery({
     queryKey: ["account-plan", environment],
-    queryFn: () => accountPlanFn({ data: { environment } }),
+    queryFn: () => accountPlanFn(),
   });
 
   async function openPortal() {
@@ -50,7 +50,7 @@ function PlanPage() {
   }
 
   const usage = planQuery.data;
-  const isPaid = Boolean(usage && usage.price > 0 && usage.subscription);
+  const isPaid = Boolean(usage && usage.price > 0);
   const statusLabel = usage?.status === "past_due"
     ? "Pagamento pendente"
     : usage?.status === "paused"
