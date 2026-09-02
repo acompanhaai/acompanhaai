@@ -153,7 +153,7 @@ function Suporte() {
                     <p className="mt-1 text-sm text-muted-foreground">{article.summary}</p>
                   </CardHeader>
                   {isOpen ? (
-                    <CardContent className="px-4 pb-4 pt-0">
+                    <CardContent id={`article-${article.id}`} className="px-4 pb-4 pt-0">
                       <ol className="list-decimal space-y-2 pl-5 text-sm text-foreground">
                         {article.steps.map((step, index) => (
                           <li key={index}>{step}</li>
