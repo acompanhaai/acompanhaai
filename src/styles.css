@@ -348,6 +348,51 @@
   }
 }
 
+/* Revelação suave ao entrar na viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Elevação: cartões e blocos ganham profundidade no hover */
+@utility elevate {
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 1px 2px oklch(0.18 0.006 145 / 0.06),
+      0 18px 40px -18px oklch(0.18 0.006 145 / 0.28);
+    border-color: color-mix(in oklab, var(--color-primary) 32%, var(--color-border));
+  }
+}
+
+@utility elevate-sm {
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -16px oklch(0.18 0.006 145 / 0.25);
+    border-color: color-mix(in oklab, var(--color-primary) 25%, var(--color-border));
+  }
+}
+
+
 @media (prefers-reduced-motion: reduce) {
   .route-progress,
   .usage-progress { animation: none; transition: none; }
