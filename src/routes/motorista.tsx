@@ -130,6 +130,8 @@ function DriverApp() {
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishCode, setFinishCode] = useState("");
   const [finishBusy, setFinishBusy] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [signOutBusy, setSignOutBusy] = useState(false);
   const finishWithCodeFn = useServerFn(finishWithCode);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -209,11 +211,13 @@ function DriverApp() {
   }, [sharing, driver.data?.id, active?.id]);
 
   async function accept(id: string) {
-    if (!driver.data?.id) return;
+    if (!driver.data?.id || actionBusy) return;
+    setActionBusy(true);
     const { error } = await supabase
       .from("protocols")
       .update({ driver_id: driver.data.id, status: "aceito", accepted_at: new Date().toISOString() })
       .eq("id", id);
+    setActionBusy(false);
     if (error) toast.error("Não foi possível aceitar", { description: error.message });
     else {
       toast.success("Chamado aceito");
@@ -223,7 +227,8 @@ function DriverApp() {
   }
 
   async function advance(step: (typeof FLOW)[number]) {
-    if (!active) return;
+    if (!active || actionBusy) return;
+    setActionBusy(true);
     const now = new Date().toISOString();
     const patch =
       step.status === "em_deslocamento"
@@ -232,6 +237,7 @@ function DriverApp() {
           ? { status: step.status, arrived_at: now }
           : { status: step.status, service_started_at: now };
     const { error } = await supabase.from("protocols").update(patch).eq("id", active.id);
+    setActionBusy(false);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
     else {
       toast.success(STATUS_LABEL[step.status]);
@@ -426,8 +432,8 @@ function DriverApp() {
                       <p className="font-semibold text-foreground">{p.client_name}</p>
                       <p className="text-xs text-muted-foreground">{p.origin}</p>
                     </div>
-                    <Button size="sm" onClick={() => accept(p.id)}>
-                      Aceitar
+                    <Button size="sm" onClick={() => accept(p.id)} disabled={actionBusy} loading={actionBusy}>
+                      {actionBusy ? "Aceitando..." : "Aceitar"}
                     </Button>
                   </div>
                 ))
