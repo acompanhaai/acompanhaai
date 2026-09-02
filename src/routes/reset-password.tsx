@@ -58,7 +58,7 @@ function ResetPassword() {
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-5 py-12">
-        <form className="surface w-full max-w-sm space-y-4 p-7" onSubmit={submit}>
+        <form className="surface surface-elevated w-full max-w-sm space-y-4 p-7" onSubmit={submit}>
           <h1 className="text-xl font-bold text-foreground">Definir nova senha</h1>
           <div className="space-y-2">
             <Label htmlFor="password">Nova senha</Label>

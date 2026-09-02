@@ -44,7 +44,7 @@ function Acompanhar() {
             Informe o número do protocolo (ex.: AC-2608-01001) ou o CPF do segurado.
           </p>
           <form
-            className="surface mt-6 flex gap-2 p-2"
+            className="surface surface-elevated mt-6 flex gap-2 p-2"
             onSubmit={(e) => {
               e.preventDefault();
               const q = value.trim();

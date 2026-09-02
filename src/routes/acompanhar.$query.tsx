@@ -92,7 +92,7 @@ function TrackingPage() {
             <Skeleton className="h-72 w-full" />
           </div>
         ) : isError ? (
-          <div className="surface p-8 text-center">
+          <div className="surface surface-elevated p-8 text-center">
             <p className="font-medium text-foreground">Não foi possível consultar agora</p>
             <p className="mt-1 text-sm text-muted-foreground">Tente novamente em alguns segundos.</p>
             <Button className="mt-4" onClick={() => refetch()} loading={isFetching} disabled={isFetching}>
@@ -100,7 +100,7 @@ function TrackingPage() {
             </Button>
           </div>
         ) : !data ? (
-          <div className="surface p-8 text-center">
+          <div className="surface surface-elevated p-8 text-center">
             <p className="font-medium text-foreground">Protocolo não encontrado</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Confira o número informado ou o CPF do segurado.
@@ -111,7 +111,7 @@ function TrackingPage() {
           </div>
         ) : (
           <div className="space-y-5">
-            <div className="surface flex flex-wrap items-center justify-between gap-4 p-6">
+            <div className="surface surface-elevated flex flex-wrap items-center justify-between gap-4 p-6">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Protocolo {data.number}
@@ -150,7 +150,7 @@ function TrackingPage() {
             ) : null}
 
             <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-              <div className="surface overflow-hidden">
+              <div className="surface surface-elevated overflow-hidden">
                 <div className="h-full min-h-[420px]">
                   {points.length > 0 ? (
                     <MapView
@@ -166,7 +166,7 @@ function TrackingPage() {
               </div>
 
               <div className="space-y-5">
-                <div className="surface p-5">
+                <div className="surface surface-elevated p-5">
                   <h2 className="text-sm font-semibold text-foreground">Motorista</h2>
                   {data.driver ? (
                     <div className="mt-3 flex items-center gap-3">
@@ -211,7 +211,7 @@ function TrackingPage() {
 
                 <TrackingChat query={query} driverName={data.driver?.name ?? null} />
 
-                <div className="surface p-5">
+                <div className="surface surface-elevated p-5">
                   <h2 className="text-sm font-semibold text-foreground">Linha do tempo</h2>
                   <ol className="mt-4 space-y-3">
                     {TIMELINE_ORDER.map((step) => {
@@ -269,7 +269,7 @@ function TrackingChat({ query, driverName }: { query: string; driverName: string
   }
 
   return (
-    <div className="surface p-5">
+    <div className="surface surface-elevated p-5">
       <h2 className="text-sm font-semibold text-foreground">
         Chat com {driverName ? `o motorista ${driverName}` : "o motorista"}
       </h2>
