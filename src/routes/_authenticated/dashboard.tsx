@@ -312,8 +312,9 @@ function Dashboard() {
                   list.map((p) => (
                     <button
                       key={p.id}
+                      type="button"
                       onClick={() => setSelectedId(p.id)}
-                      className={`surface w-full p-4 text-left transition-colors ${
+                      className={`interactive surface w-full p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                         selectedId === p.id ? "ring-2 ring-primary" : "hover:bg-muted/40"
                       }`}
                     >

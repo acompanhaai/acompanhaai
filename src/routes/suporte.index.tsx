@@ -141,8 +141,9 @@ function Suporte() {
                     <button
                       type="button"
                       onClick={() => setOpenId(isOpen ? null : article.id)}
-                      className="flex w-full items-center justify-between text-left"
+                      className="flex w-full items-center justify-between rounded-md text-left transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       aria-expanded={isOpen}
+                      aria-controls={`article-${article.id}`}
                     >
                       <CardTitle className="text-base font-medium">{article.title}</CardTitle>
                       <ChevronDown
