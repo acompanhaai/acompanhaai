@@ -61,7 +61,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
-  const { error } = await getSupabase()
+  const { id, status, currentBillingPeriod, scheduledChange } = data;
     .from("subscriptions")
     .update({
       status,
