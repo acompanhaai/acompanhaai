@@ -570,7 +570,7 @@ export type Database = {
       }
       current_driver_id: { Args: never; Returns: string }
       ensure_account_plan: {
-        Args: never
+        Args: { _user_id: string }
         Returns: {
           created_at: string
           period_end: string
@@ -604,9 +604,9 @@ export type Database = {
       is_valid_br_phone: { Args: { value: string }; Returns: boolean }
       is_valid_cpf: { Args: { value: string }; Returns: boolean }
       plan_request_limit: { Args: { _plan: string }; Returns: number }
-      release_request_slot: { Args: never; Returns: undefined }
+      release_request_slot: { Args: { _user_id: string }; Returns: undefined }
       reserve_request_slot: {
-        Args: never
+        Args: { _user_id: string }
         Returns: {
           created_at: string
           period_end: string
