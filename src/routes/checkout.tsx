@@ -148,6 +148,7 @@ function CheckoutPage() {
                 <p className="text-sm text-muted-foreground">
                   As formas de pagamento disponíveis para a sua conta aparecem exclusivamente no
                   checkout seguro do AcompanhaAí.
+                </p>
                 {!checkingUser && !user ? (
                   <>
                     <Button asChild className="mt-5 w-full">
