@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
+import { PRODUCT_TO_PLAN } from "@/lib/plan";
 
 let _supabase: ReturnType<typeof createClient<any>> | null = null;
 function getSupabase() {
@@ -47,11 +48,20 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
       },
       { onConflict: "paddle_subscription_id" },
     );
+
+  const planId = PRODUCT_TO_PLAN[productId] ?? "free";
+  const { error } = await getSupabase().rpc("apply_subscription_plan", {
+    _user_id: userId,
+    _plan: planId,
+    _status: status ?? "active",
+    _period_start: currentBillingPeriod?.startsAt ?? new Date().toISOString(),
+    _period_end: currentBillingPeriod?.endsAt ?? null,
+  });
+  if (error) throw error;
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
-  const { id, status, currentBillingPeriod, scheduledChange } = data;
-  await getSupabase()
+  const { error } = await getSupabase()
     .from("subscriptions")
     .update({
       status,
@@ -62,14 +72,48 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
     })
     .eq("paddle_subscription_id", id)
     .eq("environment", env);
+  if (error) throw error;
+
+  const subscription = await getSupabase()
+    .from("subscriptions")
+    .select("user_id, product_id")
+    .eq("paddle_subscription_id", id)
+    .eq("environment", env)
+    .maybeSingle();
+  if (subscription.error || !subscription.data) throw subscription.error ?? new Error("Subscription not found");
+  const planUpdate = await getSupabase().rpc("apply_subscription_plan", {
+    _user_id: subscription.data.user_id,
+    _plan: PRODUCT_TO_PLAN[subscription.data.product_id] ?? "free",
+    _status: status ?? "active",
+    _period_start: currentBillingPeriod?.startsAt ?? new Date().toISOString(),
+    _period_end: currentBillingPeriod?.endsAt ?? null,
+  });
+  if (planUpdate.error) throw planUpdate.error;
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
-  await getSupabase()
+  const { error } = await getSupabase()
     .from("subscriptions")
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("paddle_subscription_id", data.id)
     .eq("environment", env);
+  if (error) throw error;
+
+  const subscription = await getSupabase()
+    .from("subscriptions")
+    .select("user_id, product_id, current_period_start, current_period_end")
+    .eq("paddle_subscription_id", data.id)
+    .eq("environment", env)
+    .maybeSingle();
+  if (subscription.error || !subscription.data) throw subscription.error ?? new Error("Subscription not found");
+  const planUpdate = await getSupabase().rpc("apply_subscription_plan", {
+    _user_id: subscription.data.user_id,
+    _plan: PRODUCT_TO_PLAN[subscription.data.product_id] ?? "free",
+    _status: "canceled",
+    _period_start: subscription.data.current_period_start,
+    _period_end: subscription.data.current_period_end,
+  });
+  if (planUpdate.error) throw planUpdate.error;
 }
 
 async function handleWebhook(req: Request, env: PaddleEnv) {

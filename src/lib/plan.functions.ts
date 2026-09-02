@@ -11,9 +11,10 @@ export const getAccountPlan = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<PlanUsage> => {
     const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [{ data: row, error }, { data: profile }] = await Promise.all([
-      supabase.rpc("ensure_account_plan"),
+      supabaseAdmin.rpc("ensure_account_plan", { _user_id: userId }),
       supabase.from("profiles").select("company, name").eq("id", userId).maybeSingle(),
     ]);
 
