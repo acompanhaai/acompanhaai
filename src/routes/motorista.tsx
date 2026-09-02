@@ -279,11 +279,11 @@ function DriverApp() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
-        <div className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between px-5">
-          <Link to="/">
+        <div className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between gap-4 px-5">
+          <Link to="/" className="min-w-0">
             <Logo />
           </Link>
-          <Button variant="ghost" size="sm" onClick={signOut}>
+          <Button className="shrink-0" variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="size-4" />
             Sair
           </Button>
