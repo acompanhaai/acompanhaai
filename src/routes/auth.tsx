@@ -9,9 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { onlyDigits } from "@/lib/protocol";
+import { resolveHomePath } from "@/lib/session";
 import { suggestCompanies } from "@/lib/tracking.functions";
 
-const searchSchema = z.object({ mode: z.enum(["login", "signup"]).optional() });
+const searchSchema = z.object({
+  mode: z.enum(["login", "signup"]).optional(),
+  plan: z.enum(["free", "start", "growth", "scale"]).optional(),
+});
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
@@ -45,7 +49,7 @@ const signupSchema = z.object({
 });
 
 function AuthPage() {
-  const { mode } = Route.useSearch();
+  const { mode, plan } = Route.useSearch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [recovering, setRecovering] = useState(false);
@@ -54,11 +58,20 @@ function AuthPage() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
 
+  function goAfterAuth(path: string) {
+    if (plan && plan !== "free") {
+      navigate({ to: "/checkout", search: { plan }, replace: true });
+      return;
+    }
+    navigate({ to: path, replace: true });
+  }
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
+    resolveHomePath().then((path) => {
+      if (path) goAfterAuth(path);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, plan]);
 
   useEffect(() => {
     const digits = onlyDigits(taxId);
@@ -89,13 +102,14 @@ function AuthPage() {
       email: String(form.get("email") ?? "").trim(),
       password: String(form.get("password") ?? ""),
     });
+    const path = error ? null : await resolveHomePath();
     setLoading(false);
-    if (error) {
+    if (error || !path) {
       toast.error("Não foi possível entrar", { description: "Verifique e-mail e senha." });
       return;
     }
     toast.success("Bem-vindo de volta!");
-    navigate({ to: "/dashboard" });
+    goAfterAuth(path);
   }
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
@@ -139,7 +153,8 @@ function AuthPage() {
     }
     if (data.session) {
       toast.success("Conta criada!");
-      navigate({ to: "/dashboard" });
+      const path = await resolveHomePath();
+      goAfterAuth(path ?? "/dashboard");
     } else {
       toast.success("Confirme seu e-mail", {
         description: "Enviamos um link de verificação para sua caixa de entrada.",

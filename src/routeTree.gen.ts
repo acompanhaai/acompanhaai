@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as MotoristaRouteImport } from './routes/motorista'
 import { Route as PlanosRouteImport } from './routes/planos'
@@ -24,8 +25,10 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AcompanharIndexRouteImport } from './routes/acompanhar.index'
 import { Route as AcompanharQueryRouteImport } from './routes/acompanhar.$query'
 import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
+import { Route as CheckoutSucessoRouteImport } from './routes/checkout.sucesso'
 import { Route as SuporteIndexRouteImport } from './routes/suporte.index'
 import { Route as SuporteAssistenteRouteImport } from './routes/suporte.assistente'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,6 +42,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -101,6 +109,11 @@ const ApiSupportChatRoute = ApiSupportChatRouteImport.update({
   path: '/api/support-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutSucessoRoute = CheckoutSucessoRouteImport.update({
+  id: '/sucesso',
+  path: '/sucesso',
+  getParentRoute: () => CheckoutRoute,
+} as any)
 const SuporteIndexRoute = SuporteIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -111,10 +124,17 @@ const SuporteAssistenteRoute = SuporteAssistenteRouteImport.update({
   path: '/assistente',
   getParentRoute: () => SuporteRoute,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
   '/planos': typeof PlanosRoute
@@ -126,13 +146,16 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
+  '/checkout/sucesso': typeof CheckoutSucessoRoute
   '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar/': typeof AcompanharIndexRoute
   '/suporte/': typeof SuporteIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
   '/planos': typeof PlanosRoute
@@ -143,15 +166,18 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
+  '/checkout/sucesso': typeof CheckoutSucessoRoute
   '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar': typeof AcompanharIndexRoute
   '/suporte': typeof SuporteIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/contato': typeof ContatoRoute
   '/motorista': typeof MotoristaRoute
   '/planos': typeof PlanosRoute
@@ -163,15 +189,18 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/acompanhar/$query': typeof AcompanharQueryRoute
   '/api/support-chat': typeof ApiSupportChatRoute
+  '/checkout/sucesso': typeof CheckoutSucessoRoute
   '/suporte/assistente': typeof SuporteAssistenteRoute
   '/acompanhar/': typeof AcompanharIndexRoute
   '/suporte/': typeof SuporteIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/checkout'
     | '/contato'
     | '/motorista'
     | '/planos'
@@ -183,13 +212,16 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
+    | '/checkout/sucesso'
     | '/suporte/assistente'
     | '/acompanhar/'
     | '/suporte/'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/checkout'
     | '/contato'
     | '/motorista'
     | '/planos'
@@ -200,14 +232,17 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
+    | '/checkout/sucesso'
     | '/suporte/assistente'
     | '/acompanhar'
     | '/suporte'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/checkout'
     | '/contato'
     | '/motorista'
     | '/planos'
@@ -219,15 +254,18 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/acompanhar/$query'
     | '/api/support-chat'
+    | '/checkout/sucesso'
     | '/suporte/assistente'
     | '/acompanhar/'
     | '/suporte/'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CheckoutRoute: typeof CheckoutRouteWithChildren
   ContatoRoute: typeof ContatoRoute
   MotoristaRoute: typeof MotoristaRoute
   PlanosRoute: typeof PlanosRoute
@@ -239,6 +277,7 @@ export interface RootRouteChildren {
   AcompanharQueryRoute: typeof AcompanharQueryRoute
   ApiSupportChatRoute: typeof ApiSupportChatRoute
   AcompanharIndexRoute: typeof AcompanharIndexRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -262,6 +301,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -348,6 +394,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSupportChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/sucesso': {
+      id: '/checkout/sucesso'
+      path: '/sucesso'
+      fullPath: '/checkout/sucesso'
+      preLoaderRoute: typeof CheckoutSucessoRouteImport
+      parentRoute: typeof CheckoutRoute
+    }
     '/suporte/': {
       id: '/suporte/'
       path: '/'
@@ -362,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuporteAssistenteRouteImport
       parentRoute: typeof SuporteRoute
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -375,6 +435,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface CheckoutRouteChildren {
+  CheckoutSucessoRoute: typeof CheckoutSucessoRoute
+}
+
+const CheckoutRouteChildren: CheckoutRouteChildren = {
+  CheckoutSucessoRoute: CheckoutSucessoRoute,
+}
+
+const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
+  CheckoutRouteChildren,
+)
 
 interface SuporteRouteChildren {
   SuporteAssistenteRoute: typeof SuporteAssistenteRoute
@@ -393,6 +465,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CheckoutRoute: CheckoutRouteWithChildren,
   ContatoRoute: ContatoRoute,
   MotoristaRoute: MotoristaRoute,
   PlanosRoute: PlanosRoute,
@@ -404,6 +477,7 @@ const rootRouteChildren: RootRouteChildren = {
   AcompanharQueryRoute: AcompanharQueryRoute,
   ApiSupportChatRoute: ApiSupportChatRoute,
   AcompanharIndexRoute: AcompanharIndexRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

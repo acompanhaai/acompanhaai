@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ArrowRight, Building2, MapPin, Truck } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
+import { resolveHomePath } from "@/lib/session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,6 +47,14 @@ const cards = [
 ] as const;
 
 function Home() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    resolveHomePath().then((path) => {
+      if (path) navigate({ to: path, replace: true });
+    });
+  }, [navigate]);
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">

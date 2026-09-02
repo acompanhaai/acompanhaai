@@ -9,6 +9,7 @@ export const resolvePaddlePrice = createServerFn({ method: "GET" })
       `/prices?external_id=${encodeURIComponent(data.priceId)}`,
     );
     const result = (await response.json()) as { data?: { id: string }[] };
-    if (!result.data?.length) throw new Error("Price not found");
-    return result.data[0]!.id;
+    const price = result.data?.[0];
+    if (!price) throw new Error("Price not found");
+    return price.id;
   });
