@@ -49,7 +49,7 @@ const signupSchema = z.object({
 });
 
 function AuthPage() {
-  const { mode } = Route.useSearch();
+  const { mode, plan } = Route.useSearch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [recovering, setRecovering] = useState(false);
@@ -58,11 +58,20 @@ function AuthPage() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
 
+  function goAfterAuth(path: string) {
+    if (plan && plan !== "free") {
+      navigate({ to: "/checkout", search: { plan }, replace: true });
+      return;
+    }
+    navigate({ to: path, replace: true });
+  }
+
   useEffect(() => {
     resolveHomePath().then((path) => {
-      if (path) navigate({ to: path, replace: true });
+      if (path) goAfterAuth(path);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate, plan]);
 
   useEffect(() => {
     const digits = onlyDigits(taxId);
