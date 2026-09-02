@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { getPaddleClient, type PaddleEnv } from "@/lib/paddle.server";
+import type { PaddleEnv } from "@/lib/paddle.server";
 
 const environmentInput = z.object({
   environment: z.enum(["sandbox", "live"]),
@@ -28,13 +28,14 @@ export const createCustomerPortalSession = createServerFn({ method: "POST" })
     if (error) throw new Error("Não foi possível carregar a assinatura da conta.");
     if (!subscription) throw new Error("Nenhuma assinatura paga ativa foi encontrada.");
 
-    // O ambiente usado no portal é resolvido pelo servidor; o input só seleciona
-    // a linha da conta que o usuário autenticado pode consultar.
     const environment = runtimePaymentEnvironment();
     if (environment !== subscription.environment) {
       throw new Error("O ambiente de pagamentos da conta está indisponível no momento.");
     }
 
+    // O SDK e as credenciais privadas permanecem no servidor e só são carregados
+    // depois que a sessão autenticada e a assinatura própria foram verificadas.
+    const { getPaddleClient } = await import("@/lib/paddle.server");
     const paddle = getPaddleClient(environment);
     const session = await paddle.customerPortalSessions.create(
       subscription.paddle_customer_id,
