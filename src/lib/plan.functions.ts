@@ -13,7 +13,7 @@ export const getAccountPlan = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
 
     const [{ data: row, error }, { data: profile }] = await Promise.all([
-      supabase.rpc("ensure_account_plan").maybeSingle(),
+      supabase.rpc("ensure_account_plan"),
       supabase.from("profiles").select("company, name").eq("id", userId).maybeSingle(),
     ]);
 
