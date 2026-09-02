@@ -1,5 +1,5 @@
-- [ ] Reforçar modelo de dados e validações de motoristas/solicitações
-- [ ] Atualizar painel operacional com RE e endereço/serviços obrigatórios
-- [ ] Implementar código de confirmação e finalização segura do motorista
-- [ ] Atualizar acompanhamento público e fluxo de status
-- [ ] Validar build, linter e fluxo completo
+- [x] Reforçar modelo de dados e validações de motoristas/solicitações
+- [x] Atualizar painel operacional com RE e endereço/serviços obrigatórios
+- [x] Implementar código de confirmação e finalização segura do motorista
+- [x] Atualizar acompanhamento público e fluxo de status
+- [x] Validar build, linter e fluxo completo
