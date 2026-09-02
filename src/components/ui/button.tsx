@@ -44,9 +44,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        disabled={asChild ? undefined : disabled || loading}
-        aria-busy={loading || undefined}
         {...props}
+        disabled={asChild ? undefined : disabled || loading}
+        aria-disabled={asChild && (disabled || loading) ? true : undefined}
+        aria-busy={loading || undefined}
       >
         {loading ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
         <Slottable>{children}</Slottable>
