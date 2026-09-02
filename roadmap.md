@@ -8,3 +8,4 @@
 - [x] Adicionar feedback de limite, plano atual, saudação por empresa e loading de navegação
 - [x] Corrigir composição do botão (asChild + loading) e checkout sem formas de pagamento decorativas
 - [x] Webhook Paddle idempotente com liberação de evento em falha e portal de assinatura por ambiente real
+- [x] Auditoria e reforço de feedback visual em elementos clicáveis, estados assíncronos, foco, pressed e reduced motion
