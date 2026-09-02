@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isValidBRPhone, isValidCPF, isValidCEP, SERVICE_TYPES, PRIORITIES } from "@/lib/protocol";
 import { composeAddress } from "@/lib/protocol";
+import { PLAN_LIMIT_CODE } from "@/lib/plan";
 
 const protocolInput = z.object({
   client_name: z.string().trim().min(2).max(120),
