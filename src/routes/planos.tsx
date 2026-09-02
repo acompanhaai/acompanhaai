@@ -137,9 +137,15 @@ function Planos() {
                   className="w-full"
                   variant={plan.highlight ? "default" : "outline"}
                 >
-                  <Link to="/auth" search={{ mode: "signup" }}>
-                    {plan.cta}
-                  </Link>
+                  {plan.price > 0 ? (
+                    <Link to="/checkout" search={{ plan: plan.id }}>
+                      {plan.cta}
+                    </Link>
+                  ) : (
+                    <Link to="/auth" search={{ mode: "signup" }}>
+                      {plan.cta}
+                    </Link>
+                  )}
                 </Button>
                 {plan.note ? (
                   <p className="mt-2 text-center text-xs text-muted-foreground">{plan.note}</p>

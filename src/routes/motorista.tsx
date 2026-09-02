@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveHomePath } from "@/lib/session";
 import { finishWithCode } from "@/lib/atendimento.functions";
 import {
   STATUS_LABEL,

@@ -9,9 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { onlyDigits } from "@/lib/protocol";
+import { resolveHomePath } from "@/lib/session";
 import { suggestCompanies } from "@/lib/tracking.functions";
 
-const searchSchema = z.object({ mode: z.enum(["login", "signup"]).optional() });
+const searchSchema = z.object({
+  mode: z.enum(["login", "signup"]).optional(),
+  plan: z.enum(["free", "start", "growth", "scale"]).optional(),
+});
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
@@ -55,8 +59,8 @@ function AuthPage() {
   const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
+    resolveHomePath().then((path) => {
+      if (path) navigate({ to: path, replace: true });
     });
   }, [navigate]);
 
@@ -89,13 +93,14 @@ function AuthPage() {
       email: String(form.get("email") ?? "").trim(),
       password: String(form.get("password") ?? ""),
     });
+    const path = error ? null : await resolveHomePath();
     setLoading(false);
-    if (error) {
+    if (error || !path) {
       toast.error("Não foi possível entrar", { description: "Verifique e-mail e senha." });
       return;
     }
     toast.success("Bem-vindo de volta!");
-    navigate({ to: "/dashboard" });
+    navigate({ to: path, replace: true });
   }
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
@@ -139,7 +144,8 @@ function AuthPage() {
     }
     if (data.session) {
       toast.success("Conta criada!");
-      navigate({ to: "/dashboard" });
+      const path = await resolveHomePath();
+      navigate({ to: path ?? "/dashboard", replace: true });
     } else {
       toast.success("Confirme seu e-mail", {
         description: "Enviamos um link de verificação para sua caixa de entrada.",

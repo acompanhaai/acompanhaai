@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveHomePath } from "@/lib/session";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -43,7 +44,8 @@ function ResetPassword() {
       return;
     }
     toast.success("Senha atualizada!");
-    navigate({ to: "/dashboard" });
+    const path = await resolveHomePath();
+    navigate({ to: path ?? "/dashboard", replace: true });
   }
 
   return (
