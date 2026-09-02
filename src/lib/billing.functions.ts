@@ -7,9 +7,6 @@ const environmentInput = z.object({
   environment: z.enum(["sandbox", "live"]),
 });
 
-function runtimePaymentEnvironment(): PaddleEnv {
-  return process.env["VITE_PAYMENTS_CLIENT_TOKEN"]?.startsWith("test_") ? "sandbox" : "live";
-}
 
 /** Cria uma sessão temporária do portal oficial para a assinatura da conta autenticada. */
 export const createCustomerPortalSession = createServerFn({ method: "POST" })
@@ -28,10 +25,7 @@ export const createCustomerPortalSession = createServerFn({ method: "POST" })
     if (error) throw new Error("Não foi possível carregar a assinatura da conta.");
     if (!subscription) throw new Error("Nenhuma assinatura paga ativa foi encontrada.");
 
-    const environment = runtimePaymentEnvironment();
-    if (environment !== subscription.environment) {
-      throw new Error("O ambiente de pagamentos da conta está indisponível no momento.");
-    }
+    const environment = subscription.environment as PaddleEnv;
 
     // O SDK e as credenciais privadas permanecem no servidor e só são carregados
     // depois que a sessão autenticada e a assinatura própria foram verificadas.

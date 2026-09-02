@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Check, CreditCard, Lock, QrCode, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, Lock, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
@@ -145,19 +145,9 @@ function CheckoutPage() {
             </h2>
             {!started ? (
               <div className="mt-4">
-                <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-                    <CreditCard className="size-3.5" aria-hidden="true" /> Cartão de crédito
-                    (assinatura recorrente)
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-                    <QrCode className="size-3.5" aria-hidden="true" /> Pix, quando disponível
-                  </span>
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  As formas de pagamento disponíveis para a sua conta aparecem no formulário
-                  seguro abaixo.
-                </p>
+                <p className="text-sm text-muted-foreground">
+                  As formas de pagamento disponíveis para a sua conta aparecem exclusivamente no
+                  checkout seguro do AcompanhaAí.
                 {!checkingUser && !user ? (
                   <>
                     <Button asChild className="mt-5 w-full">

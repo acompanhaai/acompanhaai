@@ -154,30 +154,37 @@ async function handleWebhook(req: Request, env: PaddleEnv) {
   const claimed = await claimWebhookEvent(event.eventId, env, event.eventType);
   if (!claimed) return;
 
-  switch (event.eventType) {
-    case EventName.SubscriptionCreated:
-      await handleSubscriptionCreated(event.data, env);
-      break;
-    case EventName.SubscriptionUpdated:
-    case EventName.SubscriptionActivated:
-    case EventName.SubscriptionPastDue:
-    case EventName.SubscriptionPaused:
-    case EventName.SubscriptionResumed:
-    case EventName.SubscriptionTrialing:
-      await handleSubscriptionUpdated(event.data, env);
-      break;
-    case EventName.SubscriptionCanceled:
-      await handleSubscriptionCanceled(event.data, env);
-      break;
-    case EventName.TransactionPaymentFailed:
-      await handleTransactionPaymentFailed(event.data, env);
-      break;
-    case EventName.TransactionCompleted:
-    case EventName.TransactionPaid:
-      console.log("Payment event received:", event.eventType);
-      break;
-    default:
-      console.log("Unhandled event:", event.eventType);
+  try {
+    switch (event.eventType) {
+      case EventName.SubscriptionCreated:
+        await handleSubscriptionCreated(event.data, env);
+        break;
+      case EventName.SubscriptionUpdated:
+      case EventName.SubscriptionActivated:
+      case EventName.SubscriptionPastDue:
+      case EventName.SubscriptionPaused:
+      case EventName.SubscriptionResumed:
+      case EventName.SubscriptionTrialing:
+        await handleSubscriptionUpdated(event.data, env);
+        break;
+      case EventName.SubscriptionCanceled:
+        await handleSubscriptionCanceled(event.data, env);
+        break;
+      case EventName.TransactionPaymentFailed:
+        await handleTransactionPaymentFailed(event.data, env);
+        break;
+      case EventName.TransactionCompleted:
+      case EventName.TransactionPaid:
+        console.log("Payment event received:", event.eventType);
+        break;
+      default:
+        console.log("Unhandled event:", event.eventType);
+    }
+  } catch (error) {
+    // Libera a reivindicação para que a tentativa automática do Paddle possa
+    // reprocessar o evento após uma falha transitória de banco ou rede.
+    await getSupabase().from("payment_webhook_events").delete().eq("event_id", event.eventId);
+    throw error;
   }
 }
 
