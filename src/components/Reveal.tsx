@@ -50,7 +50,7 @@ export function Reveal({ children, className, delay = 0, as: Tag = "div" }: Reve
     <Tag
       ref={ref as never}
       data-revealed={visible ? "true" : "false"}
-      style={delay ? { transitionDelay: `${Math.round(delay * 1.8)}ms` } : undefined}
+      style={delay ? { transitionDelay: `${Math.round(delay * 2.6)}ms` } : undefined}
       className={cn("reveal", className)}
     >
       {children}
