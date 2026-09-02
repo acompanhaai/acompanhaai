@@ -213,7 +213,11 @@ function Dashboard() {
     };
   }, [protocols.data]);
 
+  const [signOutBusy, setSignOutBusy] = useState(false);
+
   async function signOut() {
+    if (signOutBusy) return;
+    setSignOutBusy(true);
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
@@ -232,9 +236,9 @@ function Dashboard() {
               drivers={drivers.data ?? []}
               disabled={accountPlan.data?.remaining === 0}
             />
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="size-4" />
-              Sair
+            <Button variant="ghost" size="sm" onClick={signOut} disabled={signOutBusy} loading={signOutBusy}>
+              {!signOutBusy ? <LogOut className="size-4" /> : null}
+              {signOutBusy ? "Saindo..." : "Sair"}
             </Button>
           </div>
         </div>

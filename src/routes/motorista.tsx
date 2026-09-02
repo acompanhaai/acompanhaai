@@ -266,6 +266,8 @@ function DriverApp() {
   }
 
   async function signOut() {
+    if (signOutBusy) return;
+    setSignOutBusy(true);
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
@@ -290,9 +292,9 @@ function DriverApp() {
           <Link to="/" className="min-w-0">
             <Logo />
           </Link>
-          <Button className="shrink-0" variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="size-4" />
-            Sair
+          <Button className="shrink-0" variant="ghost" size="sm" onClick={signOut} disabled={signOutBusy} loading={signOutBusy}>
+            {!signOutBusy ? <LogOut className="size-4" /> : null}
+            {signOutBusy ? "Saindo..." : "Sair"}
           </Button>
         </div>
       </header>
@@ -360,12 +362,12 @@ function DriverApp() {
                     const order = ["aceito", "em_deslocamento", "chegou", "em_atendimento"];
                     return order.indexOf(step.status) === order.indexOf(active.status) + 1;
                   }).map((step) => (
-                    <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)}>
-                      {step.label}
+                    <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)} disabled={actionBusy} loading={actionBusy}>
+                      {actionBusy ? "Atualizando..." : step.label}
                     </Button>
                   ))}
                   {active.status === "em_atendimento" ? (
-                    <Button size="sm" onClick={() => setFinishOpen(true)}>
+                    <Button size="sm" onClick={() => setFinishOpen(true)} disabled={actionBusy}>
                       Finalizar atendimento
                     </Button>
                   ) : null}
@@ -394,10 +396,10 @@ function DriverApp() {
                           autoComplete="off"
                         />
                       </div>
-                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4}>
+                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4} loading={finishBusy}>
                         {finishBusy ? "Validando..." : "Confirmar e finalizar"}
                       </Button>
-                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }}>
+                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }} disabled={finishBusy}>
                         Cancelar
                       </Button>
                     </div>
