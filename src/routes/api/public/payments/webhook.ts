@@ -31,7 +31,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     return;
   }
 
-  await getSupabase()
+  const subscriptionWrite = await getSupabase()
     .from("subscriptions")
     .upsert(
       {
@@ -48,6 +48,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
       },
       { onConflict: "paddle_subscription_id" },
     );
+  if (subscriptionWrite.error) throw subscriptionWrite.error;
 
   const planId = PRODUCT_TO_PLAN[productId] ?? "free";
   const { error } = await getSupabase().rpc("apply_subscription_plan", {
@@ -61,11 +62,26 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
-  const { id, status, currentBillingPeriod, scheduledChange } = data;
+  const { id, status, currentBillingPeriod, scheduledChange, items } = data;
+  const item = items?.[0];
+  const eventProductId = item?.product?.importMeta?.externalId;
+  const eventPriceId = item?.price?.importMeta?.externalId;
+  const { data: current, error: currentError } = await getSupabase()
+    .from("subscriptions")
+    .select("user_id, product_id, price_id")
+    .eq("paddle_subscription_id", id)
+    .eq("environment", env)
+    .maybeSingle();
+  if (currentError || !current) throw currentError ?? new Error("Subscription not found");
+
+  const productId = eventProductId ?? current.product_id;
+  const priceId = eventPriceId ?? current.price_id;
   const { error } = await getSupabase()
     .from("subscriptions")
     .update({
       status,
+      product_id: productId,
+      price_id: priceId,
       current_period_start: currentBillingPeriod?.startsAt,
       current_period_end: currentBillingPeriod?.endsAt,
       cancel_at_period_end: scheduledChange?.action === "cancel",
@@ -75,16 +91,9 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
     .eq("environment", env);
   if (error) throw error;
 
-  const subscription = await getSupabase()
-    .from("subscriptions")
-    .select("user_id, product_id")
-    .eq("paddle_subscription_id", id)
-    .eq("environment", env)
-    .maybeSingle();
-  if (subscription.error || !subscription.data) throw subscription.error ?? new Error("Subscription not found");
   const planUpdate = await getSupabase().rpc("apply_subscription_plan", {
-    _user_id: subscription.data.user_id,
-    _plan: PRODUCT_TO_PLAN[subscription.data.product_id] ?? "free",
+    _user_id: current.user_id,
+    _plan: PRODUCT_TO_PLAN[productId] ?? "free",
     _status: status ?? "active",
     _period_start: currentBillingPeriod?.startsAt ?? new Date().toISOString(),
     _period_end: currentBillingPeriod?.endsAt ?? null,

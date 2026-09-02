@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { LogOut, MapPin, Plus, Send, Truck, Users } from "lucide-react";
+import { ArrowUpRight, BarChart3, CalendarDays, CreditCard, LogOut, MapPin, Plus, Send, Truck, Users } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { MapView, type MapPoint } from "@/components/map/MapView";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,8 @@ import {
 } from "@/lib/protocol";
 import { geocodeAddress, lookupCep } from "@/lib/address.functions";
 import { createDriver, createProtocol } from "@/lib/ops.functions";
+import { getAccountPlan } from "@/lib/plan.functions";
+import { formatPeriodDate, nextPlan, planLabel, usageLevel, usageMessage, usagePercent, PLAN_LIMIT_CODE, type PlanUsage } from "@/lib/plan";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -140,6 +142,12 @@ function Dashboard() {
   const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("ativos");
+  const accountPlanFn = useServerFn(getAccountPlan);
+
+  const accountPlan = useQuery({
+    queryKey: ["account-plan"],
+    queryFn: () => accountPlanFn(),
+  });
 
   const protocols = useQuery({
     queryKey: ["protocols"],
@@ -220,7 +228,10 @@ function Dashboard() {
             <Logo />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <NewProtocolDialog drivers={drivers.data ?? []} />
+            <NewProtocolDialog
+              drivers={drivers.data ?? []}
+              disabled={accountPlan.data?.remaining === 0}
+            />
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="size-4" />
               Sair
@@ -230,7 +241,9 @@ function Dashboard() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-7">
-        <h1 className="text-2xl font-bold text-foreground">Base operacional</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          {accountPlan.data?.company ? `Olá, ${accountPlan.data.company}` : "Base operacional"}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Todos os atendimentos em andamento, em tempo real.
         </p>
@@ -241,6 +254,15 @@ function Dashboard() {
           <Kpi label="Em rota / no local" value={kpis.rota} />
           <Kpi label="Concluídos hoje" value={kpis.concluidosHoje} />
         </div>
+
+        {accountPlan.isLoading ? (
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            <Skeleton className="h-44 w-full" />
+            <Skeleton className="h-44 w-full" />
+          </div>
+        ) : accountPlan.data ? (
+          <AccountPlanOverview usage={accountPlan.data} />
+        ) : null}
 
         <Tabs defaultValue="protocolos" className="mt-7">
           <TabsList>
@@ -383,6 +405,64 @@ function Kpi({ label, value }: { label: string; value: number }) {
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-2 text-3xl font-bold text-foreground">{value}</p>
     </div>
+  );
+}
+
+function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
+  const level = usageLevel(usage);
+  const percent = usagePercent(usage);
+  const message = usageMessage(usage);
+  const upgradePlan = nextPlan(usage.planId);
+  const isAtLimit = level === "full";
+
+  return (
+    <section className="mt-5 grid gap-3 lg:grid-cols-[1.25fr_1fr]" aria-label="Plano e utilização">
+      <div className="surface p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <BarChart3 className="size-4 text-primary" /> Utilização mensal
+            </p>
+            <p className="mt-2 text-2xl font-bold text-foreground">
+              {usage.used} <span className="text-base font-medium text-muted-foreground">de {usage.limit} solicitações</span>
+            </p>
+          </div>
+          <span className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+            {percent}% usado
+          </span>
+        </div>
+        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted" aria-label={`${percent}% do limite utilizado`}>
+          <div className="usage-progress h-full rounded-full" data-level={level} />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span>{isAtLimit ? "Novas solicitações bloqueadas" : `${usage.remaining} solicitações restantes`}</span>
+          <span className="flex items-center gap-1"><CalendarDays className="size-3.5" /> Renova em {formatPeriodDate(usage.periodEnd)}</span>
+        </div>
+        {message ? (
+          <div className={`mt-4 rounded-md border px-3 py-2 text-sm ${isAtLimit ? "border-destructive/30 bg-destructive/10 text-destructive" : "border-warning/30 bg-warning/10 text-warning-foreground"}`}>
+            {message} {isAtLimit ? "Escolha um plano maior para continuar criando atendimentos." : ""}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="surface p-5">
+        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <CreditCard className="size-4 text-primary" /> Plano da conta
+        </p>
+        <div className="mt-2 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xl font-bold text-foreground">{usage.planName}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {usage.price === 0 ? "Gratuito" : `R$ ${usage.price.toLocaleString("pt-BR")}/mês`}
+            </p>
+          </div>
+          <Link to="/planos" className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong">
+            {usage.planId === "scale" ? "Ver planos" : `Ir para ${planLabel(upgradePlan)}`} <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+        <p className="mt-4 text-xs text-muted-foreground">O histórico permanece disponível mesmo quando o limite mensal é atingido.</p>
+      </div>
+    </section>
   );
 }
 
@@ -624,7 +704,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
   );
 }
 
-function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
+function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?: boolean }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -674,8 +754,13 @@ function NewProtocolDialog({ drivers }: { drivers: Driver[] }) {
       toast.success("Protocolo criado");
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["protocols"] });
+      queryClient.invalidateQueries({ queryKey: ["account-plan"] });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível criar o protocolo");
+      if (error instanceof Error && error.message === PLAN_LIMIT_CODE) {
+        toast.error("Limite mensal atingido", { description: "Acesse Planos para escolher uma opção com mais solicitações." });
+      } else {
+        toast.error(error instanceof Error ? error.message : "Não foi possível criar o protocolo");
+      }
     } finally {
       setBusy(false);
     }
