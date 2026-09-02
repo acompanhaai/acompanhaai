@@ -109,7 +109,7 @@ function DriverLogin() {
                 autoComplete="current-password"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading} loading={loading}>
               {loading ? "Entrando..." : "Entrar como motorista"}
             </Button>
           </form>
@@ -130,6 +130,8 @@ function DriverApp() {
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishCode, setFinishCode] = useState("");
   const [finishBusy, setFinishBusy] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [signOutBusy, setSignOutBusy] = useState(false);
   const finishWithCodeFn = useServerFn(finishWithCode);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -209,11 +211,13 @@ function DriverApp() {
   }, [sharing, driver.data?.id, active?.id]);
 
   async function accept(id: string) {
-    if (!driver.data?.id) return;
+    if (!driver.data?.id || actionBusy) return;
+    setActionBusy(true);
     const { error } = await supabase
       .from("protocols")
       .update({ driver_id: driver.data.id, status: "aceito", accepted_at: new Date().toISOString() })
       .eq("id", id);
+    setActionBusy(false);
     if (error) toast.error("Não foi possível aceitar", { description: error.message });
     else {
       toast.success("Chamado aceito");
@@ -223,7 +227,8 @@ function DriverApp() {
   }
 
   async function advance(step: (typeof FLOW)[number]) {
-    if (!active) return;
+    if (!active || actionBusy) return;
+    setActionBusy(true);
     const now = new Date().toISOString();
     const patch =
       step.status === "em_deslocamento"
@@ -232,6 +237,7 @@ function DriverApp() {
           ? { status: step.status, arrived_at: now }
           : { status: step.status, service_started_at: now };
     const { error } = await supabase.from("protocols").update(patch).eq("id", active.id);
+    setActionBusy(false);
     if (error) toast.error("Não foi possível atualizar", { description: error.message });
     else {
       toast.success(STATUS_LABEL[step.status]);
@@ -260,6 +266,8 @@ function DriverApp() {
   }
 
   async function signOut() {
+    if (signOutBusy) return;
+    setSignOutBusy(true);
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
@@ -284,9 +292,9 @@ function DriverApp() {
           <Link to="/" className="min-w-0">
             <Logo />
           </Link>
-          <Button className="shrink-0" variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="size-4" />
-            Sair
+          <Button className="shrink-0" variant="ghost" size="sm" onClick={signOut} disabled={signOutBusy} loading={signOutBusy}>
+            {!signOutBusy ? <LogOut className="size-4" /> : null}
+            {signOutBusy ? "Saindo..." : "Sair"}
           </Button>
         </div>
       </header>
@@ -313,6 +321,7 @@ function DriverApp() {
               <Button
                 variant={sharing ? "secondary" : "default"}
                 onClick={() => setSharing((v) => !v)}
+                aria-pressed={sharing}
               >
                 <Navigation className={sharing ? "size-4 animate-pulse" : "size-4"} />
                 {sharing ? "Enviando posição" : "Compartilhar posição"}
@@ -354,12 +363,12 @@ function DriverApp() {
                     const order = ["aceito", "em_deslocamento", "chegou", "em_atendimento"];
                     return order.indexOf(step.status) === order.indexOf(active.status) + 1;
                   }).map((step) => (
-                    <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)}>
-                      {step.label}
+                    <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)} disabled={actionBusy} loading={actionBusy}>
+                      {actionBusy ? "Atualizando..." : step.label}
                     </Button>
                   ))}
                   {active.status === "em_atendimento" ? (
-                    <Button size="sm" onClick={() => setFinishOpen(true)}>
+                    <Button size="sm" onClick={() => setFinishOpen(true)} disabled={actionBusy}>
                       Finalizar atendimento
                     </Button>
                   ) : null}
@@ -388,10 +397,10 @@ function DriverApp() {
                           autoComplete="off"
                         />
                       </div>
-                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4}>
+                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4} loading={finishBusy}>
                         {finishBusy ? "Validando..." : "Confirmar e finalizar"}
                       </Button>
-                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }}>
+                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }} disabled={finishBusy}>
                         Cancelar
                       </Button>
                     </div>
@@ -426,8 +435,8 @@ function DriverApp() {
                       <p className="font-semibold text-foreground">{p.client_name}</p>
                       <p className="text-xs text-muted-foreground">{p.origin}</p>
                     </div>
-                    <Button size="sm" onClick={() => accept(p.id)}>
-                      Aceitar
+                    <Button size="sm" onClick={() => accept(p.id)} disabled={actionBusy} loading={actionBusy}>
+                      {actionBusy ? "Aceitando..." : "Aceitar"}
                     </Button>
                   </div>
                 ))
@@ -441,6 +450,7 @@ function DriverApp() {
 }
 
 function DriverChat({ protocolId, driverName }: { protocolId: string; driverName: string }) {
+  const [messageBusy, setMessageBusy] = useState(false);
   const messages = useQuery({
     queryKey: ["messages", protocolId],
     queryFn: async () => {
@@ -457,25 +467,32 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
 
   async function send(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (messageBusy) return;
     const input = e.currentTarget.elements.namedItem("body") as HTMLInputElement;
     const body = input.value.trim();
     if (!body) return;
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) {
-      toast.error("Sessão expirada", { description: "Entre novamente para enviar mensagens." });
-      return;
-    }
-    const { error } = await supabase.from("messages").insert({
-      protocol_id: protocolId,
-      body: body.slice(0, 1000),
-      sender_role: "motorista",
-      sender_id: auth.user.id,
-      sender_name: driverName,
-    });
-    if (error) toast.error("Mensagem não enviada", { description: error.message });
-    else {
+    setMessageBusy(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        toast.error("Sessão expirada", { description: "Entre novamente para enviar mensagens." });
+        return;
+      }
+      const { error } = await supabase.from("messages").insert({
+        protocol_id: protocolId,
+        body: body.slice(0, 1000),
+        sender_role: "motorista",
+        sender_id: auth.user.id,
+        sender_name: driverName,
+      });
+      if (error) {
+        toast.error("Mensagem não enviada", { description: error.message });
+        return;
+      }
       input.value = "";
-      messages.refetch();
+      await messages.refetch();
+    } finally {
+      setMessageBusy(false);
     }
   }
 
@@ -502,9 +519,9 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
         )}
       </div>
       <form className="mt-3 flex gap-2" onSubmit={send}>
-        <Input name="body" placeholder="Mensagem para a base" maxLength={1000} />
-        <Button type="submit" size="icon" aria-label="Enviar mensagem">
-          <Send className="size-4" />
+        <Input name="body" placeholder="Mensagem para a base" maxLength={1000} disabled={messageBusy} />
+        <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messageBusy} loading={messageBusy}>
+          {!messageBusy ? <Send className="size-4" /> : null}
         </Button>
       </form>
     </div>

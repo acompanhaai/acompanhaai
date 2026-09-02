@@ -99,6 +99,7 @@ export function SupportChat() {
                 size="sm"
                 className="h-auto min-h-8 whitespace-normal py-2 text-left"
                 onClick={() => void send(suggestion)}
+                disabled={loading}
               >
                 {suggestion}
               </Button>

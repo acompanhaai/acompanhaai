@@ -204,7 +204,7 @@ function AuthPage() {
                 <Label htmlFor="recover-email">E-mail da conta</Label>
                 <Input id="recover-email" name="email" type="email" required />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading} loading={loading}>
                 {loading ? "Enviando..." : "Enviar link de recuperação"}
               </Button>
               <Button
@@ -239,16 +239,17 @@ function AuthPage() {
                       autoComplete="current-password"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading} loading={loading}>
                     {loading ? "Entrando..." : "Entrar"}
                   </Button>
-                  <button
+                  <Button
                     type="button"
-                    className="w-full text-sm text-muted-foreground hover:text-foreground"
+                    variant="link"
+                    className="h-auto w-full text-sm text-muted-foreground"
                     onClick={() => setRecovering(true)}
                   >
                     Esqueci minha senha
-                  </button>
+                  </Button>
                 </form>
               </TabsContent>
 
@@ -291,14 +292,16 @@ function AuthPage() {
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {suggestions.map((s) => (
-                            <button
+                            <Button
                               key={s}
                               type="button"
+                              variant="outline"
+                              size="sm"
                               onClick={() => setCompany(s)}
-                              className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary-strong transition-colors hover:bg-primary/20"
+                              className="h-auto rounded-full border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary-strong hover:bg-primary/20"
                             >
                               {s}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
@@ -318,7 +321,7 @@ function AuthPage() {
                       <Input id="confirm" name="confirm" type="password" required />
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading} loading={loading}>
                     {loading ? "Criando..." : "Criar conta"}
                   </Button>
                 </form>

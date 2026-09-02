@@ -88,7 +88,9 @@ function PlanPage() {
           <div className="surface mt-8 p-6">
             <p className="font-medium text-foreground">Não foi possível carregar o plano.</p>
             <p className="mt-1 text-sm text-muted-foreground">Atualize a página ou tente novamente em instantes.</p>
-            <Button className="mt-5" onClick={() => void planQuery.refetch()}>Tentar novamente</Button>
+            <Button className="mt-5" onClick={() => void planQuery.refetch()} loading={planQuery.isFetching} disabled={planQuery.isFetching}>
+              {planQuery.isFetching ? "Carregando..." : "Tentar novamente"}
+            </Button>
           </div>
         ) : (
           <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">

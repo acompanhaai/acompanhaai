@@ -223,7 +223,102 @@
 .usage-progress[data-level="warn90"] { width: 90%; background: var(--color-destructive); }
 .usage-progress[data-level="full"] { width: 100%; background: var(--color-destructive); }
 
+/* ---------------------------------------------------------------
+ * Camada global de interação: todo elemento realmente clicável tem
+ * cursor, hover, pressed e foco visíveis. Sutil e rápido (150–200ms).
+ * --------------------------------------------------------------- */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"],
+  a[href],
+  label:has(input:not(:disabled)[type="checkbox"]),
+  label:has(input:not(:disabled)[type="radio"]),
+  summary,
+  select:not(:disabled) {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:disabled,
+  [aria-disabled="true"],
+  select:disabled,
+  input:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+
+  button,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"],
+  a[href],
+  summary {
+    transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+    transition-duration: 180ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  button:not(:disabled):active,
+  [role="button"]:not([aria-disabled="true"]):active,
+  [role="tab"]:active,
+  [role="menuitem"]:active,
+  [role="switch"]:active,
+  [role="checkbox"]:active,
+  [role="radio"]:active,
+  summary:active {
+    transform: scale(0.985);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Cartões e linhas clicáveis */
+@utility interactive {
+  cursor: pointer;
+  transition:
+    background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-border));
+    box-shadow: var(--shadow-soft);
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .route-progress,
   .usage-progress { animation: none; transition: none; }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+
+  button:active,
+  [role="button"]:active,
+  .interactive:active {
+    transform: none;
+  }
 }
+

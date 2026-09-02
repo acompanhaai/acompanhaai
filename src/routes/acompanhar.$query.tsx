@@ -78,9 +78,9 @@ function TrackingPage() {
           <Link to="/" className="min-w-0">
             <Logo />
           </Link>
-          <Button className="shrink-0" variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={isFetching ? "size-4 animate-spin" : "size-4"} />
-            Atualizar
+          <Button className="shrink-0" variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching} loading={isFetching}>
+            {!isFetching ? <RefreshCw className="size-4" /> : null}
+            {isFetching ? "Atualizando..." : "Atualizar"}
           </Button>
         </div>
       </header>
@@ -95,8 +95,8 @@ function TrackingPage() {
           <div className="surface p-8 text-center">
             <p className="font-medium text-foreground">Não foi possível consultar agora</p>
             <p className="mt-1 text-sm text-muted-foreground">Tente novamente em alguns segundos.</p>
-            <Button className="mt-4" onClick={() => refetch()}>
-              Tentar novamente
+            <Button className="mt-4" onClick={() => refetch()} loading={isFetching} disabled={isFetching}>
+              {isFetching ? "Atualizando..." : "Tentar novamente"}
             </Button>
           </div>
         ) : !data ? (

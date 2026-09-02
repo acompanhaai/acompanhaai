@@ -213,7 +213,11 @@ function Dashboard() {
     };
   }, [protocols.data]);
 
+  const [signOutBusy, setSignOutBusy] = useState(false);
+
   async function signOut() {
+    if (signOutBusy) return;
+    setSignOutBusy(true);
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
@@ -232,9 +236,9 @@ function Dashboard() {
               drivers={drivers.data ?? []}
               disabled={accountPlan.data?.remaining === 0}
             />
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="size-4" />
-              Sair
+            <Button variant="ghost" size="sm" onClick={signOut} disabled={signOutBusy} loading={signOutBusy}>
+              {!signOutBusy ? <LogOut className="size-4" /> : null}
+              {signOutBusy ? "Saindo..." : "Sair"}
             </Button>
           </div>
         </div>
@@ -281,8 +285,9 @@ function Dashboard() {
               {["ativos", "todos", ...PROTOCOL_STATUSES].map((key) => (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => setFilter(key)}
-                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                     filter === key
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-border text-muted-foreground hover:bg-muted"
@@ -312,8 +317,9 @@ function Dashboard() {
                   list.map((p) => (
                     <button
                       key={p.id}
+                      type="button"
                       onClick={() => setSelectedId(p.id)}
-                      className={`surface w-full p-4 text-left transition-colors ${
+                      className={`interactive surface w-full p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                         selectedId === p.id ? "ring-2 ring-primary" : "hover:bg-muted/40"
                       }`}
                     >
@@ -472,6 +478,7 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
 function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Driver[] }) {
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [messageBusy, setMessageBusy] = useState(false);
   const driver = drivers.find((d) => d.id === protocol.driver_id) ?? null;
 
   const messages = useQuery({
@@ -542,21 +549,28 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
 
   async function sendMessage(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (messageBusy) return;
     const input = e.currentTarget.elements.namedItem("body") as HTMLInputElement;
     const body = input.value.trim();
     if (!body) return;
-    const { data: auth } = await supabase.auth.getUser();
-    const { error } = await supabase.from("messages").insert({
-      protocol_id: protocol.id,
-      body: body.slice(0, 1000),
-      sender_role: "base",
-      sender_id: auth.user?.id ?? null,
-      sender_name: (auth.user?.user_metadata?.["full_name"] as string) ?? "Base operacional",
-    });
-    if (error) toast.error("Mensagem não enviada", { description: error.message });
-    else {
+    setMessageBusy(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const { error } = await supabase.from("messages").insert({
+        protocol_id: protocol.id,
+        body: body.slice(0, 1000),
+        sender_role: "base",
+        sender_id: auth.user?.id ?? null,
+        sender_name: (auth.user?.user_metadata?.["full_name"] as string) ?? "Base operacional",
+      });
+      if (error) {
+        toast.error("Mensagem não enviada", { description: error.message });
+        return;
+      }
       input.value = "";
-      messages.refetch();
+      await messages.refetch();
+    } finally {
+      setMessageBusy(false);
     }
   }
 
@@ -597,15 +611,16 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
                    <p className="text-sm text-muted-foreground">Cadastre motoristas primeiro.</p>
                  ) : (
                    drivers.map((d) => (
-                     <Button
-                       key={d.id}
-                       size="sm"
-                       variant="outline"
-                       disabled={busy}
-                       onClick={() => assignDriver(d.id)}
-                     >
-                       Designar RE {d.re}
-                     </Button>
+                      <Button
+                        key={d.id}
+                        size="sm"
+                        variant="outline"
+                        disabled={busy}
+                        loading={busy}
+                        onClick={() => assignDriver(d.id)}
+                      >
+                        {busy ? "Designando..." : `Designar RE ${d.re}`}
+                      </Button>
                    ))
                  )}
                </div>
@@ -616,15 +631,16 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
              <p className="text-xs font-medium text-muted-foreground">Alterar status</p>
              <div className="mt-2 flex flex-wrap gap-2">
                {nextStatuses.filter((s) => s !== "concluido").map((s) => (
-                 <Button
-                   key={s}
-                   size="sm"
-                   variant="secondary"
-                   disabled={busy}
-                   onClick={() => updateStatus(s)}
-                 >
-                   {STATUS_LABEL[s]}
-                 </Button>
+                  <Button
+                    key={s}
+                    size="sm"
+                    variant="secondary"
+                    disabled={busy}
+                    loading={busy}
+                    onClick={() => updateStatus(s)}
+                  >
+                    {busy ? "Atualizando..." : STATUS_LABEL[s]}
+                  </Button>
                ))}
              </div>
            </div>
@@ -697,9 +713,9 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
           )}
         </div>
         <form className="mt-3 flex gap-2" onSubmit={sendMessage}>
-          <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} />
-          <Button type="submit" size="icon" aria-label="Enviar mensagem">
-            <Send className="size-4" />
+          <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} disabled={messageBusy} />
+          <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messageBusy} loading={messageBusy}>
+            {!messageBusy ? <Send className="size-4" /> : null}
           </Button>
         </form>
       </div>
@@ -862,7 +878,7 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
             <Textarea id="notes" name="notes" rows={3} maxLength={1000} />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={busy}>
+            <Button type="submit" disabled={busy} loading={busy}>
               {busy ? "Criando..." : "Criar protocolo"}
             </Button>
           </DialogFooter>
@@ -922,7 +938,7 @@ function NewDriverDialog() {
             <Field label="Placa" name="plate" />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={busy}>
+            <Button type="submit" disabled={busy} loading={busy}>
               {busy ? "Salvando..." : "Cadastrar"}
             </Button>
           </DialogFooter>
