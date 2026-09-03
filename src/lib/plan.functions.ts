@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { planById } from "@/config/plans";
 import { isPlanId, type PlanUsage } from "@/lib/plan";
+import { getPaymentsEnvironment } from "@/lib/payments-env";
 
 /**
  * Plano, período e consumo da conta autenticada.
@@ -14,7 +15,7 @@ export const getAccountPlan = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [{ data: row, error }, { data: profile }] = await Promise.all([
-      supabaseAdmin.rpc("ensure_account_plan", { _user_id: userId }),
+      supabaseAdmin.rpc("ensure_account_plan", { _user_id: userId, _environment: getPaymentsEnvironment() }),
       supabase.from("profiles").select("company, name").eq("id", userId).maybeSingle(),
     ]);
 
