@@ -1,6 +1,5 @@
 import { resolvePaddlePrice } from "@/lib/payments.functions";
-
-const clientToken = import.meta.env["VITE_PAYMENTS_CLIENT_TOKEN"] as string | undefined;
+import { getPaymentsClientToken, getPaymentsEnvironment } from "@/lib/payments-env";
 
 declare global {
   interface Window {
@@ -9,13 +8,14 @@ declare global {
 }
 
 export function getPaddleEnvironment(): "sandbox" | "live" {
-  return clientToken?.startsWith("test_") ? "sandbox" : "live";
+  return getPaymentsEnvironment();
 }
 
 let paddleInitialized = false;
 
 export async function initializePaddle() {
   if (paddleInitialized) return;
+  const clientToken = getPaymentsClientToken();
   if (!clientToken) throw new Error("VITE_PAYMENTS_CLIENT_TOKEN is not set");
 
   return new Promise<void>((resolve, reject) => {

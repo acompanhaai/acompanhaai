@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { isValidBRPhone, isValidCPF, isValidCEP, SERVICE_TYPES, PRIORITIES } from "@/lib/protocol";
 import { composeAddress } from "@/lib/protocol";
 import { PLAN_LIMIT_CODE } from "@/lib/plan";
+import { getPaymentsEnvironment } from "@/lib/payments-env";
 
 const protocolInput = z.object({
   client_name: z.string().trim().min(2).max(120),
@@ -42,8 +43,10 @@ export const createProtocol = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Autoridade do limite: o banco reserva o slot do período atual.
+    const environment = getPaymentsEnvironment();
     const { data: reserved, error: reserveError } = await supabaseAdmin.rpc("reserve_request_slot", {
       _user_id: userId,
+      _environment: environment,
     });
     if (reserveError) throw new Error("Não foi possível validar o seu plano agora.");
     if (!reserved) throw new Error(PLAN_LIMIT_CODE);
@@ -83,7 +86,7 @@ export const createProtocol = createServerFn({ method: "POST" })
     }).select("id").single();
     if (error) {
       // Devolve a reserva quando a criação não se concretiza.
-      await supabaseAdmin.rpc("release_request_slot", { _user_id: userId });
+      await supabaseAdmin.rpc("release_request_slot", { _user_id: userId, _environment: environment });
       throw new Error("Não foi possível criar o atendimento.");
     }
     return { id: row.id, usage: { used: reserved.requests_used, limit: reserved.requests_limit } };

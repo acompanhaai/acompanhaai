@@ -17,6 +17,7 @@ export type Database = {
       account_plans: {
         Row: {
           created_at: string
+          environment: string
           period_end: string
           period_start: string
           plan_id: string
@@ -28,6 +29,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          environment?: string
           period_end?: string
           period_start?: string
           plan_id?: string
@@ -39,6 +41,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          environment?: string
           period_end?: string
           period_start?: string
           plan_id?: string
@@ -581,6 +584,7 @@ export type Database = {
     Functions: {
       apply_subscription_plan: {
         Args: {
+          _environment: string
           _period_end: string
           _period_start: string
           _plan: string
@@ -591,9 +595,10 @@ export type Database = {
       }
       current_driver_id: { Args: never; Returns: string }
       ensure_account_plan: {
-        Args: { _user_id: string }
+        Args: { _environment: string; _user_id: string }
         Returns: {
           created_at: string
+          environment: string
           period_end: string
           period_start: string
           plan_id: string
@@ -625,11 +630,15 @@ export type Database = {
       is_valid_br_phone: { Args: { value: string }; Returns: boolean }
       is_valid_cpf: { Args: { value: string }; Returns: boolean }
       plan_request_limit: { Args: { _plan: string }; Returns: number }
-      release_request_slot: { Args: { _user_id: string }; Returns: undefined }
+      release_request_slot: {
+        Args: { _environment: string; _user_id: string }
+        Returns: undefined
+      }
       reserve_request_slot: {
-        Args: { _user_id: string }
+        Args: { _environment: string; _user_id: string }
         Returns: {
           created_at: string
+          environment: string
           period_end: string
           period_start: string
           plan_id: string
