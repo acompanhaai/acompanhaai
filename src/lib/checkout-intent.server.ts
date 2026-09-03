@@ -1,21 +1,16 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import type { PaddleEnv } from "@/lib/paddle.server";
 
-/**
- * Assina o vínculo entre a assinatura e a conta.
- *
- * O `customData` do checkout é montado no navegador, então o webhook não pode
- * confiar apenas no `userId` recebido. A assinatura abaixo é emitida no
- * servidor, só depois da sessão autenticada, e verificada no webhook antes de
- * aplicar qualquer plano.
- */
-function getSigningSecret(): string {
-  const secret = process.env["SUPABASE_SERVICE_ROLE_KEY"];
-  if (!secret) throw new Error("Payment signing secret is not configured");
-  return secret;
+function signingSecret(environment: PaddleEnv): string {
+  const key = environment === "sandbox"
+    ? process.env["PADDLE_SANDBOX_API_KEY"]
+    : process.env["PADDLE_LIVE_API_KEY"];
+  if (!key) throw new Error("Payment signing secret is not configured");
+  return key;
 }
 
-export function signCheckoutIntent(userId: string, plan: string, environment: string): string {
-  return createHmac("sha256", getSigningSecret())
+export function signCheckoutIntent(userId: string, plan: string, environment: PaddleEnv): string {
+  return createHmac("sha256", signingSecret(environment))
     .update(`${userId}|${plan}|${environment}`)
     .digest("hex");
 }
@@ -23,7 +18,7 @@ export function signCheckoutIntent(userId: string, plan: string, environment: st
 export function verifyCheckoutIntent(
   userId: string,
   plan: string,
-  environment: string,
+  environment: PaddleEnv,
   signature: string | undefined,
 ): boolean {
   if (!signature) return false;

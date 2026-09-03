@@ -4,18 +4,16 @@ import { planById } from "@/config/plans";
 import { isPlanId, type PlanUsage } from "@/lib/plan";
 import { getPaymentsEnvironment } from "@/lib/payments-env";
 
-/**
- * Plano, período e consumo da conta autenticada.
- * O banco é a autoridade: nada aqui aceita valores enviados pelo navegador.
- */
+/** Plano, período e consumo da conta autenticada. O banco é a autoridade. */
 export const getAccountPlan = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<PlanUsage> => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const environment = getPaymentsEnvironment();
 
     const [{ data: row, error }, { data: profile }] = await Promise.all([
-      supabaseAdmin.rpc("ensure_account_plan", { _user_id: userId, _environment: getPaymentsEnvironment() }),
+      supabaseAdmin.rpc("ensure_account_plan", { _user_id: userId, _environment: environment }),
       supabase.from("profiles").select("company, name").eq("id", userId).maybeSingle(),
     ]);
 
