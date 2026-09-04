@@ -6,7 +6,7 @@ import { Logo } from "@/components/Logo";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatPrice, formatRequests, planById, plans, type PlanId } from "@/config/plans";
+import { formatPrice, formatRequests, planById, plans } from "@/config/plans";
 import { supabase } from "@/integrations/supabase/client";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 
