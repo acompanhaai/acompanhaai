@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
 import { PRODUCT_TO_PLAN } from "@/lib/plan";
+import { verifyCheckoutIntent } from "@/lib/checkout-intent.server";
 
 type PaymentDatabase = ReturnType<typeof createClient<any>>;
 let _supabase: PaymentDatabase | null = null;
@@ -34,6 +35,7 @@ async function applyPlan(
   status: string,
   periodStart: string | null | undefined,
   periodEnd: string | null | undefined,
+  environment: PaddleEnv,
 ) {
   const { error } = await getSupabase().rpc("apply_subscription_plan", {
     _user_id: userId,
@@ -41,6 +43,7 @@ async function applyPlan(
     _status: status || "active",
     _period_start: periodStart ?? new Date().toISOString(),
     _period_end: periodEnd ?? null,
+    _environment: environment,
   });
   if (error) throw error;
 }
@@ -50,6 +53,16 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
   const userId = customData?.userId;
   if (!userId) {
     console.error("No userId in customData");
+    return;
+  }
+
+  // O vínculo conta/plano/ambiente é assinado no servidor antes do checkout.
+  // Sem assinatura válida o evento não pode conceder plano a ninguém.
+  if (
+    customData?.environment !== env ||
+    !verifyCheckoutIntent(userId, String(customData?.plan ?? ""), env, customData?.signature)
+  ) {
+    console.warn("Skipping subscription: invalid checkout intent signature");
     return;
   }
 
@@ -77,7 +90,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     { onConflict: "paddle_subscription_id" },
   );
   if (error) throw error;
-  await applyPlan(userId, productId, status, currentBillingPeriod?.startsAt, currentBillingPeriod?.endsAt);
+  await applyPlan(userId, productId, status, currentBillingPeriod?.startsAt, currentBillingPeriod?.endsAt, env);
 }
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
@@ -109,7 +122,7 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
     .eq("paddle_subscription_id", id)
     .eq("environment", env);
   if (error) throw error;
-  await applyPlan(current.user_id, productId, status, currentBillingPeriod?.startsAt, currentBillingPeriod?.endsAt);
+  await applyPlan(current.user_id, productId, status, currentBillingPeriod?.startsAt, currentBillingPeriod?.endsAt, env);
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
@@ -127,7 +140,7 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
     .eq("paddle_subscription_id", data.id)
     .eq("environment", env);
   if (error) throw error;
-  await applyPlan(subscription.user_id, subscription.product_id, "canceled", subscription.current_period_start, subscription.current_period_end);
+  await applyPlan(subscription.user_id, subscription.product_id, "canceled", subscription.current_period_start, subscription.current_period_end, env);
 }
 
 async function handleTransactionPaymentFailed(data: any, env: PaddleEnv) {
@@ -146,7 +159,7 @@ async function handleTransactionPaymentFailed(data: any, env: PaddleEnv) {
     .eq("paddle_subscription_id", data.subscriptionId)
     .eq("environment", env);
   if (updateError) throw updateError;
-  await applyPlan(subscription.user_id, subscription.product_id, "past_due", subscription.current_period_start, subscription.current_period_end);
+  await applyPlan(subscription.user_id, subscription.product_id, "past_due", subscription.current_period_start, subscription.current_period_end, env);
 }
 
 async function handleWebhook(req: Request, env: PaddleEnv) {

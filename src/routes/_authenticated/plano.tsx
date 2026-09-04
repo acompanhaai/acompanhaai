@@ -2,13 +2,21 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, ExternalLink, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAccountPlan } from "@/lib/plan.functions";
 import { formatPeriodDate, usagePercent } from "@/lib/plan";
-import { createCustomerPortalSession } from "@/lib/billing.functions";
+import { cancelSubscription, changeSubscriptionPlan, createCustomerPortalSession } from "@/lib/billing.functions";
+import { paidPlans } from "@/lib/plan";
+import { formatPrice, formatRequests } from "@/config/plans";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { getPaddleEnvironment } from "@/lib/paddle";
 
 export const Route = createFileRoute("/_authenticated/plano")({
@@ -28,7 +36,12 @@ export const Route = createFileRoute("/_authenticated/plano")({
 function PlanPage() {
   const accountPlanFn = useServerFn(getAccountPlan);
   const portalFn = useServerFn(createCustomerPortalSession);
+  const changePlanFn = useServerFn(changeSubscriptionPlan);
+  const cancelFn = useServerFn(cancelSubscription);
+  const queryClient = useQueryClient();
   const [portalLoading, setPortalLoading] = useState(false);
+  const [changing, setChanging] = useState<string | null>(null);
+  const [canceling, setCanceling] = useState(false);
   const environment = getPaddleEnvironment();
   const planQuery = useQuery({
     queryKey: ["account-plan", environment],
@@ -46,6 +59,40 @@ function PlanPage() {
       });
     } finally {
       setPortalLoading(false);
+    }
+  }
+
+  async function changePlan(plan: "start" | "growth" | "scale") {
+    setChanging(plan);
+    try {
+      const result = await changePlanFn({ data: { plan } });
+      toast.success("Plano alterado", {
+        description: `A troca para ${result.plan} foi aplicada com cobrança proporcional.`,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["account-plan"] });
+    } catch (error) {
+      toast.error("Não foi possível alterar o plano", {
+        description: error instanceof Error ? error.message : "Tente novamente em instantes.",
+      });
+    } finally {
+      setChanging(null);
+    }
+  }
+
+  async function cancelPlan() {
+    setCanceling(true);
+    try {
+      await cancelFn({});
+      toast.success("Cancelamento agendado", {
+        description: "Você mantém o acesso até o final do período já pago.",
+      });
+      await queryClient.invalidateQueries({ queryKey: ["account-plan"] });
+    } catch (error) {
+      toast.error("Não foi possível cancelar", {
+        description: error instanceof Error ? error.message : "Tente novamente em instantes.",
+      });
+    } finally {
+      setCanceling(false);
     }
   }
 
@@ -136,7 +183,57 @@ function PlanPage() {
               {usage.status === "past_due" ? <p className="mt-5 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">Não conseguimos confirmar o último pagamento. Seu plano permanece inalterado até a regularização.</p> : null}
               {usage.status === "canceled" ? <p className="mt-5 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">Seu plano será cancelado ao final do período atual.</p> : null}
               {isPaid ? (
-                <Button className="mt-6 w-full" onClick={openPortal} disabled={portalLoading} loading={portalLoading}>
+                <div className="mt-6 border-t border-border pt-5">
+                  <p className="text-sm font-semibold text-foreground">Trocar de plano</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    A troca é imediata, com cobrança proporcional ao período restante.
+                  </p>
+                  <div className="mt-3 grid gap-2">
+                    {paidPlans
+                      .filter((p) => p.id !== usage.planId)
+                      .map((p) => (
+                        <Button
+                          key={p.id}
+                          variant="outline"
+                          className="h-auto justify-between px-3 py-2 text-left"
+                          onClick={() => void changePlan(p.id as "start" | "growth" | "scale")}
+                          disabled={changing !== null || canceling}
+                          loading={changing === p.id}
+                        >
+                          <span className="text-sm font-medium text-foreground">{p.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatPrice(p.price)}/mês · {formatRequests(p.requests)}
+                          </span>
+                        </Button>
+                      ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {isPaid && usage.status !== "canceled" ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" className="mt-4 w-full" disabled={canceling || changing !== null} loading={canceling}>
+                      Cancelar assinatura
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Cancelar no fim do período?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Você mantém acesso ao plano {usage.planName} até {formatPeriodDate(usage.periodEnd)}. Depois disso a conta volta ao plano gratuito.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Manter assinatura</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => void cancelPlan()}>Cancelar assinatura</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : null}
+
+              {isPaid ? (
+                <Button className="mt-4 w-full" variant="outline" onClick={openPortal} disabled={portalLoading} loading={portalLoading}>
                   {portalLoading ? "Abrindo gerenciamento..." : "Gerenciar assinatura"}
                   {!portalLoading ? <ExternalLink className="size-4" /> : null}
                 </Button>

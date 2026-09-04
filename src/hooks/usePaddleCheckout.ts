@@ -1,25 +1,33 @@
 import { useState } from "react";
-import { initializePaddle, getPaddlePriceId } from "@/lib/paddle";
+import { useServerFn } from "@tanstack/react-start";
+import { initializePaddle } from "@/lib/paddle";
+import { prepareCheckout } from "@/lib/payments.functions";
 
+/**
+ * Abre o checkout do provedor com dados preparados no servidor. O preço e o
+ * vínculo com a conta nunca são montados no navegador.
+ */
 export function usePaddleCheckout() {
+  const prepare = useServerFn(prepareCheckout);
   const [loading, setLoading] = useState(false);
 
   const openCheckout = async (options: {
-    priceId: string;
+    plan: "start" | "growth" | "scale";
     customerEmail?: string | undefined;
-    customData?: Record<string, string> | undefined;
     successUrl?: string | undefined;
     frameTarget?: string | undefined;
   }) => {
     setLoading(true);
     try {
-      await initializePaddle();
-      const paddlePriceId = await getPaddlePriceId(options.priceId);
+      const [intent] = await Promise.all([
+        prepare({ data: { plan: options.plan } }),
+        initializePaddle(),
+      ]);
 
       window.Paddle.Checkout.open({
-        items: [{ priceId: paddlePriceId, quantity: 1 }],
+        items: [{ priceId: intent.paddlePriceId, quantity: 1 }],
         customer: options.customerEmail ? { email: options.customerEmail } : undefined,
-        customData: options.customData,
+        customData: intent.customData,
         settings: {
           displayMode: options.frameTarget ? "inline" : "overlay",
           frameTarget: options.frameTarget,
