@@ -1,4 +1,3 @@
-import { resolvePaddlePrice } from "@/lib/payments.functions";
 import { getPaymentsClientToken, getPaymentsEnvironment } from "@/lib/payments-env";
 
 declare global {
@@ -32,9 +31,4 @@ export async function initializePaddle() {
     script.onerror = reject;
     document.head.appendChild(script);
   });
-}
-
-export async function getPaddlePriceId(priceId: string): Promise<string> {
-  const environment = getPaddleEnvironment();
-  return resolvePaddlePrice({ data: { priceId, environment } });
 }
