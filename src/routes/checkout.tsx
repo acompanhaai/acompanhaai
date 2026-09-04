@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, formatRequests, planById, plans, type PlanId } from "@/config/plans";
 import { supabase } from "@/integrations/supabase/client";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
-import { PLAN_TO_PRICE } from "@/lib/plan";
 
 const searchSchema = z.object({
   plan: z.enum(["free", "start", "growth", "scale"]).optional(),
@@ -37,8 +36,6 @@ export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
 });
 
-const PRICE_BY_PLAN: Partial<Record<PlanId, string>> = PLAN_TO_PRICE;
-
 function CheckoutPage() {
   const { plan: planParam } = Route.useSearch();
   const navigate = useNavigate();
@@ -48,7 +45,8 @@ function CheckoutPage() {
   const [started, setStarted] = useState(false);
 
   const plan = planParam ? planById(planParam) : null;
-  const priceId = plan ? PRICE_BY_PLAN[plan.id] : undefined;
+  const paidPlan =
+    plan && plan.id !== "free" ? (plan.id as "start" | "growth" | "scale") : null;
 
   useEffect(() => {
     async function loadCheckoutUser() {
@@ -65,17 +63,12 @@ function CheckoutPage() {
   }, []);
 
   async function start() {
-    if (!priceId || !user) return;
+    if (!paidPlan || !user) return;
     setStarted(true);
     try {
       await openCheckout({
-        priceId,
+        plan: paidPlan,
         customerEmail: user.email,
-        customData: {
-          userId: user.id,
-          company: user.company ?? "",
-          plan: plan?.id ?? "",
-        },
         frameTarget: "checkout-container",
         successUrl: `${window.location.origin}/checkout/sucesso`,
       });
@@ -84,7 +77,7 @@ function CheckoutPage() {
     }
   }
 
-  if (!plan || !priceId) {
+  if (!plan || !paidPlan) {
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <CheckoutHeader />
