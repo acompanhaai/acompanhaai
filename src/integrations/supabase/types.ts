@@ -51,6 +51,7 @@ export type Database = {
         Row: {
           action: string;
           actor_id: string | null;
+          company_id: string | null;
           created_at: string;
           entity: string | null;
           entity_id: string | null;
@@ -60,6 +61,7 @@ export type Database = {
         Insert: {
           action: string;
           actor_id?: string | null;
+          company_id?: string | null;
           created_at?: string;
           entity?: string | null;
           entity_id?: string | null;
@@ -69,6 +71,7 @@ export type Database = {
         Update: {
           action?: string;
           actor_id?: string | null;
+          company_id?: string | null;
           created_at?: string;
           entity?: string | null;
           entity_id?: string | null;
@@ -77,11 +80,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      companies: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          tax_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          tax_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          tax_id?: string | null;
+        };
+        Relationships: [];
+      };
       drivers: {
         Row: {
           accept_rate: number;
           avg_minutes: number;
           city: string | null;
+          company_id: string;
           cpf: string;
           created_at: string;
           id: string;
@@ -102,6 +127,7 @@ export type Database = {
           accept_rate?: number;
           avg_minutes?: number;
           city?: string | null;
+          company_id: string;
           cpf: string;
           created_at?: string;
           id?: string;
@@ -122,6 +148,7 @@ export type Database = {
           accept_rate?: number;
           avg_minutes?: number;
           city?: string | null;
+          company_id?: string;
           cpf?: string;
           created_at?: string;
           id?: string;
@@ -138,10 +165,19 @@ export type Database = {
           user_id?: string | null;
           vehicle?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "drivers_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       insureds: {
         Row: {
+          company_id: string | null;
           cpf: string | null;
           created_at: string;
           id: string;
@@ -150,6 +186,7 @@ export type Database = {
           phone: string | null;
         };
         Insert: {
+          company_id?: string | null;
           cpf?: string | null;
           created_at?: string;
           id?: string;
@@ -158,6 +195,7 @@ export type Database = {
           phone?: string | null;
         };
         Update: {
+          company_id?: string | null;
           cpf?: string | null;
           created_at?: string;
           id?: string;
@@ -165,10 +203,19 @@ export type Database = {
           name?: string;
           phone?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "insureds_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       location_history: {
         Row: {
+          company_id: string | null;
           created_at: string;
           driver_id: string | null;
           id: number;
@@ -177,6 +224,7 @@ export type Database = {
           protocol_id: string | null;
         };
         Insert: {
+          company_id?: string | null;
           created_at?: string;
           driver_id?: string | null;
           id?: number;
@@ -185,6 +233,7 @@ export type Database = {
           protocol_id?: string | null;
         };
         Update: {
+          company_id?: string | null;
           created_at?: string;
           driver_id?: string | null;
           id?: number;
@@ -212,6 +261,7 @@ export type Database = {
       messages: {
         Row: {
           body: string;
+          company_id: string | null;
           created_at: string;
           id: string;
           protocol_id: string;
@@ -222,6 +272,7 @@ export type Database = {
         };
         Insert: {
           body: string;
+          company_id?: string | null;
           created_at?: string;
           id?: string;
           protocol_id: string;
@@ -232,6 +283,7 @@ export type Database = {
         };
         Update: {
           body?: string;
+          company_id?: string | null;
           created_at?: string;
           id?: string;
           protocol_id?: string;
@@ -301,6 +353,7 @@ export type Database = {
       profiles: {
         Row: {
           company: string | null;
+          company_id: string;
           created_at: string;
           email: string;
           id: string;
@@ -310,6 +363,7 @@ export type Database = {
         };
         Insert: {
           company?: string | null;
+          company_id: string;
           created_at?: string;
           email?: string;
           id: string;
@@ -319,6 +373,7 @@ export type Database = {
         };
         Update: {
           company?: string | null;
+          company_id?: string;
           created_at?: string;
           email?: string;
           id?: string;
@@ -326,7 +381,15 @@ export type Database = {
           phone?: string | null;
           tax_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       protocol_codes: {
         Row: {
@@ -359,6 +422,7 @@ export type Database = {
       };
       protocol_events: {
         Row: {
+          company_id: string | null;
           created_at: string;
           created_by: string | null;
           id: string;
@@ -367,6 +431,7 @@ export type Database = {
           status: string;
         };
         Insert: {
+          company_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           id?: string;
@@ -375,6 +440,7 @@ export type Database = {
           status: string;
         };
         Update: {
+          company_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           id?: string;
@@ -407,6 +473,7 @@ export type Database = {
           client_cpf: string | null;
           client_name: string;
           client_phone: string | null;
+          company_id: string;
           created_at: string;
           created_by: string | null;
           destination: string | null;
@@ -440,6 +507,7 @@ export type Database = {
           client_cpf?: string | null;
           client_name: string;
           client_phone?: string | null;
+          company_id: string;
           created_at?: string;
           created_by?: string | null;
           destination?: string | null;
@@ -473,6 +541,7 @@ export type Database = {
           client_cpf?: string | null;
           client_name?: string;
           client_phone?: string | null;
+          company_id?: string;
           created_at?: string;
           created_by?: string | null;
           destination?: string | null;
@@ -498,6 +567,13 @@ export type Database = {
             columns: ["driver_id"];
             isOneToOne: false;
             referencedRelation: "drivers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "protocols_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
             referencedColumns: ["id"];
           },
         ];
@@ -587,6 +663,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      current_company_id: { Args: never; Returns: string };
       current_driver_id: { Args: never; Returns: string };
       ensure_account_plan: {
         Args: { _environment: string; _user_id: string };

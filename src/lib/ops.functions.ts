@@ -1,10 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 import { isValidBRPhone, isValidCPF, isValidCEP, SERVICE_TYPES, PRIORITIES } from "@/lib/protocol";
 import { composeAddress } from "@/lib/protocol";
 import { PLAN_LIMIT_CODE } from "@/lib/plan";
 import { getPaymentsEnvironment } from "@/lib/payments-env";
+
+/** Empresa (tenant) da conta autenticada — toda linha nova precisa dela. */
+async function getCompanyId(supabase: SupabaseClient<Database>, userId: string): Promise<string> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("company_id")
+    .eq("id", userId)
+    .single();
+  if (error || !data?.company_id) throw new Error("Não foi possível identificar sua empresa.");
+  return data.company_id;
+}
 
 const protocolInput = z.object({
   client_name: z.string().trim().min(2).max(120),
@@ -46,6 +59,7 @@ export const createProtocol = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const companyId = await getCompanyId(supabase, userId);
 
     // Autoridade do limite: o banco reserva o slot do período atual.
     const environment = getPaymentsEnvironment();
@@ -93,6 +107,7 @@ export const createProtocol = createServerFn({ method: "POST" })
         status: driverId ? "aceito" : "aguardando_aceite",
         accepted_at: driverId ? new Date().toISOString() : null,
         created_by: context.userId,
+        company_id: companyId,
       })
       .select("id")
       .single();
@@ -111,6 +126,7 @@ export const createDriver = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => driverInput.parse(data))
   .handler(async ({ data, context }) => {
+    const companyId = await getCompanyId(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("drivers")
       .insert({
@@ -122,6 +138,7 @@ export const createDriver = createServerFn({ method: "POST" })
         plate: data.plate ?? null,
         city: data.city ?? null,
         status: "disponivel",
+        company_id: companyId,
       })
       .select("id")
       .single();
