@@ -21,8 +21,8 @@ export const prepareCheckout = createServerFn({ method: "POST" })
     const environment = getPaymentsEnvironment();
     const externalPriceId = PLAN_TO_PRICE[data.plan];
 
-    const { gatewayFetch } = await import("@/lib/paddle.server");
-    const response = await gatewayFetch(
+    const { paddleFetch } = await import("@/lib/paddle.server");
+    const response = await paddleFetch(
       environment,
       `/prices?external_id=${encodeURIComponent(externalPriceId)}`,
     );

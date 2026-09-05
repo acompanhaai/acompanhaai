@@ -64,8 +64,8 @@ export const changeSubscriptionPlan = createServerFn({ method: "POST" })
       throw new Error("Essa assinatura não pode ser alterada neste estado.");
     }
 
-    const { gatewayFetch, getPaddleClient } = await import("@/lib/paddle.server");
-    const response = await gatewayFetch(
+    const { paddleFetch, getPaddleClient } = await import("@/lib/paddle.server");
+    const response = await paddleFetch(
       environment,
       `/prices?external_id=${encodeURIComponent(PLAN_TO_PRICE[data.plan])}`,
     );

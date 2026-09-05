@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { streamText } from "ai";
 import { z } from "zod";
 
@@ -53,30 +53,25 @@ export const Route = createFileRoute("/api/support-chat")({
           return new Response("Requisição inválida", { status: 400 });
         }
 
-        const apiKey = process.env["LOVABLE_API_KEY"];
+        const apiKey = process.env["GOOGLE_GENERATIVE_AI_API_KEY"];
         if (!apiKey) {
           return new Response("Suporte de IA indisponível", { status: 503 });
         }
 
         try {
-          const lovable = createOpenAICompatible({
-            name: "lovable-gateway",
-            apiKey,
-            baseURL: "https://ai.gateway.lovable.dev/v1",
-          });
+          const google = createGoogleGenerativeAI({ apiKey });
           const result = streamText({
-            model: lovable("google/gemini-3.7-flash"),
+            model: google("gemini-3.7-flash"),
             system: SYSTEM_PROMPT,
             messages: parsed.data.messages.map((message) => ({
               role: message.role,
               content: message.content,
             })),
-            providerOptions: { lovable: { serviceTier: "priority" } },
           });
 
           return result.toTextStreamResponse();
         } catch (error) {
-          console.error("support-chat gateway error", error);
+          console.error("support-chat provider error", error);
           return new Response("Não foi possível falar com o assistente agora.", { status: 502 });
         }
       },

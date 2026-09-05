@@ -16,38 +16,36 @@ export type { SubscriptionCreatedNotification, SubscriptionNotification, Transac
 
 export type PaddleEnv = "sandbox" | "live";
 
-const GATEWAY_BASE_URL = "https://connector-gateway.lovable.dev/paddle";
+// Talks to Paddle's real API directly (no gateway/proxy in front of it).
+// PADDLE_SANDBOX_API_KEY / PADDLE_LIVE_API_KEY are the account's own Paddle
+// API keys, from Paddle Dashboard -> Developer Tools -> Authentication.
+const PADDLE_API_BASE_URL: Record<PaddleEnv, string> = {
+  sandbox: "https://sandbox-api.paddle.com",
+  live: "https://api.paddle.com",
+};
 
 export function getConnectionApiKey(env: PaddleEnv): string {
   return env === "sandbox" ? getEnv("PADDLE_SANDBOX_API_KEY") : getEnv("PADDLE_LIVE_API_KEY");
 }
 
 export function getPaddleClient(env: PaddleEnv): Paddle {
-  const connectionApiKey = getConnectionApiKey(env);
-  const lovableApiKey = getEnv("LOVABLE_API_KEY");
-
-  return new Paddle(connectionApiKey, {
-    environment: GATEWAY_BASE_URL as unknown as Environment,
-    customHeaders: {
-      "X-Connection-Api-Key": connectionApiKey,
-      "Lovable-API-Key": lovableApiKey,
-    },
+  const apiKey = getConnectionApiKey(env);
+  return new Paddle(apiKey, {
+    environment: env === "sandbox" ? Environment.sandbox : Environment.production,
   });
 }
 
-export async function gatewayFetch(
+export async function paddleFetch(
   env: PaddleEnv,
   path: string,
   init?: RequestInit,
 ): Promise<Response> {
-  const connectionApiKey = getConnectionApiKey(env);
-  const lovableApiKey = getEnv("LOVABLE_API_KEY");
-  return fetch(`${GATEWAY_BASE_URL}${path}`, {
+  const apiKey = getConnectionApiKey(env);
+  return fetch(`${PADDLE_API_BASE_URL[env]}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      "X-Connection-Api-Key": connectionApiKey,
-      "Lovable-API-Key": lovableApiKey,
+      Authorization: `Bearer ${apiKey}`,
       ...init?.headers,
     },
   });

@@ -93,21 +93,23 @@ async function handleSubscriptionCreated(data: SubscriptionCreatedNotification, 
     return;
   }
 
-  const { error } = await getSupabase().from("subscriptions").upsert(
-    {
-      user_id: userId,
-      paddle_subscription_id: id,
-      paddle_customer_id: customerId,
-      product_id: productId,
-      price_id: priceId,
-      status,
-      current_period_start: currentBillingPeriod?.startsAt ?? null,
-      current_period_end: currentBillingPeriod?.endsAt ?? null,
-      environment: env,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "paddle_subscription_id" },
-  );
+  const { error } = await getSupabase()
+    .from("subscriptions")
+    .upsert(
+      {
+        user_id: userId,
+        paddle_subscription_id: id,
+        paddle_customer_id: customerId,
+        product_id: productId,
+        price_id: priceId,
+        status,
+        current_period_start: currentBillingPeriod?.startsAt ?? null,
+        current_period_end: currentBillingPeriod?.endsAt ?? null,
+        environment: env,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "paddle_subscription_id" },
+    );
   if (error) throw error;
   await applyPlan(
     userId,
