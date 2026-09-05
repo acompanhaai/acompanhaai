@@ -56,6 +56,7 @@ import {
 import { geocodeAddress, lookupCep } from "@/lib/address.functions";
 import { createDriver, createProtocol } from "@/lib/ops.functions";
 import { getAccountPlan } from "@/lib/plan.functions";
+import { track } from "@/lib/analytics";
 import {
   formatPeriodDate,
   nextPlan,
@@ -878,6 +879,7 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
         },
       });
       toast.success("Protocolo criado");
+      track("protocolo_criado", { service_type: d.service_type, priority: d.priority });
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["protocols"] });
       queryClient.invalidateQueries({ queryKey: ["account-plan"] });

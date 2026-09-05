@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { getAccountPlan } from "@/lib/plan.functions";
 import { formatRequests } from "@/config/plans";
+import { track } from "@/lib/analytics";
 
 export const Route = createFileRoute("/checkout/sucesso")({
   head: () => ({
@@ -43,6 +44,11 @@ function CheckoutSuccess() {
   });
 
   const confirmed = !!plan.data && plan.data.planId !== "free";
+
+  useEffect(() => {
+    if (confirmed && plan.data) track("assinatura_criada", { plan: plan.data.planId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [confirmed]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

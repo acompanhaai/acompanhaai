@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { onlyDigits } from "@/lib/protocol";
 import { resolveHomePath } from "@/lib/session";
 import { suggestCompanies } from "@/lib/tracking.functions";
+import { track } from "@/lib/analytics";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).optional(),
@@ -151,6 +152,7 @@ function AuthPage() {
       toast.error("Não foi possível criar a conta", { description: error.message });
       return;
     }
+    track("empresa_criada", { company: parsed.data.company });
     if (data.session) {
       toast.success("Conta criada!");
       const path = await resolveHomePath();

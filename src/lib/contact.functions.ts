@@ -16,5 +16,18 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("contact_messages").insert(data);
     if (error) throw new Error("Não foi possível registrar sua mensagem.");
+
+    // Best-effort: a missing RESEND_API_KEY or CONTACT_NOTIFICATION_EMAIL
+    // just skips the notification — the message is already saved above.
+    const notifyTo = process.env["CONTACT_NOTIFICATION_EMAIL"];
+    if (notifyTo) {
+      const { sendEmail } = await import("@/lib/email.server");
+      await sendEmail(
+        notifyTo,
+        `Novo contato: ${data.company}`,
+        `<p><strong>${data.name}</strong> (${data.company})</p><p>${data.email} · ${data.phone}</p><p>${data.message}</p>`,
+      ).catch((error) => console.error(error));
+    }
+
     return { ok: true as const };
   });
