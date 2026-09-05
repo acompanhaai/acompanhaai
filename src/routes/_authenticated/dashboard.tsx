@@ -202,8 +202,20 @@ const driverSchema = z.object({
     .optional()
     .refine((value) => !value || isValidBRPhone(value), "Informe um telefone brasileiro válido"),
   vehicle: z.string().trim().max(80).optional(),
+  vehicle_color: z.string().trim().max(40).optional(),
+  vehicle_year: z.string().trim().max(4).optional(),
   plate: z.string().trim().max(10).optional(),
+  address_cep: z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => !value || isValidCEP(value), "Informe um CEP válido"),
+  address_street: z.string().trim().max(200).optional(),
+  address_number: z.string().trim().max(20).optional(),
+  address_complement: z.string().trim().max(120).optional(),
+  address_district: z.string().trim().max(120).optional(),
   city: z.string().trim().max(120).optional(),
+  address_state: z.string().trim().max(2).optional(),
 });
 
 function Dashboard() {
@@ -1107,9 +1119,55 @@ function NewDriverDialog() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Telefone" name="phone" inputMode="tel" charset="digits" />
-            <Field label="Cidade" name="city" />
-            <Field label="Veículo" name="vehicle" />
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-sm font-semibold text-foreground">Endereço (opcional)</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Informe o CEP para preencher os dados automaticamente.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <Field
+                label="CEP"
+                name="address_cep"
+                inputMode="numeric"
+                charset="digits"
+                onBlur={async (e) => {
+                  const value = e.currentTarget.value;
+                  if (!value) return;
+                  const result = await lookupCep({ data: { cep: value } });
+                  if (!result) return;
+                  const form = e.currentTarget.form;
+                  if (!form) return;
+                  for (const [name, fieldValue] of [
+                    ["address_street", result.street],
+                    ["address_district", result.district],
+                    ["city", result.city],
+                    ["address_state", result.state],
+                  ] as const) {
+                    const field = form.elements.namedItem(name);
+                    if (field instanceof HTMLInputElement && !field.value) field.value = fieldValue;
+                  }
+                }}
+              />
+              <Field label="Logradouro" name="address_street" />
+              <Field label="Número" name="address_number" />
+              <Field label="Complemento" name="address_complement" />
+              <Field label="Bairro" name="address_district" />
+              <Field label="Cidade" name="city" />
+              <Field label="Estado/UF" name="address_state" maxLength={2} />
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Modelo do veículo" name="vehicle" />
             <Field label="Placa" name="plate" />
+            <Field label="Cor" name="vehicle_color" charset="letters" />
+            <Field
+              label="Ano"
+              name="vehicle_year"
+              inputMode="numeric"
+              charset="digits"
+              maxLength={4}
+            />
           </div>
           <DialogFooter>
             <Button type="submit" disabled={busy} loading={busy}>

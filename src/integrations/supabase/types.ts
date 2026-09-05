@@ -134,6 +134,12 @@ export type Database = {
       drivers: {
         Row: {
           accept_rate: number;
+          address_cep: string | null;
+          address_complement: string | null;
+          address_district: string | null;
+          address_number: string | null;
+          address_state: string | null;
+          address_street: string | null;
           avg_minutes: number;
           city: string | null;
           company_id: string;
@@ -144,6 +150,8 @@ export type Database = {
           last_lng: number | null;
           last_seen: string | null;
           name: string;
+          notify_email: boolean;
+          notify_sms: boolean;
           phone: string | null;
           photo_url: string | null;
           plate: string | null;
@@ -152,9 +160,17 @@ export type Database = {
           status: string;
           user_id: string | null;
           vehicle: string | null;
+          vehicle_color: string | null;
+          vehicle_year: string | null;
         };
         Insert: {
           accept_rate?: number;
+          address_cep?: string | null;
+          address_complement?: string | null;
+          address_district?: string | null;
+          address_number?: string | null;
+          address_state?: string | null;
+          address_street?: string | null;
           avg_minutes?: number;
           city?: string | null;
           company_id: string;
@@ -165,6 +181,8 @@ export type Database = {
           last_lng?: number | null;
           last_seen?: string | null;
           name: string;
+          notify_email?: boolean;
+          notify_sms?: boolean;
           phone?: string | null;
           photo_url?: string | null;
           plate?: string | null;
@@ -173,9 +191,17 @@ export type Database = {
           status?: string;
           user_id?: string | null;
           vehicle?: string | null;
+          vehicle_color?: string | null;
+          vehicle_year?: string | null;
         };
         Update: {
           accept_rate?: number;
+          address_cep?: string | null;
+          address_complement?: string | null;
+          address_district?: string | null;
+          address_number?: string | null;
+          address_state?: string | null;
+          address_street?: string | null;
           avg_minutes?: number;
           city?: string | null;
           company_id?: string;
@@ -186,6 +212,8 @@ export type Database = {
           last_lng?: number | null;
           last_seen?: string | null;
           name?: string;
+          notify_email?: boolean;
+          notify_sms?: boolean;
           phone?: string | null;
           photo_url?: string | null;
           plate?: string | null;
@@ -194,6 +222,8 @@ export type Database = {
           status?: string;
           user_id?: string | null;
           vehicle?: string | null;
+          vehicle_color?: string | null;
+          vehicle_year?: string | null;
         };
         Relationships: [
           {

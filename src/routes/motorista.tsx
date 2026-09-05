@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 
 import { finishWithCode } from "@/lib/atendimento.functions";
@@ -267,6 +268,17 @@ function DriverApp() {
     queryClient.invalidateQueries({ queryKey: ["me-driver"] });
   }
 
+  async function updateNotificationPref(field: "notify_email" | "notify_sms", value: boolean) {
+    if (!driver.data?.id) return;
+    queryClient.setQueryData(["me-driver"], { ...driver.data, [field]: value });
+    const patch = field === "notify_email" ? { notify_email: value } : { notify_sms: value };
+    const { error } = await supabase.from("drivers").update(patch).eq("id", driver.data.id);
+    if (error) {
+      toast.error("Não foi possível salvar a preferência");
+      queryClient.invalidateQueries({ queryKey: ["me-driver"] });
+    }
+  }
+
   async function signOut() {
     if (signOutBusy) return;
     setSignOutBusy(true);
@@ -343,6 +355,37 @@ function DriverApp() {
                 Posição enviada a cada 5 segundos enquanto esta tela estiver aberta.
               </p>
             ) : null}
+
+            <div className="surface mt-5 p-5">
+              <p className="text-sm font-semibold text-foreground">
+                Notificações de novos chamados
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Você sempre recebe avisos no app. Escolha se também quer receber por e-mail e SMS.
+              </p>
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <Label htmlFor="notify-email" className="text-sm font-normal">
+                    Avisar por e-mail
+                  </Label>
+                  <Switch
+                    id="notify-email"
+                    checked={driver.data.notify_email ?? true}
+                    onCheckedChange={(checked) => updateNotificationPref("notify_email", checked)}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <Label htmlFor="notify-sms" className="text-sm font-normal">
+                    Avisar por SMS
+                  </Label>
+                  <Switch
+                    id="notify-sms"
+                    checked={driver.data.notify_sms ?? true}
+                    onCheckedChange={(checked) => updateNotificationPref("notify_sms", checked)}
+                  />
+                </div>
+              </div>
+            </div>
 
             {active ? (
               <div className="surface surface-elevated mt-5 p-5">

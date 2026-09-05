@@ -55,8 +55,21 @@ const driverInput = z.object({
     .nullable()
     .optional(),
   vehicle: z.string().trim().max(80).nullable().optional(),
+  vehicle_color: z.string().trim().max(40).nullable().optional(),
+  vehicle_year: z.string().trim().max(4).nullable().optional(),
   plate: z.string().trim().max(10).nullable().optional(),
+  address_cep: z
+    .string()
+    .trim()
+    .refine((v) => !v || isValidCEP(v))
+    .nullable()
+    .optional(),
+  address_street: z.string().trim().max(200).nullable().optional(),
+  address_number: z.string().trim().max(20).nullable().optional(),
+  address_complement: z.string().trim().max(120).nullable().optional(),
+  address_district: z.string().trim().max(120).nullable().optional(),
   city: z.string().trim().max(120).nullable().optional(),
+  address_state: z.string().trim().max(2).nullable().optional(),
 });
 
 export const createProtocol = createServerFn({ method: "POST" })
@@ -142,8 +155,16 @@ export const createDriver = createServerFn({ method: "POST" })
         cpf: cpfDigits,
         phone: data.phone ? data.phone.replace(/\D/g, "") : null,
         vehicle: data.vehicle ?? null,
+        vehicle_color: data.vehicle_color ?? null,
+        vehicle_year: data.vehicle_year ?? null,
         plate: data.plate ?? null,
+        address_cep: data.address_cep ? data.address_cep.replace(/\D/g, "") : null,
+        address_street: data.address_street ?? null,
+        address_number: data.address_number ?? null,
+        address_complement: data.address_complement ?? null,
+        address_district: data.address_district ?? null,
         city: data.city ?? null,
+        address_state: data.address_state ? data.address_state.toUpperCase() : null,
         status: "disponivel",
         company_id: companyId,
       })
