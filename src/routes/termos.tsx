@@ -66,6 +66,18 @@ Os dados de pagamento poderão ser processados diretamente pelo respectivo prove
 Em caso de falha de pagamento, inadimplência ou cancelamento, o acesso às funcionalidades relacionadas ao plano pago poderá ser limitado ou suspenso conforme as condições apresentadas no momento da contratação.`,
   },
   {
+    title: "Cancelamento e reembolso",
+    body: `O usuário pode cancelar sua assinatura a qualquer momento diretamente na plataforma ou solicitando pelo canal de contato oficial. O cancelamento interrompe a renovação automática; o acesso ao plano pago permanece disponível até o fim do período já pago.
+
+Em conformidade com o artigo 49 do Código de Defesa do Consumidor, o usuário que contratar um plano pago pela primeira vez pode solicitar o cancelamento com reembolso integral em até 7 (sete) dias corridos após a contratação, sem necessidade de justificativa.
+
+Após esse prazo, não são garantidos reembolsos proporcionais por períodos não utilizados, exceto quando exigido pela legislação aplicável ou em casos de falha comprovada da plataforma que impeça a utilização do serviço contratado.
+
+O processamento de pagamentos e eventuais reembolsos é realizado pelo provedor de pagamentos utilizado no momento da contratação, podendo estar sujeito aos prazos e políticas desse provedor.
+
+Solicitações de cancelamento ou reembolso devem ser enviadas para: acompanhaai.app@gmail.com.`,
+  },
+  {
     title: "Uso permitido",
     body: `O AcompanhaAí deverá ser utilizado exclusivamente para finalidades lícitas e compatíveis com suas funcionalidades.
 
