@@ -35,5 +35,6 @@ export const getAccountPlan = createServerFn({ method: "GET" })
       periodEnd: row.period_end,
       status: row.status ?? "free",
       company: profile?.company?.trim() || null,
+      userName: profile?.name?.trim() || null,
     };
   });

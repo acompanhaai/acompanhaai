@@ -27,6 +27,7 @@ export type PlanUsage = {
   periodEnd: string;
   status: string;
   company: string | null;
+  userName: string | null;
 };
 
 export function isPlanId(value: string): value is PlanId {

@@ -42,7 +42,12 @@ const driverInput = z.object({
   re: z.string().trim().min(1).max(30),
   name: z.string().trim().min(2).max(120),
   cpf: z.string().trim().refine(isValidCPF, "CPF inválido"),
-  email: z.string().trim().email("E-mail inválido").max(255).nullable().optional(),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Informe o e-mail do motorista")
+    .email("E-mail inválido")
+    .max(255),
   phone: z
     .string()
     .trim()
@@ -149,23 +154,20 @@ export const createDriver = createServerFn({ method: "POST" })
       throw new Error("Não foi possível cadastrar o motorista.");
     }
 
-    let invited = false;
-    if (data.email) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const appUrl = process.env["APP_URL"] ?? "http://localhost:8080";
-      const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
-        data: {
-          name: data.name,
-          role: "driver",
-          company_id: companyId,
-          driver_cpf: cpfDigits,
-        },
-        redirectTo: new URL("/reset-password", appUrl).toString(),
-      });
-      // Não falha o cadastro do motorista por causa do convite — o motorista já
-      // existe e pode ser convidado depois; só reporta se o convite não saiu.
-      invited = !inviteError;
-    }
+    // Não falha o cadastro do motorista por causa do convite — o motorista já
+    // existe e pode ser convidado depois; só reporta se o convite não saiu.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const appUrl = process.env["APP_URL"] ?? "http://localhost:8080";
+    const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+      data: {
+        name: data.name,
+        role: "driver",
+        company_id: companyId,
+        driver_cpf: cpfDigits,
+      },
+      redirectTo: new URL("/reset-password", appUrl).toString(),
+    });
+    const duplicateEmail = inviteError?.code === "email_exists";
 
-    return { id: row.id, invited };
+    return { id: row.id, invited: !inviteError, duplicateEmail };
   });

@@ -129,38 +129,60 @@ type Driver = {
   last_seen: string | null;
 };
 
-const protocolSchema = z.object({
-  client_name: z.string().trim().min(2, "Informe o nome completo do cliente").max(120),
-  client_phone: z
-    .string()
-    .trim()
-    .min(10, "Informe um telefone válido")
-    .max(20)
-    .refine(isValidBRPhone, "Informe um telefone brasileiro válido"),
-  client_cpf: z
-    .string()
-    .trim()
-    .min(11, "Informe o CPF")
-    .max(20)
-    .refine(isValidCPF, "Informe um CPF válido"),
-  insurer: z.string().trim().max(120).optional(),
-  service_type: z.enum(SERVICE_TYPES, { message: "Selecione um tipo de serviço válido" }),
-  priority: z.enum(PRIORITIES),
-  address_cep: z.string().trim().refine(isValidCEP, "Informe um CEP válido"),
-  address_street: z.string().trim().min(2, "Informe o logradouro").max(200),
-  address_number: z.string().trim().min(1, "Informe o número").max(20),
-  address_complement: z.string().trim().max(120).optional(),
-  address_district: z.string().trim().min(2, "Informe o bairro").max(120),
-  city: z.string().trim().min(2, "Informe a cidade").max(120),
-  address_state: z.string().trim().length(2, "Informe a UF").toUpperCase(),
-  destination: z.string().trim().max(200).optional(),
-  notes: z.string().trim().max(1000).optional(),
-  driver_id: z.string().uuid().nullable().optional(),
-});
+const DESTINATION_REQUIRED_TYPES = new Set<string>(["Taxi", "Reboque"]);
+
+const protocolSchema = z
+  .object({
+    client_name: z
+      .string()
+      .trim()
+      .min(2, "Informe o nome completo do cliente")
+      .max(120)
+      .regex(/^[\p{L}\s'-]+$/u, "O nome deve conter apenas letras"),
+    client_phone: z
+      .string()
+      .trim()
+      .min(10, "Informe um telefone válido")
+      .max(20)
+      .refine(isValidBRPhone, "Informe um telefone brasileiro válido"),
+    client_cpf: z
+      .string()
+      .trim()
+      .min(11, "Informe o CPF")
+      .max(20)
+      .refine(isValidCPF, "Informe um CPF válido"),
+    insurer: z.string().trim().max(120).optional(),
+    service_type: z.enum(SERVICE_TYPES, { message: "Selecione um tipo de serviço válido" }),
+    priority: z.enum(PRIORITIES),
+    address_cep: z.string().trim().refine(isValidCEP, "Informe um CEP válido"),
+    address_street: z.string().trim().min(2, "Informe o logradouro").max(200),
+    address_number: z.string().trim().min(1, "Informe o número").max(20),
+    address_complement: z.string().trim().max(120).optional(),
+    address_district: z.string().trim().min(2, "Informe o bairro").max(120),
+    city: z.string().trim().min(2, "Informe a cidade").max(120),
+    address_state: z.string().trim().length(2, "Informe a UF").toUpperCase(),
+    destination: z.string().trim().max(200).optional(),
+    notes: z.string().trim().max(1000).optional(),
+    driver_id: z.string().uuid().nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (DESTINATION_REQUIRED_TYPES.has(data.service_type) && !data.destination) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o destino para Táxi e Reboque",
+        path: ["destination"],
+      });
+    }
+  });
 
 const driverSchema = z.object({
   re: z.string().trim().min(1, "Informe o RE").max(30),
-  name: z.string().trim().min(2, "Informe o nome").max(120),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Informe o nome")
+    .max(120)
+    .regex(/^[\p{L}\s'-]+$/u, "O nome deve conter apenas letras"),
   cpf: z
     .string()
     .trim()
@@ -170,9 +192,9 @@ const driverSchema = z.object({
   email: z
     .string()
     .trim()
+    .min(1, "Informe o e-mail do motorista")
     .max(255)
-    .optional()
-    .refine((value) => !value || z.string().email().safeParse(value).success, "E-mail inválido"),
+    .email("E-mail inválido"),
   phone: z
     .string()
     .trim()
@@ -296,7 +318,7 @@ function Dashboard() {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-7">
         <h1 className="text-2xl font-bold text-foreground">
-          {accountPlan.data?.company ? `Olá, ${accountPlan.data.company}` : "Base operacional"}
+          {accountPlan.data?.userName ? `Olá, ${accountPlan.data.userName}` : "Base operacional"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Todos os atendimentos em andamento, em tempo real.
@@ -831,10 +853,14 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
   );
 }
 
+const DESTINATION_SERVICE_TYPES = new Set<(typeof SERVICE_TYPES)[number]>(["Taxi", "Reboque"]);
+
 function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?: boolean }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [serviceType, setServiceType] = useState<(typeof SERVICE_TYPES)[number]>(SERVICE_TYPES[0]);
+  const needsDestination = DESTINATION_SERVICE_TYPES.has(serviceType);
 
   const createProtocolFn = useServerFn(createProtocol);
 
@@ -916,9 +942,9 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nome completo do cliente" name="client_name" required />
-            <Field label="Telefone" name="client_phone" required inputMode="tel" />
-            <Field label="CPF" name="client_cpf" required inputMode="numeric" />
+            <Field label="Nome completo do cliente" name="client_name" required charset="letters" />
+            <Field label="Telefone" name="client_phone" required inputMode="tel" charset="digits" />
+            <Field label="CPF" name="client_cpf" required inputMode="numeric" charset="digits" />
             <Field label="Seguradora" name="insurer" />
             <div className="space-y-2">
               <Label htmlFor="service_type">Tipo de serviço</Label>
@@ -926,7 +952,10 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
                 id="service_type"
                 name="service_type"
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                defaultValue={SERVICE_TYPES[0]}
+                value={serviceType}
+                onChange={(e) =>
+                  setServiceType(e.currentTarget.value as (typeof SERVICE_TYPES)[number])
+                }
               >
                 {SERVICE_TYPES.map((s) => (
                   <option key={s} value={s}>
@@ -962,6 +991,7 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
                 name="address_cep"
                 required
                 inputMode="numeric"
+                charset="digits"
                 onBlur={async (e) => {
                   const result = await lookupCep({ data: { cep: e.currentTarget.value } });
                   if (!result) return;
@@ -986,7 +1016,7 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
               <Field label="Estado/UF" name="address_state" required maxLength={2} />
             </div>
           </div>
-          <Field label="Destino" name="destination" />
+          {needsDestination && <Field label="Destino" name="destination" required />}
           <div className="space-y-2">
             <Label htmlFor="driver_id">Motorista (opcional)</Label>
             <select
@@ -1036,11 +1066,11 @@ function NewDriverDialog() {
     try {
       const result = await createDriverFn({ data: parsed.data });
       toast.success("Motorista cadastrado", {
-        description: parsed.data.email
-          ? result.invited
-            ? "Convite de acesso enviado por e-mail."
-            : "Não foi possível enviar o convite por e-mail agora — tente convidar de novo depois."
-          : undefined,
+        description: result.invited
+          ? "Convite de acesso enviado por e-mail."
+          : result.duplicateEmail
+            ? "Este e-mail já está em uso por outra conta — cadastre um e-mail exclusivo para este motorista."
+            : "Não foi possível enviar o convite por e-mail agora — tente convidar de novo depois.",
       });
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
@@ -1065,15 +1095,18 @@ function NewDriverDialog() {
         </DialogHeader>
         <form className="space-y-4" onSubmit={submit}>
           <Field label="RE" name="re" required />
-          <Field label="Nome" name="name" required />
-          <Field label="CPF" name="cpf" required inputMode="numeric" />
-          <Field
-            label="E-mail (opcional — envia convite de acesso ao app)"
-            name="email"
-            type="email"
-          />
+          <Field label="Nome" name="name" required charset="letters" />
+          <Field label="CPF" name="cpf" required inputMode="numeric" charset="digits" />
+          <div className="space-y-1">
+            <Field label="E-mail" name="email" type="email" required />
+            <p className="text-xs text-muted-foreground">
+              Cada motorista precisa de um e-mail próprio e único — é com ele que o motorista acessa
+              o app e recebe os avisos de novos atendimentos. Não reutilize o e-mail de outro
+              motorista.
+            </p>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Telefone" name="phone" inputMode="tel" />
+            <Field label="Telefone" name="phone" inputMode="tel" charset="digits" />
             <Field label="Cidade" name="city" />
             <Field label="Veículo" name="vehicle" />
             <Field label="Placa" name="plate" />
@@ -1089,6 +1122,21 @@ function NewDriverDialog() {
   );
 }
 
+/** Restringe o valor digitado ao conjunto de caracteres permitido, preservando a posição do cursor. */
+function filterCharset(input: HTMLInputElement, charset: "digits" | "letters") {
+  const start = input.selectionStart;
+  const before = input.value;
+  const filtered =
+    charset === "digits" ? before.replace(/\D/g, "") : before.replace(/[^\p{L}\s'-]/gu, "");
+  if (filtered === before) return;
+  const diff = before.length - filtered.length;
+  input.value = filtered;
+  if (start != null) {
+    const newPos = Math.max(0, start - diff);
+    input.setSelectionRange(newPos, newPos);
+  }
+}
+
 function Field({
   label,
   name,
@@ -1097,6 +1145,7 @@ function Field({
   inputMode,
   maxLength,
   type,
+  charset,
 }: {
   label: string;
   name: string;
@@ -1105,6 +1154,8 @@ function Field({
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   maxLength?: number;
   type?: string;
+  /** "digits" para telefone/CPF/CEP; "letters" para nomes — filtra o que pode ser digitado. */
+  charset?: "digits" | "letters";
 }) {
   return (
     <div className="space-y-2">
@@ -1117,6 +1168,7 @@ function Field({
         maxLength={maxLength ?? 200}
         inputMode={inputMode}
         onBlur={onBlur}
+        onInput={charset ? (e) => filterCharset(e.currentTarget, charset) : undefined}
       />
     </div>
   );
