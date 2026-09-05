@@ -138,7 +138,7 @@ function Home() {
       </header>
 
       <main className="flex-1">
-        <section className="grid-fade border-b border-border">
+        <section className="border-b border-border">
           <div className="mx-auto w-full max-w-3xl px-5 py-24 text-center sm:py-28">
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary-strong">

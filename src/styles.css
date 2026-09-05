@@ -183,17 +183,6 @@
   box-shadow: var(--shadow-card);
 }
 
-@utility grid-fade {
-  background-image:
-    radial-gradient(circle at 50% 0%, oklch(0.708 0.207 143.5 / 0.1), transparent 60%),
-    linear-gradient(to right, oklch(0.18 0.006 145 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(0.18 0.006 145 / 0.05) 1px, transparent 1px);
-  background-size:
-    100% 100%,
-    56px 56px,
-    56px 56px;
-}
-
 .leaflet-container {
   font: inherit;
   background: var(--color-muted);
