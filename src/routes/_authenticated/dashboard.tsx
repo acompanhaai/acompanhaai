@@ -469,7 +469,19 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
             </Link>
           </div>
         </div>
+        {usage.status === "past_due" ? (
+          <div className="mt-4 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
+            Não conseguimos confirmar o último pagamento. Seu acesso continua liberado enquanto tentamos novamente.{" "}
+            <Link to="/plano" className="font-semibold underline">Atualizar cobrança</Link>
+          </div>
+        ) : null}
+        {usage.status === "canceled" ? (
+          <div className="mt-4 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
+            Cancelamento agendado. Você mantém o plano até {formatPeriodDate(usage.periodEnd)}.
+          </div>
+        ) : null}
         <p className="mt-4 text-xs text-muted-foreground">O histórico permanece disponível mesmo quando o limite mensal é atingido.</p>
+
       </div>
     </section>
   );
