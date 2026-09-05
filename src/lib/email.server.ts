@@ -1,12 +1,8 @@
 import { Resend } from "resend";
 
-const FROM = "AcompanhaAí <onboarding@resend.dev>";
+const FROM = "AcompanhaAí <noreply@acompanhaai.com>";
 
-/**
- * No-ops without RESEND_API_KEY. Sends from Resend's shared test domain
- * until a real sending domain is verified (needs DNS records on
- * acompanhai.app — not configured yet, see .env.example).
- */
+/** No-ops without RESEND_API_KEY set (see .env.example). */
 export async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   const apiKey = process.env["RESEND_API_KEY"];
   if (!apiKey) return;

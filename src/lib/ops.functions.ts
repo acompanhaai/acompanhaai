@@ -72,6 +72,50 @@ const driverInput = z.object({
   address_state: z.string().trim().max(2).nullable().optional(),
 });
 
+type AssignmentProtocol = {
+  number: string;
+  service_type: string | null;
+  origin: string;
+  destination: string | null;
+  client_name: string;
+  priority: string;
+};
+
+/** Avisa o motorista por e-mail sobre um novo atendimento — nunca falha a operação principal. */
+async function notifyDriverAssignment(
+  supabase: SupabaseClient<Database>,
+  supabaseAdmin: SupabaseClient<Database>,
+  driverId: string,
+  protocol: AssignmentProtocol,
+) {
+  try {
+    const { data: driver } = await supabase
+      .from("drivers")
+      .select("user_id, notify_email, name")
+      .eq("id", driverId)
+      .maybeSingle();
+    if (!driver?.user_id || !driver.notify_email) return;
+    const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(driver.user_id);
+    const email = userRes.user?.email;
+    if (!email) return;
+    const { sendEmail } = await import("@/lib/email.server");
+    await sendEmail(
+      email,
+      `Novo atendimento — ${protocol.number || protocol.service_type || "AcompanhaAí"}`,
+      `<p>Olá, ${driver.name}!</p>
+       <p>Você foi designado para um novo atendimento.</p>
+       <p><strong>Serviço:</strong> ${protocol.service_type ?? "—"}<br/>
+       <strong>Cliente:</strong> ${protocol.client_name}<br/>
+       <strong>Origem:</strong> ${protocol.origin}<br/>
+       ${protocol.destination ? `<strong>Destino:</strong> ${protocol.destination}<br/>` : ""}
+       <strong>Prioridade:</strong> ${protocol.priority}</p>
+       <p>Acesse o app do motorista para ver os detalhes.</p>`,
+    );
+  } catch {
+    // Notificação é best-effort — a designação já foi feita e não deve falhar por causa disso.
+  }
+}
+
 export const createProtocol = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => protocolInput.parse(data))
@@ -128,7 +172,7 @@ export const createProtocol = createServerFn({ method: "POST" })
         created_by: context.userId,
         company_id: companyId,
       })
-      .select("id")
+      .select("id, number")
       .single();
     if (error) {
       // Devolve a reserva quando a criação não se concretiza.
@@ -138,7 +182,49 @@ export const createProtocol = createServerFn({ method: "POST" })
       });
       throw new Error("Não foi possível criar o atendimento.");
     }
+    if (driverId) {
+      await notifyDriverAssignment(supabase, supabaseAdmin, driverId, {
+        number: row.number,
+        service_type: data.service_type,
+        origin,
+        destination: data.destination ?? null,
+        client_name: data.client_name,
+        priority: data.priority,
+      });
+    }
     return { id: row.id, usage: { used: reserved.requests_used, limit: reserved.requests_limit } };
+  });
+
+const assignDriverInput = z.object({
+  protocolId: z.string().uuid(),
+  driverId: z.string().uuid(),
+});
+
+export const assignDriver = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => assignDriverInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: protocol, error: protoError } = await context.supabase
+      .from("protocols")
+      .select("id, number, service_type, origin, destination, client_name, priority")
+      .eq("id", data.protocolId)
+      .single();
+    if (protoError || !protocol) throw new Error("Atendimento não encontrado.");
+
+    const { error } = await context.supabase
+      .from("protocols")
+      .update({ driver_id: data.driverId, status: "aceito", accepted_at: new Date().toISOString() })
+      .eq("id", data.protocolId);
+    if (error) throw new Error("Não foi possível designar o motorista.");
+    await context.supabase
+      .from("drivers")
+      .update({ status: "em_atendimento" })
+      .eq("id", data.driverId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await notifyDriverAssignment(context.supabase, supabaseAdmin, data.driverId, protocol);
+
+    return { ok: true };
   });
 
 export const createDriver = createServerFn({ method: "POST" })

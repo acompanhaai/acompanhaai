@@ -54,7 +54,7 @@ import {
   type ProtocolStatus,
 } from "@/lib/protocol";
 import { geocodeAddress, lookupCep } from "@/lib/address.functions";
-import { createDriver, createProtocol } from "@/lib/ops.functions";
+import { assignDriver as assignDriverFn, createDriver, createProtocol } from "@/lib/ops.functions";
 import { getAccountPlan } from "@/lib/plan.functions";
 import { track } from "@/lib/analytics";
 import {
@@ -604,6 +604,7 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [messageBusy, setMessageBusy] = useState(false);
+  const assignDriverFnServer = useServerFn(assignDriverFn);
   const driver = drivers.find((d) => d.id === protocol.driver_id) ?? null;
 
   const messages = useQuery({
@@ -661,18 +662,17 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
 
   async function assignDriver(driverId: string) {
     setBusy(true);
-    const { error } = await supabase
-      .from("protocols")
-      .update({ driver_id: driverId, status: "aceito", accepted_at: new Date().toISOString() })
-      .eq("id", protocol.id);
-    if (!error)
-      await supabase.from("drivers").update({ status: "em_atendimento" }).eq("id", driverId);
-    setBusy(false);
-    if (error) toast.error("Não foi possível designar", { description: error.message });
-    else {
+    try {
+      await assignDriverFnServer({ data: { protocolId: protocol.id, driverId } });
       toast.success("Motorista designado");
       queryClient.invalidateQueries({ queryKey: ["protocols"] });
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    } catch (error) {
+      toast.error("Não foi possível designar", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setBusy(false);
     }
   }
 
