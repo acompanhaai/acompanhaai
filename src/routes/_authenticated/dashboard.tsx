@@ -167,6 +167,12 @@ const driverSchema = z.object({
     .min(11, "CPF inválido")
     .max(14)
     .refine(isValidCPF, "Informe um CPF válido"),
+  email: z
+    .string()
+    .trim()
+    .max(255)
+    .optional()
+    .refine((value) => !value || z.string().email().safeParse(value).success, "E-mail inválido"),
   phone: z
     .string()
     .trim()
@@ -1028,8 +1034,14 @@ function NewDriverDialog() {
     }
     setBusy(true);
     try {
-      await createDriverFn({ data: parsed.data });
-      toast.success("Motorista cadastrado");
+      const result = await createDriverFn({ data: parsed.data });
+      toast.success("Motorista cadastrado", {
+        description: parsed.data.email
+          ? result.invited
+            ? "Convite de acesso enviado por e-mail."
+            : "Não foi possível enviar o convite por e-mail agora — tente convidar de novo depois."
+          : undefined,
+      });
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
     } catch (error) {
@@ -1054,7 +1066,12 @@ function NewDriverDialog() {
         <form className="space-y-4" onSubmit={submit}>
           <Field label="RE" name="re" required />
           <Field label="Nome" name="name" required />
-          <Field label="CPF (usado no login do app)" name="cpf" required inputMode="numeric" />
+          <Field label="CPF" name="cpf" required inputMode="numeric" />
+          <Field
+            label="E-mail (opcional — envia convite de acesso ao app)"
+            name="email"
+            type="email"
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Telefone" name="phone" inputMode="tel" />
             <Field label="Cidade" name="city" />
@@ -1079,6 +1096,7 @@ function Field({
   onBlur,
   inputMode,
   maxLength,
+  type,
 }: {
   label: string;
   name: string;
@@ -1086,6 +1104,7 @@ function Field({
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   maxLength?: number;
+  type?: string;
 }) {
   return (
     <div className="space-y-2">
@@ -1093,6 +1112,7 @@ function Field({
       <Input
         id={name}
         name={name}
+        type={type}
         required={required}
         maxLength={maxLength ?? 200}
         inputMode={inputMode}

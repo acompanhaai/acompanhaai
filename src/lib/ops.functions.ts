@@ -42,6 +42,7 @@ const driverInput = z.object({
   re: z.string().trim().min(1).max(30),
   name: z.string().trim().min(2).max(120),
   cpf: z.string().trim().refine(isValidCPF, "CPF inválido"),
+  email: z.string().trim().email("E-mail inválido").max(255).nullable().optional(),
   phone: z
     .string()
     .trim()
@@ -127,12 +128,13 @@ export const createDriver = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => driverInput.parse(data))
   .handler(async ({ data, context }) => {
     const companyId = await getCompanyId(context.supabase, context.userId);
+    const cpfDigits = data.cpf.replace(/\D/g, "");
     const { data: row, error } = await context.supabase
       .from("drivers")
       .insert({
         re: data.re,
         name: data.name,
-        cpf: data.cpf.replace(/\D/g, ""),
+        cpf: cpfDigits,
         phone: data.phone ? data.phone.replace(/\D/g, "") : null,
         vehicle: data.vehicle ?? null,
         plate: data.plate ?? null,
@@ -146,5 +148,24 @@ export const createDriver = createServerFn({ method: "POST" })
       if (error.code === "23505") throw new Error("Este RE já está cadastrado.");
       throw new Error("Não foi possível cadastrar o motorista.");
     }
-    return { id: row.id };
+
+    let invited = false;
+    if (data.email) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const appUrl = process.env["APP_URL"] ?? "http://localhost:8080";
+      const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, {
+        data: {
+          name: data.name,
+          role: "driver",
+          company_id: companyId,
+          driver_cpf: cpfDigits,
+        },
+        redirectTo: new URL("/reset-password", appUrl).toString(),
+      });
+      // Não falha o cadastro do motorista por causa do convite — o motorista já
+      // existe e pode ser convidado depois; só reporta se o convite não saiu.
+      invited = !inviteError;
+    }
+
+    return { id: row.id, invited };
   });
