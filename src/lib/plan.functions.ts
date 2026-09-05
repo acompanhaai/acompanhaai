@@ -8,7 +8,7 @@ import { getPaymentsEnvironment } from "@/lib/payments-env";
 export const getAccountPlan = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<PlanUsage> => {
-    const { supabase, userId } = context;
+    const { supabase, userId, claims } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const environment = getPaymentsEnvironment();
 
@@ -24,6 +24,11 @@ export const getAccountPlan = createServerFn({ method: "GET" })
     const used = row.requests_used ?? 0;
     const limit = row.requests_limit ?? plan.requests;
 
+    // profiles.name pode estar vazio em contas antigas — cai para o nome
+    // salvo nos metadados do usuário no momento do cadastro.
+    const metadataName =
+      typeof claims.user_metadata?.["name"] === "string" ? claims.user_metadata["name"] : null;
+
     return {
       planId,
       planName: plan.name,
@@ -35,6 +40,6 @@ export const getAccountPlan = createServerFn({ method: "GET" })
       periodEnd: row.period_end,
       status: row.status ?? "free",
       company: profile?.company?.trim() || null,
-      userName: profile?.name?.trim() || null,
+      userName: profile?.name?.trim() || metadataName?.trim() || null,
     };
   });

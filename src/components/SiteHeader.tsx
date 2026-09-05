@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { resolveHomePath, type HomePath } from "@/lib/session";
 
 const links = [
   { to: "/planos", label: "Planos" },
@@ -10,6 +12,18 @@ const links = [
 ] as const;
 
 export function SiteHeader() {
+  const [homePath, setHomePath] = useState<HomePath | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    resolveHomePath().then((path) => {
+      if (!cancelled) setHomePath(path);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto w-full max-w-4xl px-5">
@@ -30,9 +44,13 @@ export function SiteHeader() {
             ))}
           </nav>
           <Button asChild size="sm" className="shrink-0">
-            <Link to="/auth" search={{ mode: "login" }}>
-              Entrar
-            </Link>
+            {homePath ? (
+              <Link to={homePath}>Minha conta</Link>
+            ) : (
+              <Link to="/auth" search={{ mode: "login" }}>
+                Entrar
+              </Link>
+            )}
           </Button>
         </div>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 pb-3 text-sm text-muted-foreground md:hidden">
