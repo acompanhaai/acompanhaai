@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { submitContactMessage } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
@@ -40,8 +42,10 @@ const schema = z.object({
 
 function Contato() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const submitContact = useServerFn(submitContactMessage);
 
-  function submit(e: React.FormEvent<HTMLFormElement>) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const parsed = schema.safeParse({
@@ -55,10 +59,20 @@ function Contato() {
       toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
       return;
     }
-    setSent(true);
-    toast.success("Mensagem registrada", {
-      description: "Nosso time entrará em contato em breve.",
-    });
+    setSending(true);
+    try {
+      await submitContact({ data: parsed.data });
+      setSent(true);
+      toast.success("Mensagem registrada", {
+        description: "Nosso time entrará em contato em breve.",
+      });
+    } catch {
+      toast.error("Não foi possível enviar sua mensagem", {
+        description: "Tente novamente em instantes.",
+      });
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -97,8 +111,8 @@ function Contato() {
               <Label htmlFor="message">Mensagem</Label>
               <Textarea id="message" name="message" rows={5} required maxLength={1000} />
             </div>
-            <Button type="submit" className="w-full">
-              Enviar mensagem
+            <Button type="submit" className="w-full" disabled={sending} loading={sending}>
+              {sending ? "Enviando..." : "Enviar mensagem"}
             </Button>
           </form>
         )}
