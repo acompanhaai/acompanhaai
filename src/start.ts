@@ -6,6 +6,7 @@ import {
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { securityHeadersMiddleware } from "@/lib/security-headers";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -31,5 +32,10 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [sentryGlobalFunctionMiddleware, attachSupabaseAuth],
-  requestMiddleware: [sentryGlobalRequestMiddleware, errorMiddleware, csrfMiddleware],
+  requestMiddleware: [
+    sentryGlobalRequestMiddleware,
+    errorMiddleware,
+    csrfMiddleware,
+    securityHeadersMiddleware,
+  ],
 }));
