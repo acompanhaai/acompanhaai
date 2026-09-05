@@ -54,13 +54,15 @@ const signupSchema = z.object({
 const codeSchema = z
   .string()
   .trim()
-  .regex(/^\d{6}$/, "Informe o código de 6 dígitos");
+  .regex(/^\d{6,10}$/, "Informe o código recebido por e-mail");
 
 function AuthPage() {
   const { mode, plan } = Route.useSearch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [recoverStep, setRecoverStep] = useState<"closed" | "request" | "verify">("closed");
+  const [recoverStep, setRecoverStep] = useState<"closed" | "request" | "code" | "password">(
+    "closed",
+  );
   const [recoverEmail, setRecoverEmail] = useState("");
   const [recoverPassword, setRecoverPassword] = useState("");
   const [taxId, setTaxId] = useState("");
@@ -198,12 +200,12 @@ function AuthPage() {
     setRecoverEmail(email);
     setRecoverPassword("");
     toast.success("Código enviado", {
-      description: `Enviamos um código de 6 dígitos para ${email}.`,
+      description: `Enviamos um código de verificação para ${email}.`,
     });
-    setRecoverStep("verify");
+    setRecoverStep("code");
   }
 
-  async function handleRecoverVerify(e: React.FormEvent<HTMLFormElement>) {
+  async function handleRecoverCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const code = codeSchema.safeParse(form.get("code"));
@@ -211,6 +213,25 @@ function AuthPage() {
       toast.error(code.error.issues[0]?.message ?? "Código inválido");
       return;
     }
+    setLoading(true);
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email: recoverEmail,
+      token: code.data,
+      type: "recovery",
+    });
+    setLoading(false);
+    if (verifyError) {
+      toast.error("Código inválido ou expirado", {
+        description: "Confira o código recebido por e-mail ou peça um novo.",
+      });
+      return;
+    }
+    setRecoverStep("password");
+  }
+
+  async function handleRecoverPassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
     const password = passwordSchema.safeParse(form.get("password"));
     if (!password.success) {
       toast.error(password.error.issues[0]?.message ?? "Senha inválida");
@@ -221,18 +242,6 @@ function AuthPage() {
       return;
     }
     setLoading(true);
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      email: recoverEmail,
-      token: code.data,
-      type: "recovery",
-    });
-    if (verifyError) {
-      setLoading(false);
-      toast.error("Código inválido ou expirado", {
-        description: "Confira o código recebido por e-mail ou peça um novo.",
-      });
-      return;
-    }
     const { error: updateError } = await supabase.auth.updateUser({ password: password.data });
     setLoading(false);
     if (updateError) {
@@ -285,10 +294,10 @@ function AuthPage() {
                 Voltar
               </Button>
             </form>
-          ) : recoverStep === "verify" ? (
-            <form className="mt-6 space-y-4" onSubmit={handleRecoverVerify}>
+          ) : recoverStep === "code" ? (
+            <form className="mt-6 space-y-4" onSubmit={handleRecoverCode}>
               <p className="text-sm text-muted-foreground">
-                Digite o código de 6 dígitos enviado para <strong>{recoverEmail}</strong>.
+                Digite o código enviado para <strong>{recoverEmail}</strong>.
               </p>
               <div className="space-y-2">
                 <Label htmlFor="recover-code">Código</Label>
@@ -296,35 +305,16 @@ function AuthPage() {
                   id="recover-code"
                   name="code"
                   inputMode="numeric"
-                  maxLength={6}
+                  maxLength={10}
                   required
                   autoComplete="one-time-code"
                   onInput={(e) => {
-                    e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "").slice(0, 6);
+                    e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "").slice(0, 10);
                   }}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="recover-password">Nova senha</Label>
-                <Input
-                  id="recover-password"
-                  name="password"
-                  type="password"
-                  required
-                  value={recoverPassword}
-                  onChange={(e) => setRecoverPassword(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Mínimo de 8 caracteres, com pelo menos um número e um caractere especial.
-                </p>
-                <PasswordStrengthMeter password={recoverPassword} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="recover-confirm">Confirmar senha</Label>
-                <Input id="recover-confirm" name="confirm" type="password" required />
-              </div>
               <Button type="submit" className="w-full" disabled={loading} loading={loading}>
-                {loading ? "Salvando..." : "Redefinir senha"}
+                {loading ? "Verificando..." : "Verificar código"}
               </Button>
               <div className="flex justify-between">
                 <Button
@@ -348,6 +338,42 @@ function AuthPage() {
                   Voltar
                 </Button>
               </div>
+            </form>
+          ) : recoverStep === "password" ? (
+            <form className="mt-6 space-y-4" onSubmit={handleRecoverPassword}>
+              <p className="text-sm text-muted-foreground">
+                Código verificado. Defina uma nova senha para <strong>{recoverEmail}</strong>.
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="recover-password">Nova senha</Label>
+                <Input
+                  id="recover-password"
+                  name="password"
+                  type="password"
+                  required
+                  value={recoverPassword}
+                  onChange={(e) => setRecoverPassword(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Mínimo de 8 caracteres, com pelo menos um número e um caractere especial.
+                </p>
+                <PasswordStrengthMeter password={recoverPassword} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="recover-confirm">Confirmar senha</Label>
+                <Input id="recover-confirm" name="confirm" type="password" required />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading} loading={loading}>
+                {loading ? "Salvando..." : "Redefinir senha"}
+              </Button>
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto w-full text-sm text-muted-foreground"
+                onClick={closeRecovery}
+              >
+                Cancelar
+              </Button>
             </form>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
