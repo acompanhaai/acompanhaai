@@ -4,10 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Loader2 } from "lucide-react";
 import * as Sentry from "@sentry/tanstackstart-react";
 
 import appCss from "../styles.css?url";
@@ -109,6 +111,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+/**
+ * Shown only once a navigation takes a moment — a 200ms delay keeps fast
+ * transitions from flashing it at all, and it fades in/out instead of
+ * popping so it never reads as "always there".
+ */
+function LoadingOverlay() {
+  const isPending = useRouterState({ select: (state) => state.status === "pending" });
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isPending) {
+      setVisible(false);
+      return;
+    }
+    const timer = setTimeout(() => setVisible(true), 200);
+    return () => clearTimeout(timer);
+  }, [isPending]);
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label="Carregando"
+      className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-200"
+      style={{ opacity: visible ? 1 : 0 }}
+    >
+      <Loader2 className="size-8 animate-spin text-primary-strong" aria-hidden="true" />
+    </div>
+  );
+}
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
@@ -140,6 +173,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LoadingOverlay />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster position="top-right" richColors />
