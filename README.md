@@ -30,14 +30,14 @@ Outros comandos: `bun run build`, `bun run lint`, `bun run format`, `bunx tsc --
 
 Veja `.env.example` para a lista completa e onde obter cada chave. Resumo:
 
-| Variável | Onde obter |
-|---|---|
-| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase Dashboard → Project Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Idem (secreta, só servidor) |
-| `PADDLE_SANDBOX_API_KEY`, `PADDLE_LIVE_API_KEY` | Paddle Dashboard → Developer Tools → Authentication |
-| `PAYMENTS_SANDBOX_WEBHOOK_SECRET`, `PAYMENTS_LIVE_WEBHOOK_SECRET` | Paddle Dashboard → Developer Tools → Notifications (uma por webhook cadastrado) |
-| `VITE_PAYMENTS_CLIENT_TOKEN` | Paddle Dashboard → Developer Tools → Authentication (client-side token) |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) |
+| Variável                                                                                         | Onde obter                                                                      |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase Dashboard → Project Settings → API                                     |
+| `SUPABASE_SERVICE_ROLE_KEY`                                                                      | Idem (secreta, só servidor)                                                     |
+| `PADDLE_SANDBOX_API_KEY`, `PADDLE_LIVE_API_KEY`                                                  | Paddle Dashboard → Developer Tools → Authentication                             |
+| `PAYMENTS_SANDBOX_WEBHOOK_SECRET`, `PAYMENTS_LIVE_WEBHOOK_SECRET`                                | Paddle Dashboard → Developer Tools → Notifications (uma por webhook cadastrado) |
+| `VITE_PAYMENTS_CLIENT_TOKEN`                                                                     | Paddle Dashboard → Developer Tools → Authentication (client-side token)         |
+| `GOOGLE_GENERATIVE_AI_API_KEY`                                                                   | [Google AI Studio](https://aistudio.google.com/apikey)                          |
 
 Nenhum secret fica no código ou é commitado — apenas `SUPABASE_URL` e a chave
 publishable (protegidas por RLS, não por sigilo) são seguras de expor.

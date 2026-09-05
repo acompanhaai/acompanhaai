@@ -1,6 +1,8 @@
 // Captures the original Error out-of-band so server.ts can recover the stack
 // when h3 has already swallowed the throw into a generic 500 Response.
 
+import * as Sentry from "@sentry/tanstackstart-react";
+
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
 
@@ -57,6 +59,7 @@ console.error = (...args: unknown[]) => {
   const expanded = args.map((arg) => {
     if (!isErrorLike(arg)) return arg;
     record(arg);
+    Sentry.captureException(arg);
     return describeError(arg);
   });
   originalConsoleError(...expanded);

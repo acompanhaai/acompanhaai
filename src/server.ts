@@ -1,5 +1,7 @@
+import "./instrument.server";
 import "./lib/error-capture";
 
+import * as Sentry from "@sentry/tanstackstart-react";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
@@ -44,7 +46,7 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
-export default {
+const serverEntry: ServerEntry = {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
@@ -59,3 +61,11 @@ export default {
     }
   },
 };
+
+// Sentry's ServerEntry type only declares (request, opts?), understating our
+// real Cloudflare Workers 3-arg (request, env, ctx) signature — but its
+// wrapper forwards every argument through a Proxy regardless of arity, so
+// this is a type-only mismatch, not a runtime one.
+export default Sentry.wrapFetchWithSentry(
+  serverEntry as unknown as Parameters<typeof Sentry.wrapFetchWithSentry>[0],
+) as unknown as ServerEntry;

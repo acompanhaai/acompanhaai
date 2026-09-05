@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import * as Sentry from "@sentry/tanstackstart-react";
 
 import appCss from "../styles.css?url";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,9 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
