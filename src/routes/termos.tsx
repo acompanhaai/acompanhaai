@@ -8,7 +8,8 @@ export const Route = createFileRoute("/termos")({
       { title: "Termos de Uso — AcompanhaAí" },
       {
         name: "description",
-        content: "Termos de Uso da plataforma AcompanhaAí: condições de cadastro, uso e responsabilidades.",
+        content:
+          "Termos de Uso da plataforma AcompanhaAí: condições de cadastro, uso e responsabilidades.",
       },
       { property: "og:title", content: "Termos de Uso — AcompanhaAí" },
       { property: "og:description", content: "Condições de uso da plataforma AcompanhaAí." },
@@ -212,15 +213,21 @@ function Termos() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-16">
         <h1 className="text-3xl font-bold text-foreground">Termos de Uso</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Última atualização: 01 de setembro de 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Última atualização: 01 de setembro de 2026
+        </p>
 
         <div className="mt-10 space-y-8">
           <section>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Estes Termos de Uso regulam o acesso e a utilização da plataforma <strong className="text-foreground">AcompanhaAí</strong>, incluindo seus sites, sistemas, aplicações e funcionalidades relacionadas.
+              Estes Termos de Uso regulam o acesso e a utilização da plataforma{" "}
+              <strong className="text-foreground">AcompanhaAí</strong>, incluindo seus sites,
+              sistemas, aplicações e funcionalidades relacionadas.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Ao criar uma conta, contratar um plano ou utilizar a plataforma, o usuário declara que leu, compreendeu e concorda com estes Termos de Uso. Caso não concorde com qualquer uma de suas disposições, não deverá utilizar a plataforma.
+              Ao criar uma conta, contratar um plano ou utilizar a plataforma, o usuário declara que
+              leu, compreendeu e concorda com estes Termos de Uso. Caso não concorde com qualquer
+              uma de suas disposições, não deverá utilizar a plataforma.
             </p>
           </section>
 
@@ -237,7 +244,9 @@ function Termos() {
 
           <section className="border-t border-border pt-8">
             <p className="text-sm font-semibold text-foreground">AcompanhaAí</p>
-            <p className="mt-1 text-sm text-muted-foreground">Software para acompanhamento e gestão de solicitações.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Software para acompanhamento e gestão de solicitações.
+            </p>
           </section>
         </div>
       </main>

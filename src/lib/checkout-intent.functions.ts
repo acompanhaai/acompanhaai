@@ -5,7 +5,10 @@ import { isPlanId } from "@/lib/plan";
 import { getPaymentsEnvironment } from "@/lib/payments-env";
 
 const intentInput = z.object({
-  plan: z.string().refine(isPlanId, "Plano inválido").refine((value) => value !== "free", "O plano gratuito não usa checkout"),
+  plan: z
+    .string()
+    .refine(isPlanId, "Plano inválido")
+    .refine((value) => value !== "free", "O plano gratuito não usa checkout"),
 });
 
 export const createCheckoutIntent = createServerFn({ method: "POST" })

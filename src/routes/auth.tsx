@@ -162,7 +162,6 @@ function AuthPage() {
     }
   }
 
-
   async function handleRecover(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const email = String(new FormData(e.currentTarget).get("email") ?? "").trim();
@@ -183,7 +182,10 @@ function AuthPage() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
-          <Link to="/" className="interactive inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <Link
+            to="/"
+            className="interactive inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <Logo />
           </Link>
         </div>
@@ -193,9 +195,9 @@ function AuthPage() {
         <div className="surface surface-elevated w-full max-w-md p-7">
           <h1 className="text-xl font-bold text-foreground">Base Operacional</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-             {activeTab === "signup"
-               ? "Crie sua conta e comece a gerenciar sua operação em um só lugar."
-               : "Acesse o painel de gestão da sua operação."}
+            {activeTab === "signup"
+              ? "Crie sua conta e comece a gerenciar sua operação em um só lugar."
+              : "Acesse o painel de gestão da sua operação."}
           </p>
 
           {recovering ? (

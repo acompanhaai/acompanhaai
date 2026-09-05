@@ -11,8 +11,7 @@
  */
 
 @theme inline {
-  --font-sans:
-    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -62,7 +61,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.04), 0 8px 24px -12px oklch(0 0 0 / 0.12);
   --shadow-card: 0 1px 0 oklch(0 0 0 / 0.03), 0 1px 3px oklch(0 0 0 / 0.05);
-  --shadow-elevated: 0 1px 2px oklch(0.18 0.006 145 / 0.06), 0 18px 40px -18px oklch(0.18 0.006 145 / 0.28);
+  --shadow-elevated:
+    0 1px 2px oklch(0.18 0.006 145 / 0.06), 0 18px 40px -18px oklch(0.18 0.006 145 / 0.28);
   --shadow-glow: 0 12px 40px -16px oklch(0.72 0.22 142 / 0.5);
 }
 
@@ -199,16 +199,27 @@
   background: var(--color-muted);
 }
 
-
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes route-progress {
-  0% { transform: translateX(-100%); }
-  45% { transform: translateX(-12%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  45% {
+    transform: translateX(-12%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .route-progress {
@@ -225,13 +236,27 @@
 .usage-progress {
   width: 8%;
   background: var(--color-primary);
-  transition: width 700ms cubic-bezier(0.16, 0.84, 0.28, 1), background-color 520ms ease;
+  transition:
+    width 700ms cubic-bezier(0.16, 0.84, 0.28, 1),
+    background-color 520ms ease;
 }
 
-.usage-progress[data-level="warn70"] { width: 70%; background: var(--color-warning); }
-.usage-progress[data-level="warn80"] { width: 80%; background: var(--color-warning); }
-.usage-progress[data-level="warn90"] { width: 90%; background: var(--color-destructive); }
-.usage-progress[data-level="full"] { width: 100%; background: var(--color-destructive); }
+.usage-progress[data-level="warn70"] {
+  width: 70%;
+  background: var(--color-warning);
+}
+.usage-progress[data-level="warn80"] {
+  width: 80%;
+  background: var(--color-warning);
+}
+.usage-progress[data-level="warn90"] {
+  width: 90%;
+  background: var(--color-destructive);
+}
+.usage-progress[data-level="full"] {
+  width: 100%;
+  background: var(--color-destructive);
+}
 
 /* ---------------------------------------------------------------
  * Camada global de interação: todo elemento realmente clicável tem
@@ -292,7 +317,6 @@
     transition-duration: 140ms;
   }
 
-
   :focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
@@ -300,8 +324,14 @@
 }
 
 @keyframes tab-enter {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @utility tab-enter {
@@ -342,7 +372,6 @@
 @utility interactive {
   cursor: pointer;
   transition:
-
     background-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
     border-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 320ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -413,17 +442,24 @@
   }
 }
 
-
 @media (prefers-reduced-motion: reduce) {
   .route-progress,
   .usage-progress,
-  main { animation: none; transition: none; }
+  main {
+    animation: none;
+    transition: none;
+  }
 
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
   .elevate:hover,
   .elevate-sm:hover,
-  .surface-elevated:hover { transform: none; }
-
+  .surface-elevated:hover {
+    transform: none;
+  }
 
   *,
   *::before,
@@ -443,5 +479,3 @@
 #lovable-badge {
   display: none !important;
 }
-
-

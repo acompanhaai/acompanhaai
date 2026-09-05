@@ -23,7 +23,7 @@ export function SiteHeader() {
                 key={link.to}
                 to={link.to}
                 className="nav-link whitespace-nowrap transition-colors hover:text-foreground"
-                 activeProps={{ className: "nav-link text-foreground font-medium" }}
+                activeProps={{ className: "nav-link text-foreground font-medium" }}
               >
                 {link.label}
               </Link>

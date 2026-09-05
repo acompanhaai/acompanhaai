@@ -1,8 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 /** Resolve o id do protocolo a partir do número ou do CPF do segurado. */
 export async function resolveProtocolId(
-  client: SupabaseClient<any, any, any>,
+  client: SupabaseClient<Database>,
   query: string,
 ): Promise<string | null> {
   const raw = query.trim();

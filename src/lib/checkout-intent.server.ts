@@ -2,9 +2,10 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import type { PaddleEnv } from "@/lib/paddle.server";
 
 function signingSecret(environment: PaddleEnv): string {
-  const key = environment === "sandbox"
-    ? process.env["PADDLE_SANDBOX_API_KEY"]
-    : process.env["PADDLE_LIVE_API_KEY"];
+  const key =
+    environment === "sandbox"
+      ? process.env["PADDLE_SANDBOX_API_KEY"]
+      : process.env["PADDLE_LIVE_API_KEY"];
   if (!key) throw new Error("Payment signing secret is not configured");
   return key;
 }

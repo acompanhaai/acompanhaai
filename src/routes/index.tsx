@@ -43,7 +43,8 @@ const cards = [
     to: "/acompanhar",
     icon: MapPin,
     title: "Acompanhar Protocolo",
-    description: "Acompanhe o guincho em tempo real, veja os dados do motorista e consulte o tempo estimado de chegada.",
+    description:
+      "Acompanhe o guincho em tempo real, veja os dados do motorista e consulte o tempo estimado de chegada.",
   },
 ] as const;
 
@@ -86,8 +87,8 @@ function Home() {
             </Reveal>
             <Reveal delay={160}>
               <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-                Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para o
-                motorista e para o segurado :)
+                Protocolo, motorista, mapa e status — atualizados automaticamente para a base, para
+                o motorista e para o segurado :)
               </p>
             </Reveal>
           </div>
@@ -116,7 +117,6 @@ function Home() {
           ))}
         </section>
       </main>
-
 
       <SiteFooter />
     </div>

@@ -9,13 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import {
-  comparison,
-  formatPrice,
-  formatRequests,
-  plans,
-  requestDefinition,
-} from "@/config/plans";
+import { comparison, formatPrice, formatRequests, plans, requestDefinition } from "@/config/plans";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/planos")({
@@ -132,11 +126,7 @@ function Planos() {
                 ))}
               </ul>
               <div className="mt-6 pt-2">
-                <Button
-                  asChild
-                  className="w-full"
-                  variant={plan.highlight ? "default" : "outline"}
-                >
+                <Button asChild className="w-full" variant={plan.highlight ? "default" : "outline"}>
                   {plan.price > 0 ? (
                     <Link to="/checkout" search={{ plan: plan.id }}>
                       {plan.cta}

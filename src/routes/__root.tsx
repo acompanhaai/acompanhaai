@@ -139,7 +139,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isNavigating ? <div className="route-progress" role="progressbar" aria-label="Carregando página" /> : null}
+      {isNavigating ? (
+        <div className="route-progress" role="progressbar" aria-label="Carregando página" />
+      ) : null}
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster position="top-right" richColors />

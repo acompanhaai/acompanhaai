@@ -86,18 +86,12 @@ function DriverLogin() {
         <div className="surface surface-elevated w-full max-w-sm p-7">
           <h1 className="text-xl font-bold text-foreground">Área do Motorista</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-             Acesse sua conta com os dados cadastrados pela base operacional
+            Acesse sua conta com os dados cadastrados pela base operacional
           </p>
           <form className="mt-6 space-y-4" onSubmit={submit}>
             <div className="space-y-2">
               <Label htmlFor="driver-email">E-mail</Label>
-              <Input
-                id="driver-email"
-                name="email"
-                type="email"
-                required
-                autoComplete="username"
-              />
+              <Input id="driver-email" name="email" type="email" required autoComplete="username" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="driver-password">Senha</Label>
@@ -114,7 +108,7 @@ function DriverLogin() {
             </Button>
           </form>
           <p className="mt-4 text-xs text-muted-foreground">
-             Não tem acesso? Peça à base operacional para cadastrar você na lista de motoristas
+            Não tem acesso? Peça à base operacional para cadastrar você na lista de motoristas
           </p>
         </div>
       </main>
@@ -141,7 +135,11 @@ function DriverApp() {
       const { data: auth } = await supabase.auth.getUser();
       const user = auth.user;
       if (!user) return null;
-      const linked = await supabase.from("drivers").select("*").eq("user_id", user.id).maybeSingle();
+      const linked = await supabase
+        .from("drivers")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
       if (linked.data) return linked.data;
       const cpf = onlyDigits((user.email ?? "").split("@")[0] ?? "");
       if (cpf.length >= 11) {
@@ -215,7 +213,11 @@ function DriverApp() {
     setActionBusy(true);
     const { error } = await supabase
       .from("protocols")
-      .update({ driver_id: driver.data.id, status: "aceito", accepted_at: new Date().toISOString() })
+      .update({
+        driver_id: driver.data.id,
+        status: "aceito",
+        accepted_at: new Date().toISOString(),
+      })
       .eq("id", id);
     setActionBusy(false);
     if (error) toast.error("Não foi possível aceitar", { description: error.message });
@@ -292,7 +294,14 @@ function DriverApp() {
           <Link to="/" className="min-w-0">
             <Logo />
           </Link>
-          <Button className="shrink-0" variant="ghost" size="sm" onClick={signOut} disabled={signOutBusy} loading={signOutBusy}>
+          <Button
+            className="shrink-0"
+            variant="ghost"
+            size="sm"
+            onClick={signOut}
+            disabled={signOutBusy}
+            loading={signOutBusy}
+          >
             {!signOutBusy ? <LogOut className="size-4" /> : null}
             {signOutBusy ? "Saindo..." : "Sair"}
           </Button>
@@ -315,7 +324,8 @@ function DriverApp() {
               <div>
                 <h1 className="text-xl font-bold text-foreground">Olá, {driver.data.name}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  RE {driver.data.re} · {driver.data.vehicle ?? "Veículo"} · {driver.data.plate ?? "—"}
+                  RE {driver.data.re} · {driver.data.vehicle ?? "Veículo"} ·{" "}
+                  {driver.data.plate ?? "—"}
                 </p>
               </div>
               <Button
@@ -339,7 +349,9 @@ function DriverApp() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs text-muted-foreground">{active.number}</p>
-                    <h2 className="mt-0.5 text-lg font-bold text-foreground">{active.client_name}</h2>
+                    <h2 className="mt-0.5 text-lg font-bold text-foreground">
+                      {active.client_name}
+                    </h2>
                     <p className="mt-1 text-sm text-muted-foreground">{active.origin}</p>
                     {active.destination ? (
                       <p className="text-sm text-muted-foreground">Destino: {active.destination}</p>
@@ -363,7 +375,14 @@ function DriverApp() {
                     const order = ["aceito", "em_deslocamento", "chegou", "em_atendimento"];
                     return order.indexOf(step.status) === order.indexOf(active.status) + 1;
                   }).map((step) => (
-                    <Button key={step.status} size="sm" variant="secondary" onClick={() => advance(step)} disabled={actionBusy} loading={actionBusy}>
+                    <Button
+                      key={step.status}
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => advance(step)}
+                      disabled={actionBusy}
+                      loading={actionBusy}
+                    >
                       {actionBusy ? "Atualizando..." : step.label}
                     </Button>
                   ))}
@@ -387,20 +406,35 @@ function DriverApp() {
                     </p>
                     <div className="mt-3 flex flex-wrap items-end gap-2">
                       <div className="min-w-48 flex-1 space-y-2">
-                        <Label htmlFor="finish-code">Digite o código de 4 dígitos informado pelo cliente</Label>
+                        <Label htmlFor="finish-code">
+                          Digite o código de 4 dígitos informado pelo cliente
+                        </Label>
                         <Input
                           id="finish-code"
                           value={finishCode}
-                          onChange={(event) => setFinishCode(onlyDigits(event.target.value).slice(0, 4))}
+                          onChange={(event) =>
+                            setFinishCode(onlyDigits(event.target.value).slice(0, 4))
+                          }
                           inputMode="numeric"
                           maxLength={4}
                           autoComplete="off"
                         />
                       </div>
-                      <Button onClick={finish} disabled={finishBusy || finishCode.length !== 4} loading={finishBusy}>
+                      <Button
+                        onClick={finish}
+                        disabled={finishBusy || finishCode.length !== 4}
+                        loading={finishBusy}
+                      >
                         {finishBusy ? "Validando..." : "Confirmar e finalizar"}
                       </Button>
-                      <Button variant="ghost" onClick={() => { setFinishOpen(false); setFinishCode(""); }} disabled={finishBusy}>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setFinishOpen(false);
+                          setFinishCode("");
+                        }}
+                        disabled={finishBusy}
+                      >
                         Cancelar
                       </Button>
                     </div>
@@ -429,13 +463,21 @@ function DriverApp() {
                 </div>
               ) : (
                 pending.map((p) => (
-                  <div key={p.id} className="surface flex flex-wrap items-center justify-between gap-3 p-4">
+                  <div
+                    key={p.id}
+                    className="surface flex flex-wrap items-center justify-between gap-3 p-4"
+                  >
                     <div>
                       <p className="text-xs text-muted-foreground">{p.number}</p>
                       <p className="font-semibold text-foreground">{p.client_name}</p>
                       <p className="text-xs text-muted-foreground">{p.origin}</p>
                     </div>
-                    <Button size="sm" onClick={() => accept(p.id)} disabled={actionBusy} loading={actionBusy}>
+                    <Button
+                      size="sm"
+                      onClick={() => accept(p.id)}
+                      disabled={actionBusy}
+                      loading={actionBusy}
+                    >
                       {actionBusy ? "Aceitando..." : "Aceitar"}
                     </Button>
                   </div>
@@ -519,8 +561,19 @@ function DriverChat({ protocolId, driverName }: { protocolId: string; driverName
         )}
       </div>
       <form className="mt-3 flex gap-2" onSubmit={send}>
-        <Input name="body" placeholder="Mensagem para a base" maxLength={1000} disabled={messageBusy} />
-        <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messageBusy} loading={messageBusy}>
+        <Input
+          name="body"
+          placeholder="Mensagem para a base"
+          maxLength={1000}
+          disabled={messageBusy}
+        />
+        <Button
+          type="submit"
+          size="icon"
+          aria-label="Enviar mensagem"
+          disabled={messageBusy}
+          loading={messageBusy}
+        >
           {!messageBusy ? <Send className="size-4" /> : null}
         </Button>
       </form>

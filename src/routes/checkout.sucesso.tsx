@@ -14,7 +14,10 @@ export const Route = createFileRoute("/checkout/sucesso")({
       { title: "Confirmação da assinatura — AcompanhaAí" },
       { name: "description", content: "Acompanhe a confirmação da sua assinatura AcompanhaAí." },
       { property: "og:title", content: "Confirmação da assinatura — AcompanhaAí" },
-      { property: "og:description", content: "A ativação do plano depende da confirmação do pagamento." },
+      {
+        property: "og:description",
+        content: "A ativação do plano depende da confirmação do pagamento.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -45,7 +48,12 @@ function CheckoutSuccess() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center px-5">
-          <Link to="/" className="interactive shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><Logo /></Link>
+          <Link
+            to="/"
+            className="interactive shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <Logo />
+          </Link>
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-5 py-12">
@@ -71,7 +79,9 @@ function CheckoutSuccess() {
               ? "Confirmação validada pelo backend do AcompanhaAí."
               : "Você pode continuar usando a conta enquanto a confirmação é processada."}
           </p>
-          <Button asChild className="mt-7 w-full"><Link to="/dashboard">Ir para a base operacional</Link></Button>
+          <Button asChild className="mt-7 w-full">
+            <Link to="/dashboard">Ir para a base operacional</Link>
+          </Button>
         </section>
       </main>
     </div>

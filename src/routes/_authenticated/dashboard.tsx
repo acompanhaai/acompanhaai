@@ -4,7 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowUpRight, BarChart3, CalendarDays, CreditCard, LogOut, MapPin, Plus, Send, Truck, Users } from "lucide-react";
+import {
+  ArrowUpRight,
+  BarChart3,
+  CalendarDays,
+  CreditCard,
+  LogOut,
+  MapPin,
+  Plus,
+  Send,
+  Truck,
+  Users,
+} from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { MapView, type MapPoint } from "@/components/map/MapView";
 import { Button } from "@/components/ui/button";
@@ -45,7 +56,16 @@ import {
 import { geocodeAddress, lookupCep } from "@/lib/address.functions";
 import { createDriver, createProtocol } from "@/lib/ops.functions";
 import { getAccountPlan } from "@/lib/plan.functions";
-import { formatPeriodDate, nextPlan, planLabel, usageLevel, usageMessage, usagePercent, PLAN_LIMIT_CODE, type PlanUsage } from "@/lib/plan";
+import {
+  formatPeriodDate,
+  nextPlan,
+  planLabel,
+  usageLevel,
+  usageMessage,
+  usagePercent,
+  PLAN_LIMIT_CODE,
+  type PlanUsage,
+} from "@/lib/plan";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -110,8 +130,18 @@ type Driver = {
 
 const protocolSchema = z.object({
   client_name: z.string().trim().min(2, "Informe o nome completo do cliente").max(120),
-  client_phone: z.string().trim().min(10, "Informe um telefone válido").max(20).refine(isValidBRPhone, "Informe um telefone brasileiro válido"),
-  client_cpf: z.string().trim().min(11, "Informe o CPF").max(20).refine(isValidCPF, "Informe um CPF válido"),
+  client_phone: z
+    .string()
+    .trim()
+    .min(10, "Informe um telefone válido")
+    .max(20)
+    .refine(isValidBRPhone, "Informe um telefone brasileiro válido"),
+  client_cpf: z
+    .string()
+    .trim()
+    .min(11, "Informe o CPF")
+    .max(20)
+    .refine(isValidCPF, "Informe um CPF válido"),
   insurer: z.string().trim().max(120).optional(),
   service_type: z.enum(SERVICE_TYPES, { message: "Selecione um tipo de serviço válido" }),
   priority: z.enum(PRIORITIES),
@@ -130,8 +160,18 @@ const protocolSchema = z.object({
 const driverSchema = z.object({
   re: z.string().trim().min(1, "Informe o RE").max(30),
   name: z.string().trim().min(2, "Informe o nome").max(120),
-  cpf: z.string().trim().min(11, "CPF inválido").max(14).refine(isValidCPF, "Informe um CPF válido"),
-  phone: z.string().trim().max(20).optional().refine((value) => !value || isValidBRPhone(value), "Informe um telefone brasileiro válido"),
+  cpf: z
+    .string()
+    .trim()
+    .min(11, "CPF inválido")
+    .max(14)
+    .refine(isValidCPF, "Informe um CPF válido"),
+  phone: z
+    .string()
+    .trim()
+    .max(20)
+    .optional()
+    .refine((value) => !value || isValidBRPhone(value), "Informe um telefone brasileiro válido"),
   vehicle: z.string().trim().max(80).optional(),
   plate: z.string().trim().max(10).optional(),
   city: z.string().trim().max(120).optional(),
@@ -165,10 +205,7 @@ function Dashboard() {
   const drivers = useQuery({
     queryKey: ["drivers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("drivers")
-        .select("*")
-        .order("name");
+      const { data, error } = await supabase.from("drivers").select("*").order("name");
       if (error) throw error;
       return data as Driver[];
     },
@@ -236,7 +273,13 @@ function Dashboard() {
               drivers={drivers.data ?? []}
               disabled={accountPlan.data?.remaining === 0}
             />
-            <Button variant="ghost" size="sm" onClick={signOut} disabled={signOutBusy} loading={signOutBusy}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={signOut}
+              disabled={signOutBusy}
+              loading={signOutBusy}
+            >
               {!signOutBusy ? <LogOut className="size-4" /> : null}
               {signOutBusy ? "Saindo..." : "Sair"}
             </Button>
@@ -340,7 +383,8 @@ function Dashboard() {
                       </div>
                       <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                         <span>
-                          {p.service_type ?? "Atendimento"} · {PRIORITY_LABEL[p.priority] ?? p.priority}
+                          {p.service_type ?? "Atendimento"} ·{" "}
+                          {PRIORITY_LABEL[p.priority] ?? p.priority}
                         </span>
                         <span>{formatDateTime(p.created_at)}</span>
                       </div>
@@ -369,17 +413,17 @@ function Dashboard() {
               {(drivers.data ?? []).map((d) => (
                 <div key={d.id} className="surface surface-elevated p-4">
                   <div className="flex items-center justify-between gap-2">
-                   <div>
-                     <p className="font-semibold text-foreground">{d.name}</p>
-                     <p className="text-xs text-muted-foreground">RE {d.re}</p>
-                   </div>
-                     <span
-                       className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
-                         d.status === "disponivel"
-                           ? "border-primary/30 bg-primary/10 text-primary"
-                           : "border-border text-muted-foreground"
-                       }`}
-                     >
+                    <div>
+                      <p className="font-semibold text-foreground">{d.name}</p>
+                      <p className="text-xs text-muted-foreground">RE {d.re}</p>
+                    </div>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                        d.status === "disponivel"
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
                       {DRIVER_STATUS_LABEL[d.status] ?? d.status}
                     </span>
                   </div>
@@ -430,23 +474,38 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
               <BarChart3 className="size-4 text-primary" /> Utilização mensal
             </p>
             <p className="mt-2 text-2xl font-bold text-foreground">
-              {usage.used} <span className="text-base font-medium text-muted-foreground">de {usage.limit} solicitações</span>
+              {usage.used}{" "}
+              <span className="text-base font-medium text-muted-foreground">
+                de {usage.limit} solicitações
+              </span>
             </p>
           </div>
           <span className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold text-muted-foreground">
             {percent}% usado
           </span>
         </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted" aria-label={`${percent}% do limite utilizado`}>
+        <div
+          className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted"
+          aria-label={`${percent}% do limite utilizado`}
+        >
           <div className="usage-progress h-full rounded-full" data-level={level} />
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>{isAtLimit ? "Novas solicitações bloqueadas" : `${usage.remaining} solicitações restantes`}</span>
-          <span className="flex items-center gap-1"><CalendarDays className="size-3.5" /> Renova em {formatPeriodDate(usage.periodEnd)}</span>
+          <span>
+            {isAtLimit
+              ? "Novas solicitações bloqueadas"
+              : `${usage.remaining} solicitações restantes`}
+          </span>
+          <span className="flex items-center gap-1">
+            <CalendarDays className="size-3.5" /> Renova em {formatPeriodDate(usage.periodEnd)}
+          </span>
         </div>
         {message ? (
-          <div className={`mt-4 rounded-md border px-3 py-2 text-sm ${isAtLimit ? "border-destructive/30 bg-destructive/10 text-destructive" : "border-warning/30 bg-warning/10 text-warning-foreground"}`}>
-            {message} {isAtLimit ? "Escolha um plano maior para continuar criando atendimentos." : ""}
+          <div
+            className={`mt-4 rounded-md border px-3 py-2 text-sm ${isAtLimit ? "border-destructive/30 bg-destructive/10 text-destructive" : "border-warning/30 bg-warning/10 text-warning-foreground"}`}
+          >
+            {message}{" "}
+            {isAtLimit ? "Escolha um plano maior para continuar criando atendimentos." : ""}
           </div>
         ) : null}
       </div>
@@ -463,16 +522,28 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-3">
-            <Link to="/plano" className="text-sm font-semibold text-primary transition-colors hover:text-primary-strong">Ver assinatura</Link>
-            <Link to="/planos" className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong">
-              {usage.planId === "scale" ? "Ver planos" : `Ir para ${planLabel(upgradePlan)}`} <ArrowUpRight className="size-4" />
+            <Link
+              to="/plano"
+              className="text-sm font-semibold text-primary transition-colors hover:text-primary-strong"
+            >
+              Ver assinatura
+            </Link>
+            <Link
+              to="/planos"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary-strong"
+            >
+              {usage.planId === "scale" ? "Ver planos" : `Ir para ${planLabel(upgradePlan)}`}{" "}
+              <ArrowUpRight className="size-4" />
             </Link>
           </div>
         </div>
         {usage.status === "past_due" ? (
           <div className="mt-4 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning-foreground">
-            Não conseguimos confirmar o último pagamento. Seu acesso continua liberado enquanto tentamos novamente.{" "}
-            <Link to="/plano" className="font-semibold underline">Atualizar cobrança</Link>
+            Não conseguimos confirmar o último pagamento. Seu acesso continua liberado enquanto
+            tentamos novamente.{" "}
+            <Link to="/plano" className="font-semibold underline">
+              Atualizar cobrança
+            </Link>
           </div>
         ) : null}
         {usage.status === "canceled" ? (
@@ -480,8 +551,9 @@ function AccountPlanOverview({ usage }: { usage: PlanUsage }) {
             Cancelamento agendado. Você mantém o plano até {formatPeriodDate(usage.periodEnd)}.
           </div>
         ) : null}
-        <p className="mt-4 text-xs text-muted-foreground">O histórico permanece disponível mesmo quando o limite mensal é atingido.</p>
-
+        <p className="mt-4 text-xs text-muted-foreground">
+          O histórico permanece disponível mesmo quando o limite mensal é atingido.
+        </p>
       </div>
     </section>
   );
@@ -536,7 +608,10 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
     const patch = { status, ...(stamp ? { [stamp]: now } : {}) };
     const { error } = await supabase.from("protocols").update(patch).eq("id", protocol.id);
     setBusy(false);
-    if (error) toast.error("Não foi possível atualizar", { description: "A transição não foi aceita pelo atendimento." });
+    if (error)
+      toast.error("Não foi possível atualizar", {
+        description: "A transição não foi aceita pelo atendimento.",
+      });
     else {
       toast.success(`Status: ${STATUS_LABEL[status as ProtocolStatus] ?? status}`);
       queryClient.invalidateQueries({ queryKey: ["protocols"] });
@@ -549,7 +624,8 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
       .from("protocols")
       .update({ driver_id: driverId, status: "aceito", accepted_at: new Date().toISOString() })
       .eq("id", protocol.id);
-    if (!error) await supabase.from("drivers").update({ status: "em_atendimento" }).eq("id", driverId);
+    if (!error)
+      await supabase.from("drivers").update({ status: "em_atendimento" }).eq("id", driverId);
     setBusy(false);
     if (error) toast.error("Não foi possível designar", { description: error.message });
     else {
@@ -610,39 +686,41 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
           </span>
         </div>
 
-         <div className="mt-4 space-y-3">
-           <div>
-             <p className="text-xs font-medium text-muted-foreground">Motorista</p>
-             {driver ? (
-               <p className="mt-1 text-sm font-medium text-foreground">
-                 RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
-               </p>
-             ) : (
-               <div className="mt-2 flex flex-wrap gap-2">
-                 {drivers.length === 0 ? (
-                   <p className="text-sm text-muted-foreground">Cadastre motoristas primeiro.</p>
-                 ) : (
-                   drivers.map((d) => (
-                      <Button
-                        key={d.id}
-                        size="sm"
-                        variant="outline"
-                        disabled={busy}
-                        loading={busy}
-                        onClick={() => assignDriver(d.id)}
-                      >
-                        {busy ? "Designando..." : `Designar RE ${d.re}`}
-                      </Button>
-                   ))
-                 )}
-               </div>
-             )}
-           </div>
+        <div className="mt-4 space-y-3">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Motorista</p>
+            {driver ? (
+              <p className="mt-1 text-sm font-medium text-foreground">
+                RE {driver.re} · {driver.name} · {driver.plate ?? "—"}
+              </p>
+            ) : (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {drivers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Cadastre motoristas primeiro.</p>
+                ) : (
+                  drivers.map((d) => (
+                    <Button
+                      key={d.id}
+                      size="sm"
+                      variant="outline"
+                      disabled={busy}
+                      loading={busy}
+                      onClick={() => assignDriver(d.id)}
+                    >
+                      {busy ? "Designando..." : `Designar RE ${d.re}`}
+                    </Button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
-           <div>
-             <p className="text-xs font-medium text-muted-foreground">Alterar status</p>
-             <div className="mt-2 flex flex-wrap gap-2">
-               {nextStatuses.filter((s) => s !== "concluido").map((s) => (
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Alterar status</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {nextStatuses
+                .filter((s) => s !== "concluido")
+                .map((s) => (
                   <Button
                     key={s}
                     size="sm"
@@ -653,10 +731,10 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
                   >
                     {busy ? "Atualizando..." : STATUS_LABEL[s]}
                   </Button>
-               ))}
-             </div>
-           </div>
-         </div>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="surface surface-elevated overflow-hidden">
@@ -725,8 +803,19 @@ function ProtocolDetail({ protocol, drivers }: { protocol: Protocol; drivers: Dr
           )}
         </div>
         <form className="mt-3 flex gap-2" onSubmit={sendMessage}>
-          <Input name="body" placeholder="Escreva uma mensagem" maxLength={1000} disabled={messageBusy} />
-          <Button type="submit" size="icon" aria-label="Enviar mensagem" disabled={messageBusy} loading={messageBusy}>
+          <Input
+            name="body"
+            placeholder="Escreva uma mensagem"
+            maxLength={1000}
+            disabled={messageBusy}
+          />
+          <Button
+            type="submit"
+            size="icon"
+            aria-label="Enviar mensagem"
+            disabled={messageBusy}
+            loading={messageBusy}
+          >
             {!messageBusy ? <Send className="size-4" /> : null}
           </Button>
         </form>
@@ -762,33 +851,41 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
     try {
       const cepData = await lookupCep({ data: { cep: parsed.data.address_cep } });
       if (!cepData) {
-        toast.error("CEP não encontrado", { description: "Confira o CEP e revise o endereço antes de criar." });
+        toast.error("CEP não encontrado", {
+          description: "Confira o CEP e revise o endereço antes de criar.",
+        });
         return;
       }
       const d = parsed.data;
-      const coordinates = await geocodeAddress({ data: {
-        cep: d.address_cep,
-        street: d.address_street,
-        number: d.address_number,
-        city: d.city,
-        state: d.address_state,
-      } });
-      await createProtocolFn({ data: {
-        ...d,
-        client_phone: d.client_phone,
-        client_cpf: d.client_cpf,
-        address_cep: d.address_cep,
-        origin_lat: coordinates?.lat ?? null,
-        origin_lng: coordinates?.lng ?? null,
-        driver_id: d.driver_id || null,
-      } });
+      const coordinates = await geocodeAddress({
+        data: {
+          cep: d.address_cep,
+          street: d.address_street,
+          number: d.address_number,
+          city: d.city,
+          state: d.address_state,
+        },
+      });
+      await createProtocolFn({
+        data: {
+          ...d,
+          client_phone: d.client_phone,
+          client_cpf: d.client_cpf,
+          address_cep: d.address_cep,
+          origin_lat: coordinates?.lat ?? null,
+          origin_lng: coordinates?.lng ?? null,
+          driver_id: d.driver_id || null,
+        },
+      });
       toast.success("Protocolo criado");
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["protocols"] });
       queryClient.invalidateQueries({ queryKey: ["account-plan"] });
     } catch (error) {
       if (error instanceof Error && error.message === PLAN_LIMIT_CODE) {
-        toast.error("Limite mensal atingido", { description: "Acesse Planos para escolher uma opção com mais solicitações." });
+        toast.error("Limite mensal atingido", {
+          description: "Acesse Planos para escolher uma opção com mais solicitações.",
+        });
       } else {
         toast.error(error instanceof Error ? error.message : "Não foi possível criar o protocolo");
       }
@@ -848,18 +945,31 @@ function NewProtocolDialog({ drivers, disabled }: { drivers: Driver[]; disabled?
           </div>
           <div className="rounded-lg border border-border bg-muted/30 p-4">
             <p className="text-sm font-semibold text-foreground">Endereço do atendimento</p>
-            <p className="mt-1 text-xs text-muted-foreground">Informe o CEP para preencher os dados e revise tudo antes de criar.</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Informe o CEP para preencher os dados e revise tudo antes de criar.
+            </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <Field label="CEP" name="address_cep" required inputMode="numeric" onBlur={async (e) => {
-                const result = await lookupCep({ data: { cep: e.currentTarget.value } });
-                if (!result) return;
-                const form = e.currentTarget.form;
-                if (!form) return;
-                for (const [name, value] of [["address_street", result.street], ["address_district", result.district], ["city", result.city], ["address_state", result.state]] as const) {
-                  const field = form.elements.namedItem(name);
-                  if (field instanceof HTMLInputElement && !field.value) field.value = value;
-                }
-              }} />
+              <Field
+                label="CEP"
+                name="address_cep"
+                required
+                inputMode="numeric"
+                onBlur={async (e) => {
+                  const result = await lookupCep({ data: { cep: e.currentTarget.value } });
+                  if (!result) return;
+                  const form = e.currentTarget.form;
+                  if (!form) return;
+                  for (const [name, value] of [
+                    ["address_street", result.street],
+                    ["address_district", result.district],
+                    ["city", result.city],
+                    ["address_state", result.state],
+                  ] as const) {
+                    const field = form.elements.namedItem(name);
+                    if (field instanceof HTMLInputElement && !field.value) field.value = value;
+                  }
+                }}
+              />
               <Field label="Logradouro" name="address_street" required />
               <Field label="Número" name="address_number" required />
               <Field label="Complemento" name="address_complement" />
@@ -978,7 +1088,14 @@ function Field({
   return (
     <div className="space-y-2">
       <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} required={required} maxLength={maxLength ?? 200} inputMode={inputMode} onBlur={onBlur} />
+      <Input
+        id={name}
+        name={name}
+        required={required}
+        maxLength={maxLength ?? 200}
+        inputMode={inputMode}
+        onBlur={onBlur}
+      />
     </div>
   );
 }

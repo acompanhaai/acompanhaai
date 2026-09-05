@@ -38,7 +38,6 @@ const schema = z.object({
   message: z.string().trim().min(10, "Conte um pouco mais").max(1000),
 });
 
-
 function Contato() {
   const [sent, setSent] = useState(false);
 
@@ -103,7 +102,6 @@ function Contato() {
             </Button>
           </form>
         )}
-
       </main>
       <SiteFooter />
     </div>

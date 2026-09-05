@@ -56,7 +56,12 @@ function TrackingPage() {
 
   const points: MapPoint[] = [];
   if (data?.origin_lat != null && data.origin_lng != null) {
-    points.push({ lat: data.origin_lat, lng: data.origin_lng, label: "Local do cliente", kind: "client" });
+    points.push({
+      lat: data.origin_lat,
+      lng: data.origin_lng,
+      label: "Local do cliente",
+      kind: "client",
+    });
   }
   if (data?.driver?.last_lat != null && data.driver.last_lng != null) {
     points.push({
@@ -67,18 +72,27 @@ function TrackingPage() {
     });
   }
 
-  const distanceKm =
-    points.length === 2 ? haversineKm(points[0]!, points[1]!) : null;
+  const distanceKm = points.length === 2 ? haversineKm(points[0]!, points[1]!) : null;
   const etaMin = distanceKm != null ? Math.max(2, Math.round((distanceKm / 30) * 60)) : null;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-5">
-          <Link to="/" className="interactive min-w-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <Link
+            to="/"
+            className="interactive min-w-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
             <Logo />
           </Link>
-          <Button className="shrink-0" variant="ghost" size="sm" onClick={() => refetch()} disabled={isFetching} loading={isFetching}>
+          <Button
+            className="shrink-0"
+            variant="ghost"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            loading={isFetching}
+          >
             {!isFetching ? <RefreshCw className="size-4" /> : null}
             {isFetching ? "Atualizando..." : "Atualizar"}
           </Button>
@@ -94,8 +108,15 @@ function TrackingPage() {
         ) : isError ? (
           <div className="surface surface-elevated p-8 text-center">
             <p className="font-medium text-foreground">Não foi possível consultar agora</p>
-            <p className="mt-1 text-sm text-muted-foreground">Tente novamente em alguns segundos.</p>
-            <Button className="mt-4" onClick={() => refetch()} loading={isFetching} disabled={isFetching}>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Tente novamente em alguns segundos.
+            </p>
+            <Button
+              className="mt-4"
+              onClick={() => refetch()}
+              loading={isFetching}
+              disabled={isFetching}
+            >
               {isFetching ? "Atualizando..." : "Tentar novamente"}
             </Button>
           </div>
@@ -226,7 +247,11 @@ function TrackingPage() {
                             }`}
                           />
                           <div className="flex-1 text-sm">
-                            <p className={done ? "font-medium text-foreground" : "text-muted-foreground"}>
+                            <p
+                              className={
+                                done ? "font-medium text-foreground" : "text-muted-foreground"
+                              }
+                            >
                               {STATUS_LABEL[step]}
                             </p>
                             {done ? (

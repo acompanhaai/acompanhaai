@@ -40,19 +40,26 @@ function CheckoutPage() {
   const { plan: planParam } = Route.useSearch();
   const navigate = useNavigate();
   const { openCheckout, loading } = usePaddleCheckout();
-  const [user, setUser] = useState<{ id: string; email?: string | undefined; company?: string | undefined } | null>(null);
+  const [user, setUser] = useState<{
+    id: string;
+    email?: string | undefined;
+    company?: string | undefined;
+  } | null>(null);
   const [checkingUser, setCheckingUser] = useState(true);
   const [started, setStarted] = useState(false);
 
   const plan = planParam ? planById(planParam) : null;
-  const paidPlan =
-    plan && plan.id !== "free" ? (plan.id as "start" | "growth" | "scale") : null;
+  const paidPlan = plan && plan.id !== "free" ? (plan.id as "start" | "growth" | "scale") : null;
 
   useEffect(() => {
     async function loadCheckoutUser() {
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
-      const { data: profile } = await supabase.from("profiles").select("company").eq("id", data.user.id).maybeSingle();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("company")
+        .eq("id", data.user.id)
+        .maybeSingle();
       setUser({
         id: data.user.id,
         email: data.user.email ?? undefined,
@@ -175,8 +182,7 @@ function CheckoutPage() {
 
             <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
               <Lock className="size-3.5" aria-hidden="true" />
-              Pagamento processado em ambiente seguro. A cobrança aparece com a marca
-              AcompanhaAí.
+              Pagamento processado em ambiente seguro. A cobrança aparece com a marca AcompanhaAí.
             </p>
           </section>
 
@@ -215,7 +221,10 @@ function CheckoutHeader() {
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-4 px-5">
-        <Link to="/" className="interactive shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+        <Link
+          to="/"
+          className="interactive shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
           <Logo />
         </Link>
       </div>

@@ -104,7 +104,8 @@ export const Route = createFileRoute("/suporte/")({
       { title: "Central de Suporte — AcompanhaAí" },
       {
         name: "description",
-        content: "Encontre respostas rápidas sobre o AcompanhaAí e tire suas dúvidas com o assistente de IA.",
+        content:
+          "Encontre respostas rápidas sobre o AcompanhaAí e tire suas dúvidas com o assistente de IA.",
       },
       { property: "og:title", content: "Central de Suporte — AcompanhaAí" },
       {
@@ -127,7 +128,8 @@ function Suporte() {
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-16">
         <h1 className="text-3xl font-bold text-foreground">Central de Suporte</h1>
         <p className="mt-4 text-base text-muted-foreground">
-          Encontre respostas rápidas sobre o AcompanhaAí. Se não encontrar o que precisa, nosso assistente está disponível.
+          Encontre respostas rápidas sobre o AcompanhaAí. Se não encontrar o que precisa, nosso
+          assistente está disponível.
         </p>
 
         <section className="mt-10 space-y-4">

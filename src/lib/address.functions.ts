@@ -11,7 +11,9 @@ export type CepAddress = {
 
 /** Consulta o CEP nos Correios (ViaCEP) para validar e preencher o endereço. */
 export const lookupCep = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ cep: z.string().trim().min(8).max(10) }).parse(data))
+  .inputValidator((data: unknown) =>
+    z.object({ cep: z.string().trim().min(8).max(10) }).parse(data),
+  )
   .handler(async ({ data }): Promise<CepAddress | null> => {
     const cep = data.cep.replace(/\D/g, "");
     if (cep.length !== 8) return null;

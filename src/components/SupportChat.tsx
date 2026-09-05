@@ -132,7 +132,9 @@ export function SupportChat() {
           ))
         )}
         {loading ? (
-          <p className="text-xs text-muted-foreground">O assistente está preparando uma resposta…</p>
+          <p className="text-xs text-muted-foreground">
+            O assistente está preparando uma resposta…
+          </p>
         ) : null}
       </div>
 

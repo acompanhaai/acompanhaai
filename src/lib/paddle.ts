@@ -1,8 +1,28 @@
 import { getPaymentsClientToken, getPaymentsEnvironment } from "@/lib/payments-env";
 
+interface PaddleCheckoutOpenOptions {
+  items: { priceId: string; quantity: number }[];
+  customer?: { email: string } | undefined;
+  customData?: Record<string, unknown> | undefined;
+  settings?: {
+    displayMode?: "overlay" | "inline";
+    frameTarget?: string | undefined;
+    frameStyle?: string | undefined;
+    successUrl?: string;
+    allowLogout?: boolean;
+    variant?: "one-page" | "multi-page";
+  };
+}
+
+interface PaddleJsSdk {
+  Environment: { set(environment: "sandbox" | "production"): void };
+  Initialize(options: { token: string }): void;
+  Checkout: { open(options: PaddleCheckoutOpenOptions): void };
+}
+
 declare global {
   interface Window {
-    Paddle: any;
+    Paddle: PaddleJsSdk;
   }
 }
 
@@ -21,8 +41,7 @@ export async function initializePaddle() {
     const script = document.createElement("script");
     script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
     script.onload = () => {
-      const paddleJsEnvironment =
-        getPaddleEnvironment() === "sandbox" ? "sandbox" : "production";
+      const paddleJsEnvironment = getPaddleEnvironment() === "sandbox" ? "sandbox" : "production";
       window.Paddle.Environment.set(paddleJsEnvironment);
       window.Paddle.Initialize({ token: clientToken });
       paddleInitialized = true;

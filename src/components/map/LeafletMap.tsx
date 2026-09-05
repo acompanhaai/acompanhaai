@@ -75,11 +75,7 @@ export default function LeafletMap({
 
   // Trajeto percorrido (quando houver) seguido da ligação estimada até o cliente.
   const route: Array<[number, number]> = [
-    ...(isRealTrail
-      ? cleanTrail
-      : driver
-        ? [[driver.lat, driver.lng] as [number, number]]
-        : []),
+    ...(isRealTrail ? cleanTrail : driver ? [[driver.lat, driver.lng] as [number, number]] : []),
     ...(client ? [[client.lat, client.lng] as [number, number]] : []),
   ];
 

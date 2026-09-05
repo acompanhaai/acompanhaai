@@ -204,15 +204,21 @@ function Privacidade() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-16">
         <h1 className="text-3xl font-bold text-foreground">Política de Privacidade</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Última atualização: 01 de setembro de 2026</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Última atualização: 01 de setembro de 2026
+        </p>
 
         <div className="mt-10 space-y-8">
           <section>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              A presente Política de Privacidade explica como o <strong className="text-foreground">AcompanhaAí</strong> realiza o tratamento de dados pessoais no contexto de seus sites, sistemas, aplicações e serviços.
+              A presente Política de Privacidade explica como o{" "}
+              <strong className="text-foreground">AcompanhaAí</strong> realiza o tratamento de dados
+              pessoais no contexto de seus sites, sistemas, aplicações e serviços.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              O objetivo deste documento é apresentar de forma clara quais informações podem ser tratadas, para quais finalidades podem ser utilizadas, com quem podem ser compartilhadas e quais são os direitos dos titulares.
+              O objetivo deste documento é apresentar de forma clara quais informações podem ser
+              tratadas, para quais finalidades podem ser utilizadas, com quem podem ser
+              compartilhadas e quais são os direitos dos titulares.
             </p>
           </section>
 
@@ -229,7 +235,9 @@ function Privacidade() {
 
           <section className="border-t border-border pt-8">
             <p className="text-sm font-semibold text-foreground">AcompanhaAí</p>
-            <p className="mt-1 text-sm text-muted-foreground">Software para acompanhamento e gestão de solicitações.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Software para acompanhamento e gestão de solicitações.
+            </p>
           </section>
         </div>
       </main>

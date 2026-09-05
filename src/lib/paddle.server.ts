@@ -1,4 +1,9 @@
 import { Environment, Paddle, EventName } from "@paddle/paddle-node-sdk";
+import type {
+  SubscriptionCreatedNotification,
+  SubscriptionNotification,
+  TransactionNotification,
+} from "@paddle/paddle-node-sdk";
 
 const getEnv = (key: string): string => {
   const value = process.env[key];
@@ -7,6 +12,7 @@ const getEnv = (key: string): string => {
 };
 
 export { EventName };
+export type { SubscriptionCreatedNotification, SubscriptionNotification, TransactionNotification };
 
 export type PaddleEnv = "sandbox" | "live";
 

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 import { planById, type PlanId } from "@/config/plans";
 import { PLAN_TO_PRICE } from "@/lib/plan";
 import { getPaymentsEnvironment } from "@/lib/payments-env";
@@ -14,7 +16,10 @@ const paidPlanInput = z.object({
   plan: z.enum(["start", "growth", "scale"]),
 });
 
-async function getSubscription(context: { supabase: any; userId: string }, environment: PaddleEnv) {
+async function getSubscription(
+  context: { supabase: SupabaseClient<Database>; userId: string },
+  environment: PaddleEnv,
+) {
   const { data, error } = await context.supabase
     .from("subscriptions")
     .select("paddle_customer_id, paddle_subscription_id, environment, status, product_id, price_id")
@@ -37,10 +42,9 @@ export const createCustomerPortalSession = createServerFn({ method: "POST" })
 
     const { getPaddleClient } = await import("@/lib/paddle.server");
     const paddle = getPaddleClient(subscription.environment as PaddleEnv);
-    const session = await paddle.customerPortalSessions.create(
-      subscription.paddle_customer_id,
-      [subscription.paddle_subscription_id],
-    );
+    const session = await paddle.customerPortalSessions.create(subscription.paddle_customer_id, [
+      subscription.paddle_subscription_id,
+    ]);
 
     return { url: session.urls.general.overview };
   });
@@ -89,10 +93,9 @@ export const cancelSubscription = createServerFn({ method: "POST" })
     if (subscription.status === "canceled") throw new Error("O cancelamento já está agendado.");
 
     const { getPaddleClient } = await import("@/lib/paddle.server");
-    await getPaddleClient(environment).subscriptions.cancel(
-      subscription.paddle_subscription_id,
-      { effectiveFrom: "next_billing_period" },
-    );
+    await getPaddleClient(environment).subscriptions.cancel(subscription.paddle_subscription_id, {
+      effectiveFrom: "next_billing_period",
+    });
 
     return { scheduled: true };
   });

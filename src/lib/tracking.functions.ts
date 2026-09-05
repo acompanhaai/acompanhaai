@@ -130,7 +130,9 @@ export type TrackingMessage = {
 
 /** Mensagens do chat entre segurado e motorista de um protocolo. */
 export const getTrackingMessages = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ query: z.string().trim().min(3).max(40) }).parse(data))
+  .inputValidator((data: unknown) =>
+    z.object({ query: z.string().trim().min(3).max(40) }).parse(data),
+  )
   .handler(async ({ data }): Promise<TrackingMessage[]> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveProtocolId } = await import("./tracking.server");
