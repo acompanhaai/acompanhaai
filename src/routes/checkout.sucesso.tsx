@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,11 +24,19 @@ export const Route = createFileRoute("/checkout/sucesso")({
 
 function CheckoutSuccess() {
   const fetchPlan = useServerFn(getAccountPlan);
+  const [startedAt] = useState(() => Date.now());
+  const [timedOut, setTimedOut] = useState(false);
   const plan = useQuery({
     queryKey: ["account-plan"],
     queryFn: () => fetchPlan({}),
-    refetchInterval: (query) =>
-      query.state.data && query.state.data.planId !== "free" ? false : 4000,
+    refetchInterval: (query) => {
+      if (query.state.data && query.state.data.planId !== "free") return false;
+      if (Date.now() - startedAt > 120_000) {
+        setTimedOut(true);
+        return false;
+      }
+      return 4000;
+    },
   });
 
   const confirmed = !!plan.data && plan.data.planId !== "free";
@@ -52,7 +61,9 @@ function CheckoutSuccess() {
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {confirmed && plan.data
               ? `Sua assinatura ${plan.data.planName} está ativa com ${formatRequests(plan.data.limit)} solicitações por mês.`
-              : "O checkout foi concluído. Seu plano será ativado automaticamente assim que o pagamento for confirmado pelo provedor."}
+              : timedOut
+                ? "A confirmação do pagamento está demorando mais do que o normal. Seu plano é ativado automaticamente assim que o provedor confirmar a cobrança — você pode conferir na página de plano."
+                : "O checkout foi concluído. Seu plano será ativado automaticamente assim que o pagamento for confirmado pelo provedor."}
           </p>
           <p className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5" aria-hidden="true" />
