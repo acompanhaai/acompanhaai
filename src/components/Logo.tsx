@@ -1,4 +1,4 @@
-import icone from "@/assets/icone.png.asset.json";
+import { LogoIcon } from "@/components/LogoIcon";
 import { cn } from "@/lib/utils";
 
 export function Logo({
@@ -12,7 +12,7 @@ export function Logo({
 }) {
   return (
     <span className={cn("inline-flex min-w-0 max-w-full items-center gap-2", className)}>
-      <img src={icone.url} alt="AcompanhaAí" width={size} height={size} className="shrink-0" />
+      <LogoIcon size={size} className="shrink-0" />
       {withText ? (
         <span className="truncate text-lg font-extrabold tracking-tight text-foreground">
           AcompanhaAí
