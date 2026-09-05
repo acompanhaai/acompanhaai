@@ -138,9 +138,11 @@ UPDATE public.protocol_events e SET company_id = p.company_id
 FROM public.protocols p WHERE p.id = e.protocol_id AND e.company_id IS NULL;
 UPDATE public.messages m SET company_id = p.company_id
 FROM public.protocols p WHERE p.id = m.protocol_id AND m.company_id IS NULL;
-UPDATE public.location_history l SET company_id = COALESCE(p.company_id, dr.company_id)
-FROM public.protocols p FULL JOIN public.drivers dr ON dr.id = l.driver_id
-WHERE (p.id = l.protocol_id OR l.protocol_id IS NULL) AND l.company_id IS NULL;
+UPDATE public.location_history l SET company_id = COALESCE(
+  (SELECT p.company_id FROM public.protocols p WHERE p.id = l.protocol_id),
+  (SELECT d.company_id FROM public.drivers d WHERE d.id = l.driver_id)
+)
+WHERE l.company_id IS NULL;
 
 CREATE OR REPLACE FUNCTION public.set_company_id_from_protocol()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
