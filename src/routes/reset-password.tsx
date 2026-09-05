@@ -2,10 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { passwordSchema } from "@/lib/password";
 import { resolveHomePath } from "@/lib/session";
 
 export const Route = createFileRoute("/reset-password")({
@@ -23,15 +25,17 @@ export const Route = createFileRoute("/reset-password")({
 function ResetPassword() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState("");
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const password = String(form.get("password") ?? "");
-    if (password.length < 8) {
-      toast.error("A senha precisa ter ao menos 8 caracteres");
+    const parsed = passwordSchema.safeParse(String(form.get("password") ?? ""));
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Senha inválida");
       return;
     }
+    const password = parsed.data;
     if (password !== String(form.get("confirm") ?? "")) {
       toast.error("As senhas não conferem");
       return;
@@ -65,7 +69,18 @@ function ResetPassword() {
           <h1 className="text-xl font-bold text-foreground">Definir nova senha</h1>
           <div className="space-y-2">
             <Label htmlFor="password">Nova senha</Label>
-            <Input id="password" name="password" type="password" required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Mínimo de 8 caracteres, com pelo menos um número e um caractere especial.
+            </p>
+            <PasswordStrengthMeter password={password} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirm">Confirmar senha</Label>
