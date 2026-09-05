@@ -439,3 +439,9 @@
   }
 }
 
+/* Oculta a badge "Edit with Lovable" no preview/publicado. */
+#lovable-badge {
+  display: none !important;
+}
+
+
